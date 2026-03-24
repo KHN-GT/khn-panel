@@ -286,7 +286,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         alignItems:'center' }}>
 
         {/* RECLAMO — botones específicos */}
-        {isClaim && !isResolved && (
+        {isClaim && (
           <>
             {claimLink && (
               <a href={claimLink} target="_blank" rel="noopener noreferrer"
