@@ -13,7 +13,6 @@ const CONF = {
   fuera_horario: { label: 'FUERA HORARIO', color: 'var(--text3)', bg: 'var(--surface2)',     br: 'var(--border)' },
 }
 
-// Navegador asignado a cada cuenta — ajustar si cambia
 const ACCT_BROWSER = {
   GTK: 'Chrome',
   RBN: 'Maxthon',
@@ -23,14 +22,16 @@ const ACCT_BROWSER = {
 const RAILWAY = 'https://worker-production-d575.up.railway.app'
 
 export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
-  const [editMode, setEditMode]   = useState(false)
-  const [editText, setEditText]   = useState('')
-  const [corrMode, setCorrMode]   = useState(false)
-  const [corrText, setCorrText]   = useState('')
-  const [sending, setSending]     = useState(false)
-  const [success, setSuccess]     = useState('')
-  const [copied, setCopied]       = useState(false)
-  const threadRef                 = useRef(null)
+  const [editMode, setEditMode]       = useState(false)
+  const [editText, setEditText]       = useState('')
+  const [corrMode, setCorrMode]       = useState(false)
+  const [corrText, setCorrText]       = useState('')
+  const [sending, setSending]         = useState(false)
+  const [success, setSuccess]         = useState('')
+  const [copied, setCopied]           = useState(false)
+  const [contexto, setContexto]       = useState([])
+  const [loadingCtx, setLoadingCtx]   = useState(false)
+  const threadRef                     = useRef(null)
 
   useEffect(() => {
     setEditMode(false)
@@ -39,6 +40,24 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setCorrText('')
     setSuccess('')
     setCopied(false)
+    setContexto([])
+
+    // Cargar mensajes de post-venta del mismo orden_id si es un reclamo
+    if (item?.id && item?.orden_id && (item?.tipo === 'RECLAMO' || item?.tipo === 'reclamo' || item?.claim_id)) {
+      setLoadingCtx(true)
+      const token = localStorage.getItem('khn_token')
+      fetch(`${RAILWAY}/api/inbox?orden_id=${item.orden_id}&tipo=POST-VENTA`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(r => r.ok ? r.json() : [])
+        .then(data => {
+          const otros = Array.isArray(data) ? data.filter(m => m.id !== item.id) : []
+          setContexto(otros)
+        })
+        .catch(() => setContexto([]))
+        .finally(() => setLoadingCtx(false))
+    }
+
     setTimeout(() => {
       if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight
     }, 50)
@@ -58,17 +77,11 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const isClaim    = item.tipo === 'RECLAMO' || item.tipo === 'reclamo' || !!item.claim_id || item.canal === 'reclamos'
   const isResolved = ['resuelto','descartado'].includes(item.estado)
   const browser    = ACCT_BROWSER[item.cuenta] || item.cuenta
+  const numeroCopia = item.orden_id || item.claim_id || null
 
-  // URL correcta según patrón real de ML
-  const claimLink = item.claim_id && item.orden_id
-    ? `https://www.mercadolibre.com.mx/ventas/nueva/mensajeria/${item.orden_id}/mediacion/${item.claim_id}`
-    : item.orden_id
-    ? `https://www.mercadolibre.com.mx/ventas/${item.orden_id}/detalle`
-    : null
-
-  const handleCopyLink = () => {
-    if (!claimLink) return
-    navigator.clipboard.writeText(claimLink).then(() => {
+  const handleCopyNumero = () => {
+    if (!numeroCopia) return
+    navigator.clipboard.writeText(numeroCopia).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2500)
     })
@@ -189,29 +202,54 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             <ClaimTimer segundosIniciales={item.timer_segundos} />
           </div>
         )}
-
-        {/* Banner de navegador — solo para reclamos */}
-        {isClaim && claimLink && (
-          <div style={{ marginTop:10, padding:'8px 12px', borderRadius:'var(--radius-sm)',
-            background: ac.bg, border:`1.5px solid ${ac.br}`,
-            display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, flexWrap:'wrap' }}>
-            <span style={{ fontSize:12, fontWeight:600, color: ac.color }}>
-              🌐 Abre en <strong>{browser}</strong> · cuenta {item.cuenta}
-            </span>
-            <button onClick={handleCopyLink} style={{
-              fontSize:11, fontWeight:700, padding:'5px 12px',
-              borderRadius:'var(--radius-sm)', border:`1.5px solid ${ac.br}`,
-              background: copied ? 'var(--green)' : ac.color,
-              color:'#fff', cursor:'pointer', transition:'all .2s', flexShrink:0 }}>
-              {copied ? '✓ Link copiado' : '📋 Copiar link'}
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Hilo de conversación */}
       <div ref={threadRef} style={{ flex:1, overflowY:'auto', padding:'14px',
         display:'flex', flexDirection:'column', gap:10 }}>
+
+        {/* Mensajes de post-venta previos como contexto */}
+        {isClaim && contexto.length > 0 && (
+          <>
+            <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--text3)',
+              padding:'4px 0', borderBottom:'1px dashed var(--border)', marginBottom:4 }}>
+              📋 Mensajes previos de post-venta — misma orden
+            </div>
+            {contexto.map((msg, i) => {
+              const hiloCtx = Array.isArray(msg.hilo_json) ? msg.hilo_json : []
+              return hiloCtx.map((m, j) => {
+                const isBot = m.from === 'seller'
+                return (
+                  <div key={`ctx-${i}-${j}`} style={{ display:'flex', flexDirection:'column',
+                    alignItems: isBot ? 'flex-end' : 'flex-start', opacity: 0.75 }}>
+                    <div style={{ maxWidth:'80%', padding:'8px 12px', borderRadius:10,
+                      fontSize:12, lineHeight:1.5, color:'var(--text2)',
+                      background: isBot ? '#f0f2ff' : 'var(--surface2)',
+                      border:'1px solid var(--border)' }}>
+                      {m.text}
+                    </div>
+                    <div style={{ fontSize:10, color:'var(--text3)', marginTop:2, paddingLeft:4, paddingRight:4 }}>
+                      {isBot ? (msg.cuenta || 'Seller') : (msg.comprador || 'Comprador')}
+                      {m.date && <> · {new Date(m.date).toLocaleString('es-MX', { dateStyle:'short', timeStyle:'short' })}</>}
+                    </div>
+                  </div>
+                )
+              })
+            })}
+            <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--red)',
+              padding:'4px 0', borderBottom:'1px dashed var(--red-border)', marginBottom:4 }}>
+              🚨 Inicio del reclamo
+            </div>
+          </>
+        )}
+
+        {loadingCtx && isClaim && (
+          <div style={{ textAlign:'center', fontSize:11, color:'var(--text3)', padding:'8px 0' }}>
+            Cargando contexto...
+          </div>
+        )}
+
+        {/* Hilo del reclamo */}
         {hilo.map((msg, i) => {
           const isBot = msg.from === 'seller'
           return (
@@ -231,7 +269,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           )
         })}
 
-        {/* Respuesta final enviada */}
         {isResolved && item.respuesta_final && (
           <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end' }}>
             <div style={{ maxWidth:'80%', padding:'10px 14px', borderRadius:12,
@@ -323,15 +360,15 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         {/* RECLAMO — botones específicos */}
         {isClaim && (
           <>
-            {claimLink && (
-              <a href={claimLink} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize:12, fontWeight:700, padding:'9px 18px',
-                  borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)',
-                  background:'var(--red)', color:'#fff', cursor:'pointer',
-                  textDecoration:'none', display:'inline-flex', alignItems:'center', gap:6 }}>
-                🔗 Ver reclamo en ML
-              </a>
-            )}
+            {/* Ver reclamo en ML = copia el número de orden */}
+            <button onClick={handleCopyNumero} disabled={!numeroCopia}
+              style={{ fontSize:12, fontWeight:700, padding:'9px 18px',
+                borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)',
+                background: copied ? 'var(--green)' : 'var(--red)',
+                color:'#fff', cursor:'pointer', transition:'background .2s',
+                display:'inline-flex', alignItems:'center', gap:6 }}>
+              {copied ? '✓ Número copiado' : '🔗 Ver reclamo en ML'}
+            </button>
             <button onClick={handleMarkResolved} disabled={sending}
               style={{ fontSize:12, fontWeight:700, padding:'9px 18px',
                 borderRadius:'var(--radius-sm)', border:'1.5px solid var(--green-border)',
