@@ -47,10 +47,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const ac       = ACCT[item.cuenta] || ACCT.GTK
   const cf       = CONF[item.confianza] || CONF.alta
 
-  // DEBUG — ver qué llega realmente
-  console.log('ITEM DEBUG tipo:', JSON.stringify(item.tipo), '| estado:', JSON.stringify(item.estado), '| canal:', JSON.stringify(item.canal))
-
-  const isClaim  = item.tipo === 'RECLAMO'
+  const isClaim  = item.tipo === 'RECLAMO' || item.tipo === 'reclamo' || !!item.claim_id || item.canal === 'reclamos'
   const isResolved = ['resuelto','descartado'].includes(item.estado)
 
   // Link al reclamo en ML
