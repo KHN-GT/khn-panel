@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 const RAILWAY = "https://worker-production-d575.up.railway.app"
 const s = {
   wrap:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg)"},
@@ -18,17 +18,18 @@ export default function Login({ onLogin }) {
   const [loading, setLoading] = useState(false)
   const submit = async e => {
     e.preventDefault()
-    if (!username || !password) { setError("Ingresa usuario y contraseña"); return }
+    if (!username || !password) { setError("Ingresa usuario y contrasena"); return }
     setLoading(true); setError("")
     try {
-      const resp = await fetch(`${RAILWAY}/api/auth/login`, {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({username, password}),
+      const resp = await fetch(RAILWAY + "/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
       })
       const data = await resp.json()
       if (!resp.ok || !data.token) { setError(data.error || "Error de acceso"); return }
       localStorage.setItem("khn_token", data.token)
-      localStorage.setItem("khn_user", JSON.stringify({nombre:data.nombre,rol:data.rol,cuentas:data.cuentas}))
+      localStorage.setItem("khn_user", JSON.stringify({ nombre: data.nombre, rol: data.rol, cuentas: data.cuentas }))
       onLogin?.()
     } catch(err) { setError("Error de conexion") } finally { setLoading(false) }
   }
@@ -42,8 +43,8 @@ export default function Login({ onLogin }) {
         <label style={s.label}>Contrasena</label>
         <input style={s.input} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="..." />
         {error && <div style={s.err}>{error}</div>}
-        <button type="submit" style={{...s.btn,opacity:loading?0.7:1}} disabled={loading}>
-          {loading?"Entrando...":"Entrar al panel"}
+        <button type="submit" style={{...s.btn, opacity:loading?0.7:1}} disabled={loading}>
+          {loading ? "Entrando..." : "Entrar al panel"}
         </button>
       </form>
     </div></div>
