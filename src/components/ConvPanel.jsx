@@ -46,6 +46,10 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
   const ac       = ACCT[item.cuenta] || ACCT.GTK
   const cf       = CONF[item.confianza] || CONF.alta
+
+  // DEBUG — ver qué llega realmente
+  console.log('ITEM DEBUG tipo:', JSON.stringify(item.tipo), '| estado:', JSON.stringify(item.estado), '| canal:', JSON.stringify(item.canal))
+
   const isClaim  = item.tipo === 'RECLAMO'
   const isResolved = ['resuelto','descartado'].includes(item.estado)
 
@@ -166,48 +170,39 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         {isClaim && item.timer_segundos != null && (
           <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:8,
             background:'var(--red-light)', border:'1px solid var(--red-border)',
-            borderRadius:6, padding:'5px 10px', width:'fit-content' }}>
-            <span style={{ fontSize:11, fontWeight:700, color:'var(--red)' }}>Tiempo abierto:</span>
-            <ClaimTimer timerSegundos={item.timer_segundos} />
+            borderRadius:'var(--radius-sm)', padding:'6px 10px' }}>
+            <span style={{ fontSize:11, fontWeight:600, color:'var(--red)' }}>Tiempo abierto:</span>
+            <ClaimTimer segundosIniciales={item.timer_segundos} />
           </div>
         )}
       </div>
 
-      {/* Hilo */}
-      <div ref={threadRef} style={{ flex:1, overflowY:'auto', padding:16,
+      {/* Hilo de conversación */}
+      <div ref={threadRef} style={{ flex:1, overflowY:'auto', padding:'14px',
         display:'flex', flexDirection:'column', gap:10 }}>
-
-        <div style={{ alignSelf:'flex-start', maxWidth:'80%' }}>
-          <div style={{ padding:'10px 14px', borderRadius:'4px 12px 12px 12px',
-            background: isClaim ? 'var(--red-light)' : 'var(--surface)',
-            border: `1px solid ${isClaim ? 'var(--red-border)' : 'var(--border)'}`,
-            fontSize:13, lineHeight:1.55, color:'var(--text)', boxShadow:'var(--shadow)' }}>
-            {item.mensaje_cliente}
-          </div>
-          <div style={{ fontSize:10, color:'var(--text3)', marginTop:3, paddingLeft:4 }}>
-            {item.comprador}
-          </div>
-        </div>
-
-        {hilo.filter(m => m.t !== item.mensaje_cliente).map((m, i) => (
-          <div key={i} style={{ alignSelf: m.r === 's' ? 'flex-end' : 'flex-start', maxWidth:'80%' }}>
-            <div style={{ padding:'10px 14px', fontSize:13, lineHeight:1.55,
-              borderRadius: m.r === 's' ? '12px 4px 12px 12px' : '4px 12px 12px 12px',
-              background: m.r === 's' ? 'var(--blue-light)' : 'var(--surface)',
-              border: `1px solid ${m.r === 's' ? 'var(--blue-border)' : 'var(--border)'}`,
-              color:'var(--text)' }}>
-              {m.t}
+        {hilo.map((msg, i) => {
+          const isBot = msg.from === 'seller'
+          return (
+            <div key={i} style={{ display:'flex', flexDirection:'column',
+              alignItems: isBot ? 'flex-end' : 'flex-start' }}>
+              <div style={{ maxWidth:'80%', padding:'10px 14px', borderRadius:12,
+                fontSize:13, lineHeight:1.55, color:'var(--text)',
+                background: isBot ? 'var(--purple-light)' : isClaim ? 'var(--red-light)' : 'var(--surface)',
+                border: `1px solid ${isBot ? 'var(--purple-border)' : isClaim ? 'var(--red-border)' : 'var(--border)'}` }}>
+                {msg.text}
+              </div>
+              <div style={{ fontSize:10, color:'var(--text3)', marginTop:3, paddingLeft:4, paddingRight:4 }}>
+                {isBot ? (item.cuenta || 'Seller') : (item.comprador || 'Comprador')}
+                {msg.date && <> · {new Date(msg.date).toLocaleString('es-MX', { dateStyle:'short', timeStyle:'short' })}</>}
+              </div>
             </div>
-            <div style={{ fontSize:10, color:'var(--text3)', marginTop:3,
-              paddingLeft:4, textAlign: m.r === 's' ? 'right' : 'left' }}>
-              {m.r === 's' ? 'Tú' : item.comprador}
-            </div>
-          </div>
-        ))}
+          )
+        })}
 
+        {/* Respuesta final enviada */}
         {isResolved && item.respuesta_final && (
-          <div style={{ alignSelf:'flex-end', maxWidth:'80%' }}>
-            <div style={{ padding:'10px 14px', borderRadius:'12px 4px 12px 12px',
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end' }}>
+            <div style={{ maxWidth:'80%', padding:'10px 14px', borderRadius:12,
               background:'var(--green-light)', border:'1px solid var(--green-border)',
               fontSize:13, lineHeight:1.55, color:'var(--text)' }}>
               {item.respuesta_final}
