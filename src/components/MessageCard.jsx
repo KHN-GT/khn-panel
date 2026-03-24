@@ -6,23 +6,21 @@ const ACCT = {
   GDP: { color: 'var(--acct-gdp)', bg: 'var(--acct-gdp-bg)', br: 'var(--acct-gdp-br)' },
 }
 const CONF = {
-  alta:          { color: 'var(--green)',  dot: '#059669' },
-  media:         { color: 'var(--amber)',  dot: '#d97706' },
-  baja:          { color: 'var(--red)',    dot: '#e53e3e' },
-  fuera_horario: { color: 'var(--text3)',  dot: '#9aa0b8' },
+  alta:          { dot: '#059669' },
+  media:         { dot: '#d97706' },
+  baja:          { dot: '#e53e3e' },
+  fuera_horario: { dot: '#9aa0b8' },
 }
 
 export default function MessageCard({ item, selected, onClick }) {
-  const ac   = ACCT[item.cuenta] || ACCT.GTK
-  const cf   = CONF[item.confianza] || CONF.alta
+  const ac      = ACCT[item.cuenta] || ACCT.GTK
+  const cf      = CONF[item.confianza] || CONF.alta
   const isClaim = item.tipo === 'RECLAMO'
 
   return (
-    <div
-      onClick={onClick}
-      className="animate-in"
+    <div onClick={onClick} className="animate-in"
       style={{
-        padding: '10px 12px',
+        padding: '12px 14px',
         borderRadius: 'var(--radius)',
         border: `1.5px solid ${isClaim
           ? (selected ? 'var(--red)' : 'var(--red-border)')
@@ -30,60 +28,44 @@ export default function MessageCard({ item, selected, onClick }) {
         background: isClaim
           ? (selected ? '#fef2f2' : 'var(--red-light)')
           : (selected ? 'var(--purple-light)' : 'var(--surface)'),
-        cursor: 'pointer',
-        marginBottom: 4,
-        transition: 'all .15s',
+        cursor: 'pointer', marginBottom: 6, transition: 'all .15s',
         boxShadow: selected ? 'var(--shadow)' : 'none',
-      }}
-    >
+      }}>
+
       {/* Fila superior: nombre + badge cuenta */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-        {!isClaim && (
-          <span style={{
-            width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
-            background: cf.dot,
-          }} />
-        )}
-        {isClaim && (
-          <span style={{
-            width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
-            background: 'var(--red)', animation: 'pulse 1s infinite',
-          }} />
-        )}
+      <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:4 }}>
         <span style={{
-          fontSize: 12, fontWeight: 600, color: 'var(--text)',
-          flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        }}>
+          width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+          background: isClaim ? 'var(--red)' : cf.dot,
+          animation: isClaim ? 'pulse 1s infinite' : 'none',
+        }} />
+        <span style={{ fontSize:13, fontWeight:700, color:'var(--text)',
+          flex:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
           {item.comprador || 'Comprador'}
         </span>
-        <span style={{
-          fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
-          background: ac.bg, color: ac.color, border: `1px solid ${ac.br}`,
-          letterSpacing: '.04em', flexShrink: 0,
-        }}>
+        <span style={{ fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:5,
+          background:ac.bg, color:ac.color, border:`1px solid ${ac.br}`, flexShrink:0 }}>
           {item.cuenta}
         </span>
       </div>
 
       {/* Producto */}
-      <div style={{
-        fontSize: 11, color: 'var(--text2)', marginBottom: 2,
-        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-      }}>
-        {item.producto || item.sku || 'Sin producto'}
+      {(item.producto || item.sku) && (
+        <div style={{ fontSize:12, color:'var(--text2)', marginBottom:3,
+          whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+          {item.producto || item.sku}
+        </div>
+      )}
+
+      {/* Preview */}
+      <div style={{ fontSize:12, color:'var(--text3)',
+        whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+        {item.mensaje_cliente?.slice(0, 70) || '—'}
       </div>
 
-      {/* Preview del mensaje */}
-      <div style={{
-        fontSize: 11, color: 'var(--text3)',
-        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-      }}>
-        {item.mensaje_cliente?.slice(0, 60) || '—'}
-      </div>
-
-      {/* Timer de reclamo */}
+      {/* Timer reclamo */}
       {isClaim && item.timer_segundos != null && (
-        <ClaimTimer timerSegundos={item.timer_segundos} style={{ marginTop: 5 }} />
+        <ClaimTimer timerSegundos={item.timer_segundos} style={{ marginTop:6 }} />
       )}
     </div>
   )
