@@ -1,4 +1,3 @@
-// build: 20260325150740
 import { useState, useEffect } from 'react'
 
 const RAILWAY = 'https://worker-production-d575.up.railway.app'
@@ -472,4 +471,3 @@ export default function Config({ onBack }) {
     </div>
   )
 }
-
