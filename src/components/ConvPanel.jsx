@@ -59,8 +59,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         .then(r => r.ok ? r.json() : { items: [] })
         .then(data => {
           const todos = Array.isArray(data?.items) ? data.items : []
+          const fechaActual = new Date(item.creado_en)
           const previos = todos
-            .filter(m => m.id !== item.id)
+            .filter(m => m.id !== item.id && new Date(m.creado_en) < fechaActual)
             .sort((a, b) => new Date(a.creado_en) - new Date(b.creado_en))
           setContexto(previos)
         })
