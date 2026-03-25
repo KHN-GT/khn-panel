@@ -23,8 +23,10 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [sending,   setSending]   = useState(false)
   const [success,   setSuccess]   = useState('')
   const [copied,    setCopied]    = useState(false)
-  const [contexto,  setContexto]  = useState([])
-  const [loadingCtx,setLoadingCtx]= useState(false)
+  const [contexto,    setContexto]    = useState([])
+  const [loadingCtx,  setLoadingCtx]  = useState(false)
+  const [ordenData,   setOrdenData]   = useState(null)
+  const [loadingOrden,setLoadingOrden]= useState(false)
   const threadRef = useRef(null)
 
   useEffect(() => {
@@ -34,6 +36,19 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setSuccess(''); setCopied(false); setContexto([])
 
     const token = localStorage.getItem('khn_token')
+    setOrdenData(null)
+
+    // Post-venta: cargar detalles de la orden en vivo
+    if (item?.tipo === 'POST-VENTA' && item?.id) {
+      setLoadingOrden(true)
+      fetch(`${RAILWAY}/api/inbox/${item.id}/orden`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => { if (data && !data.error) setOrdenData(data) })
+        .catch(() => {})
+        .finally(() => setLoadingOrden(false))
+    }
 
     // Reclamos: contexto post-venta del mismo orden
     if (item?.id && item?.orden_id && (item?.tipo === 'RECLAMO' || item?.tipo === 'reclamo' || item?.claim_id)) {
@@ -162,6 +177,29 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     )
   }
 
+  const isPostVenta = item.tipo === 'POST-VENTA'
+
+  // Helpers de formato
+  const fmtPeso = (n) => n ? `$${Number(n).toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN` : null
+  const fmtFecha = (s) => {
+    if (!s) return null
+    try { return new Date(s).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' }) }
+    catch { return s }
+  }
+  const ESTADO_ENVIO = {
+    shipped:    { label:'Enviado',     color:'var(--blue)',   bg:'var(--blue-light)'   },
+    delivered:  { label:'Entregado',   color:'var(--green)',  bg:'var(--green-light)'  },
+    ready_to_ship:{ label:'Listo envío',color:'var(--amber)', bg:'var(--amber-light)'  },
+    pending:    { label:'Pendiente',   color:'var(--amber)',  bg:'var(--amber-light)'  },
+    cancelled:  { label:'Cancelado',   color:'var(--red)',    bg:'var(--red-light)'    },
+  }
+  const ESTADO_ORDEN = {
+    paid:       { label:'Pagada',      color:'var(--green)',  bg:'var(--green-light)'  },
+    confirmed:  { label:'Confirmada',  color:'var(--blue)',   bg:'var(--blue-light)'   },
+    cancelled:  { label:'Cancelada',   color:'var(--red)',    bg:'var(--red-light)'    },
+    pending:    { label:'Pendiente',   color:'var(--amber)',  bg:'var(--amber-light)'  },
+  }
+
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
 
@@ -233,6 +271,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         )}
       </div>
 
+      {/* ── Contenido principal: hilo + sidebar orden */}
+      <div style={{ flex:1, display:'flex', overflow:'hidden' }}>
+
       {/* ── Hilo */}
       <div ref={threadRef} style={{ flex:1, overflowY:'auto', padding:'14px', display:'flex', flexDirection:'column', gap:10 }}>
 
@@ -295,6 +336,110 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           </div>
         )}
       </div>
+
+      {/* ── Sidebar derecho: info de la orden (solo POST-VENTA) */}
+      {isPostVenta && (
+        <div style={{ width:240, flexShrink:0, borderLeft:'1.5px solid var(--border)', overflowY:'auto', background:'var(--surface)', display:'flex', flexDirection:'column' }}>
+          {loadingOrden ? (
+            <div style={{ padding:16, fontSize:11, color:'var(--text3)', textAlign:'center' }}>Cargando orden...</div>
+          ) : ordenData ? (
+            <>
+              {/* Estado orden + envío */}
+              <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
+                <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Estado</div>
+                {(() => {
+                  const eo = ESTADO_ORDEN[ordenData.estado_orden] || { label: ordenData.estado_orden, color:'var(--text2)', bg:'var(--surface2)' }
+                  const ee = ESTADO_ENVIO[ordenData.envio_estado]  || { label: ordenData.envio_estado,  color:'var(--text2)', bg:'var(--surface2)' }
+                  return (
+                    <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                        <span style={{ fontSize:10, color:'var(--text3)', minWidth:46 }}>Orden</span>
+                        <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:eo.bg, color:eo.color }}>{eo.label}</span>
+                      </div>
+                      {ordenData.envio_estado && (
+                        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                          <span style={{ fontSize:10, color:'var(--text3)', minWidth:46 }}>Envío</span>
+                          <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:ee.bg, color:ee.color }}>{ee.label}</span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+              </div>
+
+              {/* Producto + precio */}
+              <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
+                <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Producto</div>
+                {item.imagen_thumbnail && (
+                  <img src={item.imagen_thumbnail} alt="" style={{ width:'100%', maxHeight:80, objectFit:'contain', borderRadius:6, border:'1px solid var(--border)', background:'#fff', marginBottom:8 }}
+                    onError={e => { e.target.style.display='none' }} />
+                )}
+                <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', lineHeight:1.4, marginBottom:4 }}>
+                  {ordenData.producto || item.producto || '—'}
+                </div>
+                {ordenData.variante && (
+                  <div style={{ fontSize:11, color:'var(--purple)', marginBottom:4 }}>{ordenData.variante}</div>
+                )}
+                <div style={{ fontSize:11, color:'var(--text3)', marginBottom:2 }}>SKU: {ordenData.sku || item.sku || '—'}</div>
+                <div style={{ fontSize:11, color:'var(--text3)', marginBottom:2 }}>Cant: {ordenData.cantidad || 1}</div>
+                {ordenData.total && (
+                  <div style={{ fontSize:13, fontWeight:700, color:'var(--green)', marginTop:6 }}>{fmtPeso(ordenData.total)}</div>
+                )}
+              </div>
+
+              {/* Fechas */}
+              <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
+                <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Fechas</div>
+                {[
+                  { label:'Compra',    val: fmtFecha(ordenData.fecha_compra) },
+                  { label:'Entrega est.', val: fmtFecha(ordenData.fecha_entrega_estimada) || fmtFecha(ordenData.fecha_entrega_desde) },
+                ].filter(r => r.val).map(row => (
+                  <div key={row.label} style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
+                    <span style={{ fontSize:11, color:'var(--text3)' }}>{row.label}</span>
+                    <span style={{ fontSize:11, color:'var(--text)', fontWeight:600 }}>{row.val}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Envío */}
+              {(ordenData.transportista || ordenData.tracking_number) && (
+                <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
+                  <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Envío</div>
+                  {ordenData.transportista && (
+                    <div style={{ fontSize:11, color:'var(--text2)', marginBottom:4 }}>🚚 {ordenData.transportista}</div>
+                  )}
+                  {ordenData.tracking_number && (
+                    <div style={{ fontSize:10, color:'var(--text3)', wordBreak:'break-all', marginBottom:6 }}>
+                      {ordenData.tracking_number.substring(0,20)}...
+                    </div>
+                  )}
+                  {ordenData.tracking_url && (
+                    <a href={ordenData.tracking_url} target="_blank" rel="noreferrer"
+                      style={{ fontSize:11, fontWeight:600, color:'var(--blue)', textDecoration:'none', display:'block', padding:'5px 0' }}>
+                      Ver seguimiento →
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* Comprador */}
+              <div style={{ padding:'12px 14px' }}>
+                <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Comprador</div>
+                <div style={{ fontSize:12, fontWeight:600, color:'var(--text)' }}>{ordenData.comprador || item.comprador}</div>
+                {ordenData.comprador_id && (
+                  <div style={{ fontSize:10, color:'var(--text3)', marginTop:2 }}>ID: {ordenData.comprador_id}</div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div style={{ padding:16, fontSize:11, color:'var(--text3)', textAlign:'center', lineHeight:1.6 }}>
+              Sin datos<br/>de la orden
+            </div>
+          )}
+        </div>
+      )}
+
+      </div>{/* fin flex row */}
 
       {/* ── Bloque IA */}
       {!isResolved && !isClaim && item.respuesta_ia && (
