@@ -25,8 +25,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [copied,    setCopied]    = useState(false)
   const [contexto,    setContexto]    = useState([])
   const [loadingCtx,  setLoadingCtx]  = useState(false)
-  const [ordenData,   setOrdenData]   = useState(null)
-  const [loadingOrden,setLoadingOrden]= useState(false)
+  const [ordenData,     setOrdenData]     = useState(null)
+  const [loadingOrden,  setLoadingOrden]  = useState(false)
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [templates,     setTemplates]     = useState([])
+  const [loadingTpl,    setLoadingTpl]    = useState(false)
+  const [tplBusqueda,   setTplBusqueda]   = useState('')
   const threadRef = useRef(null)
 
   useEffect(() => {
@@ -86,6 +90,28 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
     setTimeout(() => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight }, 50)
   }, [item?.id])
+
+  const loadTemplates = async () => {
+    if (templates.length > 0) { setShowTemplates(true); return }
+    setLoadingTpl(true)
+    const token = localStorage.getItem('khn_token')
+    try {
+      const r = await fetch(`${RAILWAY}/api/templates?cuenta=${item?.cuenta || ''}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const d = await r.json()
+      setTemplates(d.templates || [])
+    } catch {}
+    setLoadingTpl(false)
+    setShowTemplates(true)
+  }
+
+  const insertTemplate = (texto) => {
+    setEditText(texto)
+    setEditMode(true)
+    setShowTemplates(false)
+    setTplBusqueda('')
+  }
 
   if (!item) return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', gap:10, color:'var(--text3)' }}>
@@ -441,6 +467,69 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
       </div>{/* fin flex row */}
 
+      {/* ── Panel de Templates */}
+      {showTemplates && !isResolved && !isClaim && (
+        <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--amber-border)', borderRadius:'var(--radius)', overflow:'hidden', boxShadow:'var(--shadow-md)' }}>
+          {/* Header */}
+          <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', background:'var(--amber-light)', borderBottom:'1px solid var(--amber-border)' }}>
+            <span style={{ fontSize:11, fontWeight:700, color:'var(--amber)', flex:1 }}>📋 TEMPLATES DE RESPUESTA</span>
+            <button onClick={() => { setShowTemplates(false); setTplBusqueda('') }}
+              style={{ fontSize:14, background:'none', border:'none', cursor:'pointer', color:'var(--text3)', lineHeight:1 }}>✕</button>
+          </div>
+          {/* Buscador */}
+          <div style={{ padding:'8px 14px', borderBottom:'1px solid var(--border)' }}>
+            <input
+              value={tplBusqueda}
+              onChange={e => setTplBusqueda(e.target.value)}
+              placeholder="Buscar template..."
+              autoFocus
+              style={{ width:'100%', fontSize:12, padding:'6px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', outline:'none', color:'var(--text)', background:'var(--surface2)' }}
+            />
+          </div>
+          {/* Lista */}
+          <div style={{ maxHeight:260, overflowY:'auto' }}>
+            {loadingTpl ? (
+              <div style={{ padding:16, fontSize:12, color:'var(--text3)', textAlign:'center' }}>Cargando templates...</div>
+            ) : (() => {
+              const q = tplBusqueda.toLowerCase()
+              const filtrados = templates.filter(t =>
+                !q || t.titulo.toLowerCase().includes(q) || t.texto.toLowerCase().includes(q) || t.categoria.toLowerCase().includes(q)
+              )
+              if (filtrados.length === 0) return (
+                <div style={{ padding:16, fontSize:12, color:'var(--text3)', textAlign:'center' }}>Sin resultados</div>
+              )
+              // Agrupar por categoría
+              const porCategoria = filtrados.reduce((acc, t) => {
+                const cat = t.categoria || 'GENERAL'
+                if (!acc[cat]) acc[cat] = []
+                acc[cat].push(t)
+                return acc
+              }, {})
+              return Object.entries(porCategoria).map(([cat, items]) => (
+                <div key={cat}>
+                  <div style={{ padding:'5px 14px', fontSize:10, fontWeight:700, color:'var(--text3)', background:'var(--surface2)', textTransform:'uppercase', letterSpacing:'.05em', borderBottom:'1px solid var(--border)' }}>
+                    {cat}
+                  </div>
+                  {items.map(t => (
+                    <div key={t.id}
+                      onClick={() => insertTemplate(t.texto)}
+                      style={{ padding:'10px 14px', cursor:'pointer', borderBottom:'1px solid var(--border)', transition:'background .1s' }}
+                      onMouseEnter={e => e.currentTarget.style.background='var(--surface2)'}
+                      onMouseLeave={e => e.currentTarget.style.background='transparent'}
+                    >
+                      <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', marginBottom:3 }}>{t.titulo}</div>
+                      <div style={{ fontSize:11, color:'var(--text3)', lineHeight:1.4, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>
+                        {t.texto}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))
+            })()}
+          </div>
+        </div>
+      )}
+
       {/* ── Bloque IA */}
       {!isResolved && !isClaim && item.respuesta_ia && (
         <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--purple-border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow-md)', overflow:'hidden' }}>
@@ -518,6 +607,10 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 Enviar editado
               </button>
             )}
+            <button onClick={loadTemplates}
+              style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--amber-border)', background: showTemplates ? 'var(--amber)' : 'var(--amber-light)', color: showTemplates ? '#fff' : 'var(--amber)', cursor:'pointer' }}>
+              📋 Templates
+            </button>
             <button onClick={handleDiscard} disabled={sending}
               style={{ fontSize:12, fontWeight:600, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', background:'var(--surface)', color:'var(--text2)', cursor:'pointer' }}>
               Descartar
