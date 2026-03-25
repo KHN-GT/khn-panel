@@ -61,12 +61,12 @@ export default function Config({ onBack }) {
       const r = await fetch(`${RAILWAY}/api/templates`, { headers: authHeaders() })
       const d = await r.json()
       setTemplates(d.templates || [])
-    } catch { flash('❌ Error cargando templates') }
+    } catch { flash('Error cargando templates') }
     setLoadingTpl(false)
   }
 
   const saveTemplate = async () => {
-    if (!tplForm.titulo.trim() || !tplForm.texto.trim()) { flash('❌ Título y texto son requeridos'); return }
+    if (!tplForm.titulo.trim() || !tplForm.texto.trim()) { flash('Titulo y texto son requeridos'); return }
     setSaving(true)
     try {
       const isNew = editingTpl === 'new'
@@ -77,8 +77,8 @@ export default function Config({ onBack }) {
         setEditingTpl(null)
         setTplForm(TEMPLATE_BLANK)
         loadTemplates()
-      } else flash('❌ Error al guardar')
-    } catch { flash('❌ Error de conexión') }
+      } else { flash('Error al guardar') }
+    } catch { flash('Error de conexion') }
     setSaving(false)
   }
 
@@ -86,9 +86,9 @@ export default function Config({ onBack }) {
     if (!confirm('¿Eliminar este template?')) return
     try {
       await fetch(`${RAILWAY}/api/templates/${id}`, { method: 'DELETE', headers: authHeaders() })
-      flash('✅ Template eliminado')
+      flash('Template eliminado')
       loadTemplates()
-    } catch { flash('❌ Error al eliminar') }
+    } catch { flash('Error al eliminar') }
   }
 
   const startEdit = (tpl) => { setEditingTpl(tpl); setTplForm({ titulo:tpl.titulo, categoria:tpl.categoria, texto:tpl.texto, cuenta:tpl.cuenta, activo:tpl.activo, orden:tpl.orden }) }
@@ -103,9 +103,9 @@ export default function Config({ onBack }) {
       const r = await fetch(`${RAILWAY}/api/config/modos/${cuenta}/${canal}`, { method:'PUT', headers: authHeaders(), body: JSON.stringify(body) })
       if (r.ok) {
         setModos(prev => ({ ...prev, [cuenta]: { ...(prev[cuenta]||{}), [canal]: { ...(prev[cuenta]?.[canal]||{}), [campo]: valor } } }))
-        flash('✅ Guardado')
-      } else flash('❌ Error al guardar')
-    } catch { flash('❌ Error de conexión') }
+        flash('Guardado')
+      } else { flash('Error al guardar') }
+    } catch { flash('Error de conexion') }
     setSaving(false)
   }
 
@@ -114,8 +114,8 @@ export default function Config({ onBack }) {
     setSaving(true)
     try {
       const r = await fetch(`${RAILWAY}/api/config/horarios/${cuenta}`, { method:'PUT', headers: authHeaders(), body: JSON.stringify(horarios[cuenta] || []) })
-      if (r.ok) flash('✅ Horarios guardados') else flash('❌ Error al guardar')
-    } catch { flash('❌ Error de conexión') }
+      if (r.ok) { flash('Horarios guardados') } else { flash('Error al guardar') }
+    } catch { flash('Error de conexion') }
     setSaving(false)
   }
 
@@ -134,8 +134,8 @@ export default function Config({ onBack }) {
     setSaving(true)
     try {
       const r = await fetch(`${RAILWAY}/api/config/mensajes/${cuenta}`, { method:'PUT', headers: authHeaders(), body: JSON.stringify(mensajes[cuenta] || {}) })
-      if (r.ok) flash('✅ Mensajes guardados') else flash('❌ Error al guardar')
-    } catch { flash('❌ Error de conexión') }
+      if (r.ok) { flash('Mensajes guardados') } else { flash('Error al guardar') }
+    } catch { flash('Error de conexion') }
     setSaving(false)
   }
 
