@@ -39,6 +39,17 @@ export default function Config({ onBack }) {
   const [tplForm,       setTplForm]       = useState(TEMPLATE_BLANK)
   const [tplBusqueda,   setTplBusqueda]   = useState('')
 
+  // Compatibilidades state
+  const [compats,        setCompats]        = useState([])
+  const [loadingCompat,  setLoadingCompat]  = useState(false)
+  const [editingCompat,  setEditingCompat]  = useState(null)
+  const [compatForm,     setCompatForm]     = useState({ sku:'', modelo_impresora:'', cuenta:'TODAS', notas:'' })
+  const [compatBusqueda, setCompatBusqueda] = useState('')
+  const [csvTexto,       setCsvTexto]       = useState('')
+  const [showCsvImport,  setShowCsvImport]  = useState(false)
+  const [importando,     setImportando]     = useState(false)
+  const [importResult,   setImportResult]   = useState(null)
+
   useEffect(() => {
     Promise.all([
       fetch(`${RAILWAY}/api/config/modos`,    { headers: authHeaders() }).then(r=>r.json()),
@@ -50,6 +61,7 @@ export default function Config({ onBack }) {
 
   useEffect(() => {
     if (tab === 'templates') loadTemplates()
+    if (tab === 'compatibilidades') loadCompats()
   }, [tab])
 
   const flash = (text) => { setMsg(text); setTimeout(() => setMsg(''), 3000) }
@@ -94,6 +106,65 @@ export default function Config({ onBack }) {
   const startEdit = (tpl) => { setEditingTpl(tpl); setTplForm({ titulo:tpl.titulo, categoria:tpl.categoria, texto:tpl.texto, cuenta:tpl.cuenta, activo:tpl.activo, orden:tpl.orden }) }
   const startNew  = ()    => { setEditingTpl('new'); setTplForm(TEMPLATE_BLANK) }
   const cancelEdit = ()   => { setEditingTpl(null); setTplForm(TEMPLATE_BLANK) }
+
+  // ── Compatibilidades ──────────────────────────────────────
+  const loadCompats = async () => {
+    setLoadingCompat(true)
+    try {
+      const r = await fetch(`${RAILWAY}/api/compatibilidades?limit=500`, { headers: authHeaders() })
+      const d = await r.json()
+      setCompats(d.items || [])
+    } catch { flash('Error cargando compatibilidades') }
+    setLoadingCompat(false)
+  }
+
+  const saveCompat = async () => {
+    if (!compatForm.sku.trim() || !compatForm.modelo_impresora.trim()) {
+      flash('SKU y modelo son requeridos'); return
+    }
+    setSaving(true)
+    try {
+      const isNew = editingCompat === 'new'
+      const url   = isNew ? `${RAILWAY}/api/compatibilidades` : `${RAILWAY}/api/compatibilidades/${editingCompat.id}`
+      const r = await fetch(url, { method: isNew ? 'POST' : 'PUT', headers: authHeaders(), body: JSON.stringify(compatForm) })
+      if (r.ok) {
+        flash(isNew ? 'Registro creado' : 'Registro guardado')
+        setEditingCompat(null)
+        setCompatForm({ sku:'', modelo_impresora:'', cuenta:'TODAS', notas:'' })
+        loadCompats()
+      } else { flash('Error al guardar') }
+    } catch { flash('Error de conexion') }
+    setSaving(false)
+  }
+
+  const deleteCompat = async (id) => {
+    if (!confirm('Eliminar este registro?')) return
+    try {
+      await fetch(`${RAILWAY}/api/compatibilidades/${id}`, { method: 'DELETE', headers: authHeaders() })
+      flash('Registro eliminado')
+      loadCompats()
+    } catch { flash('Error al eliminar') }
+  }
+
+  const importarCsv = async () => {
+    if (!csvTexto.trim()) { flash('Pega el contenido CSV primero'); return }
+    setImportando(true); setImportResult(null)
+    try {
+      const r = await fetch(`${RAILWAY}/api/compatibilidades/importar`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ csv_texto: csvTexto })
+      })
+      const d = await r.json()
+      if (d.ok) {
+        setImportResult(d)
+        flash(`Importado: ${d.insertados} nuevos, ${d.omitidos} omitidos`)
+        setCsvTexto('')
+        setShowCsvImport(false)
+        loadCompats()
+      } else { flash('Error: ' + d.error) }
+    } catch { flash('Error de conexion') }
+    setImportando(false)
+  }
 
   // ── Modos ─────────────────────────────────────────────────────
   const saveModo = async (cuenta, canal, campo, valor) => {
@@ -167,10 +238,11 @@ export default function Config({ onBack }) {
         {/* ── Sidebar izquierdo */}
         <div style={{ width:200, background:'var(--surface)', borderRight:'1.5px solid var(--border)', padding:'16px 12px', display:'flex', flexDirection:'column', gap:4 }}>
           {[
-            { id:'modos',     label:'🤖 Modos IA',     desc:'Cómo responde la IA' },
-            { id:'horarios',  label:'🕐 Horarios',      desc:'Cuándo opera la IA'  },
-            { id:'mensajes',  label:'💬 Mensajes',      desc:'Fuera de horario'    },
-            { id:'templates', label:'📋 Templates',     desc:'Respuestas rápidas'  },
+            { id:'modos',            label:'Modos IA',        desc:'Como responde la IA'   },
+            { id:'horarios',         label:'Horarios',         desc:'Cuando opera la IA'    },
+            { id:'mensajes',         label:'Mensajes',         desc:'Fuera de horario'       },
+            { id:'templates',        label:'Templates',        desc:'Respuestas rapidas'     },
+            { id:'compatibilidades', label:'Compatibilidades', desc:'SKU y modelos compat.'  },
           ].map(s => (
             <button key={s.id} onClick={() => setTab(s.id)}
               style={{ textAlign:'left', padding:'10px 12px', borderRadius:'var(--radius-sm)', border: tab === s.id ? '1.5px solid var(--purple-border)' : '1.5px solid transparent', background: tab === s.id ? 'var(--purple-light)' : 'transparent', cursor:'pointer', transition:'all .15s' }}>
@@ -183,8 +255,8 @@ export default function Config({ onBack }) {
         {/* ── Contenido principal */}
         <div style={{ flex:1, overflowY:'auto', padding:'24px' }}>
 
-          {/* Tabs de cuenta — no aplica a templates */}
-          {tab !== 'templates' && (
+          {/* Tabs de cuenta — no aplica a templates ni compatibilidades */}
+          {tab !== 'templates' && tab !== 'compatibilidades' && (
             <div style={{ display:'flex', gap:8, marginBottom:20 }}>
               {CUENTAS.map(c => {
                 const a = ACCT_COLOR[c]; const active = cuentaTab === c
@@ -462,6 +534,190 @@ export default function Config({ onBack }) {
                     </div>
                   </div>
                 ))
+              })()}
+            </div>
+          )}
+
+          {/* ── COMPATIBILIDADES */}
+          {tab === 'compatibilidades' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+
+              {/* Header */}
+              <div style={{ display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
+                <div>
+                  <div style={{ fontSize:15, fontWeight:700, color:'var(--text)' }}>Tabla de compatibilidades</div>
+                  <div style={{ fontSize:12, color:'var(--text3)', marginTop:2 }}>Relaciona SKUs con modelos de impresora. La IA usa estos datos para responder con precision.</div>
+                </div>
+                <div style={{ marginLeft:'auto', display:'flex', gap:8 }}>
+                  <button onClick={() => { setShowCsvImport(p => !p); setImportResult(null) }}
+                    style={{ fontSize:12, fontWeight:700, padding:'8px 16px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--amber-border)', background: showCsvImport ? 'var(--amber)' : 'var(--amber-light)', color: showCsvImport ? '#fff' : 'var(--amber)', cursor:'pointer' }}>
+                    Importar CSV
+                  </button>
+                  <button onClick={() => { setEditingCompat('new'); setCompatForm({ sku:'', modelo_impresora:'', cuenta:'TODAS', notas:'' }) }}
+                    style={{ fontSize:12, fontWeight:700, padding:'8px 16px', borderRadius:'var(--radius-sm)', background:'var(--purple)', color:'#fff', border:'none', cursor:'pointer' }}>
+                    + Nuevo registro
+                  </button>
+                </div>
+              </div>
+
+              {/* Importar CSV */}
+              {showCsvImport && (
+                <div style={{ background:'var(--surface)', border:'1.5px solid var(--amber-border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+                  <div style={{ padding:'10px 16px', background:'var(--amber-light)', borderBottom:'1px solid var(--amber-border)' }}>
+                    <span style={{ fontSize:13, fontWeight:700, color:'var(--amber)' }}>Importar desde CSV</span>
+                  </div>
+                  <div style={{ padding:'16px', display:'flex', flexDirection:'column', gap:10 }}>
+                    <div style={{ fontSize:12, color:'var(--text3)' }}>
+                      Formato requerido: <code style={{ fontSize:11, background:'var(--surface2)', padding:'1px 6px', borderRadius:4 }}>sku,modelo_impresora,cuenta,notas</code>
+                    </div>
+                    <div style={{ fontSize:11, color:'var(--text3)' }}>
+                      Ejemplo:<br/>
+                      <code style={{ fontSize:10 }}>CRT-H954_0T,HP OfficeJet Pro 8710,GDP,</code><br/>
+                      <code style={{ fontSize:10 }}>CRT-H954_0T,HP OfficeJet Pro 8720,GDP,</code>
+                    </div>
+                    <textarea value={csvTexto} onChange={e => setCsvTexto(e.target.value)}
+                      rows={8} placeholder="Pega aqui el contenido CSV..."
+                      style={{ width:'100%', fontSize:12, padding:'10px 12px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', fontFamily:'monospace', resize:'vertical', outline:'none', color:'var(--text)', lineHeight:1.5 }} />
+                    {importResult && (
+                      <div style={{ fontSize:12, fontWeight:600, color:'var(--green)' }}>
+                        Insertados: {importResult.insertados} | Omitidos: {importResult.omitidos} | Errores: {importResult.errores}
+                      </div>
+                    )}
+                    <div style={{ display:'flex', gap:8 }}>
+                      <button onClick={importarCsv} disabled={importando || !csvTexto.trim()}
+                        style={{ fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:'var(--radius-sm)', background:'var(--amber)', color:'#fff', border:'none', cursor:'pointer', opacity: importando ? .6 : 1 }}>
+                        {importando ? 'Importando...' : 'Importar'}
+                      </button>
+                      <button onClick={() => { setShowCsvImport(false); setCsvTexto('') }}
+                        style={{ fontSize:12, fontWeight:600, padding:'8px 14px', borderRadius:'var(--radius-sm)', background:'transparent', color:'var(--text2)', border:'1.5px solid var(--border)', cursor:'pointer' }}>
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Formulario alta/edicion individual */}
+              {editingCompat && (
+                <div style={{ background:'var(--surface)', border:'1.5px solid var(--purple-border)', borderRadius:'var(--radius)', overflow:'hidden', boxShadow:'var(--shadow-md)' }}>
+                  <div style={{ padding:'10px 16px', background:'var(--purple-light)', borderBottom:'1px solid var(--purple-border)', display:'flex', alignItems:'center' }}>
+                    <span style={{ fontSize:13, fontWeight:700, color:'var(--purple)', flex:1 }}>
+                      {editingCompat === 'new' ? 'Nuevo registro' : 'Editar registro'}
+                    </span>
+                    <button onClick={() => setEditingCompat(null)} style={{ fontSize:14, background:'none', border:'none', cursor:'pointer', color:'var(--text3)' }}>x</button>
+                  </div>
+                  <div style={{ padding:'16px', display:'flex', flexDirection:'column', gap:12 }}>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
+                      <div>
+                        <label style={{ fontSize:11, fontWeight:700, color:'var(--text3)', display:'block', marginBottom:4 }}>SKU *</label>
+                        <input value={compatForm.sku} onChange={e => setCompatForm(p => ({...p, sku: e.target.value.toUpperCase()}))}
+                          placeholder="CRT-H954_0T"
+                          style={{ width:'100%', fontSize:13, padding:'8px 10px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', outline:'none', color:'var(--text)', fontFamily:'monospace' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize:11, fontWeight:700, color:'var(--text3)', display:'block', marginBottom:4 }}>CUENTA</label>
+                        <select value={compatForm.cuenta} onChange={e => setCompatForm(p => ({...p, cuenta: e.target.value}))}
+                          style={{ width:'100%', fontSize:13, padding:'8px 10px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', color:'var(--text)', outline:'none' }}>
+                          <option value="TODAS">Todas las cuentas</option>
+                          {CUENTAS.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize:11, fontWeight:700, color:'var(--text3)', display:'block', marginBottom:4 }}>NOTAS</label>
+                        <input value={compatForm.notas} onChange={e => setCompatForm(p => ({...p, notas: e.target.value}))}
+                          placeholder="Opcional"
+                          style={{ width:'100%', fontSize:13, padding:'8px 10px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', outline:'none', color:'var(--text)' }} />
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ fontSize:11, fontWeight:700, color:'var(--text3)', display:'block', marginBottom:4 }}>MODELO DE IMPRESORA *</label>
+                      <input value={compatForm.modelo_impresora} onChange={e => setCompatForm(p => ({...p, modelo_impresora: e.target.value}))}
+                        placeholder="HP OfficeJet Pro 8710"
+                        style={{ width:'100%', fontSize:13, padding:'8px 10px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', outline:'none', color:'var(--text)' }} />
+                    </div>
+                    <div style={{ display:'flex', gap:8 }}>
+                      <button onClick={saveCompat} disabled={saving}
+                        style={{ fontSize:13, fontWeight:700, padding:'9px 20px', borderRadius:'var(--radius-sm)', background:'var(--purple)', color:'#fff', border:'none', cursor:'pointer', opacity: saving ? .6 : 1 }}>
+                        {saving ? 'Guardando...' : 'Guardar'}
+                      </button>
+                      <button onClick={() => setEditingCompat(null)}
+                        style={{ fontSize:13, fontWeight:600, padding:'9px 16px', borderRadius:'var(--radius-sm)', background:'transparent', color:'var(--text2)', border:'1.5px solid var(--border)', cursor:'pointer' }}>
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Buscador */}
+              <input value={compatBusqueda} onChange={e => setCompatBusqueda(e.target.value)}
+                placeholder="Buscar por SKU, modelo o notas..."
+                style={{ fontSize:13, padding:'8px 14px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', outline:'none', color:'var(--text)' }} />
+
+              {/* Lista */}
+              {loadingCompat ? (
+                <div style={{ textAlign:'center', padding:32, color:'var(--text3)' }}>Cargando...</div>
+              ) : (() => {
+                const q = compatBusqueda.toLowerCase()
+                const filtrados = compats.filter(c =>
+                  !q || c.sku.toLowerCase().includes(q) ||
+                  c.modelo_impresora.toLowerCase().includes(q) ||
+                  (c.notas || '').toLowerCase().includes(q)
+                )
+                if (filtrados.length === 0) return (
+                  <div style={{ textAlign:'center', padding:40, color:'var(--text3)' }}>
+                    <div style={{ fontSize:32, marginBottom:10 }}>-</div>
+                    <div style={{ fontSize:14, fontWeight:600, color:'var(--text2)' }}>
+                      {compats.length === 0 ? 'Sin registros aun' : 'Sin resultados'}
+                    </div>
+                  </div>
+                )
+                // Agrupar por SKU
+                const porSku = filtrados.reduce((acc, c) => {
+                  if (!acc[c.sku]) acc[c.sku] = []
+                  acc[c.sku].push(c)
+                  return acc
+                }, {})
+                return (
+                  <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                    <div style={{ fontSize:12, color:'var(--text3)' }}>{filtrados.length} registros</div>
+                    {Object.entries(porSku).map(([sku, items]) => (
+                      <div key={sku} style={{ background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+                        <div style={{ padding:'8px 14px', background:'var(--surface2)', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:8 }}>
+                          <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>{sku}</code>
+                          <span style={{ fontSize:11, color:'var(--text3)' }}>{items.length} modelo{items.length > 1 ? 's' : ''}</span>
+                          <button onClick={() => { setEditingCompat('new'); setCompatForm({ sku, modelo_impresora:'', cuenta:'TODAS', notas:'' }) }}
+                            style={{ marginLeft:'auto', fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--purple-border)', background:'var(--purple-light)', color:'var(--purple)', cursor:'pointer' }}>
+                            + Modelo
+                          </button>
+                        </div>
+                        {items.map(c => (
+                          <div key={c.id} style={{ padding:'8px 14px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:10 }}>
+                            <div style={{ flex:1 }}>
+                              <span style={{ fontSize:13, color:'var(--text)' }}>{c.modelo_impresora}</span>
+                              {c.notas && <span style={{ fontSize:11, color:'var(--text3)', marginLeft:8 }}>({c.notas})</span>}
+                            </div>
+                            {c.cuenta !== 'TODAS' && (
+                              <span style={{ fontSize:10, fontWeight:700, padding:'1px 7px', borderRadius:99, background: ACCT_COLOR[c.cuenta]?.bg || 'var(--surface2)', color: ACCT_COLOR[c.cuenta]?.color || 'var(--text3)', border:`1px solid ${ACCT_COLOR[c.cuenta]?.br || 'var(--border)'}` }}>
+                                {c.cuenta}
+                              </span>
+                            )}
+                            <div style={{ display:'flex', gap:6 }}>
+                              <button onClick={() => { setEditingCompat(c); setCompatForm({ sku:c.sku, modelo_impresora:c.modelo_impresora, cuenta:c.cuenta, notas:c.notas||'' }) }}
+                                style={{ fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--purple-border)', background:'var(--purple-light)', color:'var(--purple)', cursor:'pointer' }}>
+                                Editar
+                              </button>
+                              <button onClick={() => deleteCompat(c.id)}
+                                style={{ fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--red-border)', background:'var(--red-light)', color:'var(--red)', cursor:'pointer' }}>
+                                Quitar
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )
               })()}
             </div>
           )}
