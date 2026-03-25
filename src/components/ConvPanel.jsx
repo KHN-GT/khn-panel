@@ -183,20 +183,40 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             </span>
           )}
         </div>
-        <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+        {/* Producto: imagen + título completo */}
+        {(item.imagen_thumbnail || item.producto) && (
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:6, padding:'8px 10px', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)' }}>
+            {item.imagen_thumbnail && (
+              <img
+                src={item.imagen_thumbnail}
+                alt="producto"
+                style={{ width:52, height:52, objectFit:'contain', borderRadius:6, border:'1px solid var(--border)', flexShrink:0, background:'#fff' }}
+                onError={e => { e.target.style.display='none' }}
+              />
+            )}
+            <div style={{ minWidth:0 }}>
+              {item.producto && (
+                <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', lineHeight:1.4, wordBreak:'break-word' }}>
+                  {item.producto}
+                </div>
+              )}
+              {item.sku && (
+                <div style={{ fontSize:11, color:'var(--text3)', marginTop:2 }}>
+                  SKU: <code style={{ color:'var(--blue)', fontSize:10 }}>{item.sku}</code>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop: (item.imagen_thumbnail || item.producto) ? 6 : 0 }}>
           {item.orden_id && (
             <div style={{ fontSize:11, color:'var(--text2)', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:5, padding:'2px 8px' }}>
               Orden <code style={{ fontSize:10, color:'var(--blue)' }}>#{item.orden_id}</code>
             </div>
           )}
-          {item.sku && (
+          {!item.producto && item.sku && (
             <div style={{ fontSize:11, color:'var(--text2)', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:5, padding:'2px 8px' }}>
               SKU <code style={{ fontSize:10, color:'var(--blue)' }}>{item.sku}</code>
-            </div>
-          )}
-          {item.producto && (
-            <div style={{ fontSize:11, color:'var(--text2)', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:5, padding:'2px 8px', maxWidth:240, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-              {item.producto}
             </div>
           )}
           {item.claim_id && (
