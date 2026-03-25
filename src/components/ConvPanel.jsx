@@ -33,13 +33,15 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setCorrMode(false); setCorrText('')
     setSuccess(''); setCopied(false); setContexto([])
 
+    const token = localStorage.getItem('khn_token')
+
+    // Reclamos: contexto post-venta del mismo orden
     if (item?.id && item?.orden_id && (item?.tipo === 'RECLAMO' || item?.tipo === 'reclamo' || item?.claim_id)) {
       setLoadingCtx(true)
-      const token = localStorage.getItem('khn_token')
       fetch(`${RAILWAY}/api/inbox?orden_id=${item.orden_id}&tipo=POST-VENTA`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(r => r.ok ? r.json() : [])
+        .then(r => r.ok ? r.json() : { items: [] })
         .then(data => {
           const otros = Array.isArray(data?.items) ? data.items.filter(m => m.id !== item.id) : []
           setContexto(otros)
@@ -47,6 +49,25 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         .catch(() => setContexto([]))
         .finally(() => setLoadingCtx(false))
     }
+
+    // Pre-compra: historial completo de preguntas del mismo SKU
+    if (item?.tipo === 'PRE-COMPRA' && item?.sku) {
+      setLoadingCtx(true)
+      fetch(`${RAILWAY}/api/inbox?tipo=PRE-COMPRA&sku=${item.sku}&limit=50`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(r => r.ok ? r.json() : { items: [] })
+        .then(data => {
+          const todos = Array.isArray(data?.items) ? data.items : []
+          const previos = todos
+            .filter(m => m.id !== item.id)
+            .sort((a, b) => new Date(a.creado_en) - new Date(b.creado_en))
+          setContexto(previos)
+        })
+        .catch(() => setContexto([]))
+        .finally(() => setLoadingCtx(false))
+    }
+
     setTimeout(() => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight }, 50)
   }, [item?.id])
 
@@ -194,7 +215,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       {/* ── Hilo */}
       <div ref={threadRef} style={{ flex:1, overflowY:'auto', padding:'14px', display:'flex', flexDirection:'column', gap:10 }}>
 
-        {/* Contexto post-venta previo (solo en reclamos) */}
+        {/* Loader de contexto */}
+        {loadingCtx && (
+          <div style={{ textAlign:'center', fontSize:11, color:'var(--text3)', padding:'8px 0' }}>Cargando historial...</div>
+        )}
+
+        {/* Contexto reclamos: post-venta previos del mismo orden */}
         {isClaim && contexto.length > 0 && (
           <>
             <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--text3)', padding:'4px 0', borderBottom:'1px dashed var(--border)', marginBottom:4 }}>
@@ -210,12 +236,31 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           </>
         )}
 
-        {loadingCtx && isClaim && (
-          <div style={{ textAlign:'center', fontSize:11, color:'var(--text3)', padding:'8px 0' }}>Cargando contexto...</div>
+        {/* Contexto pre-compra: preguntas anteriores del mismo SKU */}
+        {item.tipo === 'PRE-COMPRA' && contexto.length > 0 && (
+          <>
+            <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--text3)', padding:'4px 0', borderBottom:'1px dashed var(--border)', marginBottom:4 }}>
+              📋 {contexto.length} pregunta{contexto.length > 1 ? 's' : ''} previa{contexto.length > 1 ? 's' : ''} sobre este producto
+            </div>
+            {contexto.map((msg, i) => (
+              <div key={`pctx-${i}`} style={{ opacity: 0.65 }}>
+                {renderBubble({ r: 'b', t: msg.mensaje_cliente || '' }, 0, { dimmed: true, keyPrefix: `pctx-q-${i}-` })}
+                {msg.respuesta_final && renderBubble({ r: 's', t: msg.respuesta_final }, 1, { dimmed: true, keyPrefix: `pctx-a-${i}-` })}
+              </div>
+            ))}
+            <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--purple)', padding:'4px 0', borderBottom:'1px dashed var(--purple-border)', marginBottom:4 }}>
+              💬 Pregunta actual
+            </div>
+          </>
         )}
 
         {/* Mensajes del hilo principal */}
-        {hilo.map((msg, i) => renderBubble(msg, i))}
+        {hilo.length > 0
+          ? hilo.map((msg, i) => renderBubble(msg, i))
+          : item.mensaje_cliente
+            ? renderBubble({ r: 'b', t: item.mensaje_cliente }, 0)
+            : null
+        }
 
         {/* Respuesta final enviada */}
         {isResolved && item.respuesta_final && (
