@@ -53,7 +53,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     // Pre-compra: historial completo de preguntas del mismo SKU
     if (item?.tipo === 'PRE-COMPRA' && item?.sku) {
       setLoadingCtx(true)
-      fetch(`${RAILWAY}/api/inbox?tipo=PRE-COMPRA&sku=${item.sku}&limit=50`, {
+      fetch(`${RAILWAY}/api/inbox?tipo=PRE-COMPRA&sku=${item.sku}&cuenta=${item.cuenta}&limit=50`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(r => r.ok ? r.json() : { items: [] })
