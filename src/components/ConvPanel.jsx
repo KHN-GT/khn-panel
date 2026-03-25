@@ -31,15 +31,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [templates,     setTemplates]     = useState([])
   const [loadingTpl,    setLoadingTpl]    = useState(false)
   const [tplBusqueda,   setTplBusqueda]   = useState('')
-
-  // Product Picker
-  const [showProductPicker, setShowProductPicker] = useState(false)
-  const [productQuery,      setProductQuery]      = useState('')
-  const [productResults,    setProductResults]    = useState([])
-  const [loadingProducts,   setLoadingProducts]   = useState(false)
-  const [productError,      setProductError]      = useState('')
-  const editTextareaRef = useRef(null)
-
   const threadRef = useRef(null)
 
   useEffect(() => {
@@ -47,7 +38,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setEditText(item?.respuesta_ia || '')
     setCorrMode(false); setCorrText('')
     setSuccess(''); setCopied(false); setContexto([])
-    setShowProductPicker(false); setProductQuery(''); setProductResults([]); setProductError('')
 
     const token = localStorage.getItem('khn_token')
     setOrdenData(null)
@@ -123,44 +113,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setTplBusqueda('')
   }
 
-  // ── Product Picker ─────────────────────────────────────────
-  const buscarProductos = async (q) => {
-    if (!q || !q.trim()) return
-    setLoadingProducts(true)
-    setProductError('')
-    const token = localStorage.getItem('khn_token')
-    try {
-      const r = await fetch(
-        `${RAILWAY}/api/publicaciones/buscar?cuenta=${item?.cuenta || ''}&q=${encodeURIComponent(q.trim())}`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      )
-      const d = await r.json()
-      if (d.error) { setProductError(d.error); setProductResults([]) }
-      else setProductResults(d.resultados || [])
-    } catch { setProductError('Error conectando al servidor') }
-    finally { setLoadingProducts(false) }
-  }
-
-  const insertProductUrl = (permalink) => {
-    const url = '\n' + permalink
-    if (editTextareaRef.current) {
-      const ta = editTextareaRef.current
-      const start = ta.selectionStart
-      const end   = ta.selectionEnd
-      const newText = editText.substring(0, start) + url + editText.substring(end)
-      setEditText(newText)
-      setTimeout(() => {
-        ta.focus()
-        ta.setSelectionRange(start + url.length, start + url.length)
-      }, 30)
-    } else {
-      setEditText(prev => prev + url)
-    }
-    setEditMode(true)
-    setShowProductPicker(false)
-    setProductQuery(''); setProductResults([])
-  }
-
   if (!item) return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', gap:10, color:'var(--text3)' }}>
       <div style={{ fontSize:36 }}>💬</div>
@@ -224,9 +176,25 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   // r='b' → buyer (comprador) | r='s' → seller (vendedor/nosotros)
   const hilo = Array.isArray(item.hilo_json) ? item.hilo_json : []
 
+  const fmtTs = (ts) => {
+    if (!ts) return null
+    try {
+      const d = new Date(ts)
+      const hoy = new Date()
+      const esHoy = d.toDateString() === hoy.toDateString()
+      const ayer  = new Date(hoy); ayer.setDate(hoy.getDate()-1)
+      const esAyer = d.toDateString() === ayer.toDateString()
+      const hora  = d.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' })
+      if (esHoy)  return `Hoy ${hora}`
+      if (esAyer) return `Ayer ${hora}`
+      return d.toLocaleDateString('es-MX', { day:'2-digit', month:'short' }) + ' ' + hora
+    } catch { return null }
+  }
+
   const renderBubble = (msg, i, opts = {}) => {
     const isSeller = msg.r === 's'
     const text = msg.t || ''
+    const ts   = fmtTs(msg.ts)
     const { dimmed = false, keyPrefix = '' } = opts
     return (
       <div key={`${keyPrefix}${i}`} style={{ display:'flex', flexDirection:'column', alignItems: isSeller ? 'flex-end' : 'flex-start', opacity: dimmed ? 0.75 : 1 }}>
@@ -244,8 +212,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         }}>
           {text}
         </div>
-        <div style={{ fontSize:10, color:'var(--text3)', marginTop:3, paddingLeft:4, paddingRight:4 }}>
-          {isSeller ? (item.cuenta || 'Seller') : (item.comprador || 'Comprador')}
+        <div style={{ fontSize:10, color:'var(--text3)', marginTop:3, paddingLeft:4, paddingRight:4, display:'flex', gap:6, alignItems:'center' }}>
+          <span>{isSeller ? (item.cuenta || 'Seller') : (item.comprador || 'Comprador')}</span>
+          {ts && <span style={{ color:'var(--text3)', opacity:.7 }}>· {ts}</span>}
         </div>
       </div>
     )
@@ -578,88 +547,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         </div>
       )}
 
-      {/* ── Product Picker panel */}
-      {showProductPicker && (
-        <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--blue-border,#b0caff)', borderRadius:'var(--radius)', boxShadow:'var(--shadow-md)', overflow:'hidden' }}>
-          {/* Header */}
-          <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', background:'var(--blue-light)', borderBottom:'1px solid var(--blue-border,#b0caff)' }}>
-            <span style={{ fontSize:11, fontWeight:700, color:'var(--blue)', letterSpacing:'.05em', textTransform:'uppercase' }}>
-              Insertar producto
-            </span>
-            <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:99, background:'var(--surface2)', color:'var(--text2)', border:'1px solid var(--border)' }}>
-              Solo publicaciones de {item.cuenta}
-            </span>
-            <button onClick={() => { setShowProductPicker(false); setProductQuery(''); setProductResults([]) }}
-              style={{ marginLeft:'auto', fontSize:13, background:'transparent', border:'none', cursor:'pointer', color:'var(--text3)', lineHeight:1 }}>✕</button>
-          </div>
-          {/* Buscador */}
-          <div style={{ display:'flex', gap:6, padding:'10px 14px', borderBottom:'1px solid var(--border)' }}>
-            <input
-              value={productQuery}
-              onChange={e => setProductQuery(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && buscarProductos(productQuery)}
-              placeholder="Buscar por titulo o SKU..."
-              autoFocus
-              style={{ flex:1, fontSize:12, padding:'6px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', outline:'none', color:'var(--text)', background:'var(--surface2)' }}
-            />
-            <button onClick={() => buscarProductos(productQuery)} disabled={loadingProducts || !productQuery.trim()}
-              style={{ fontSize:12, fontWeight:700, padding:'6px 14px', borderRadius:'var(--radius-sm)', border:'none', background:'var(--blue)', color:'#fff', cursor:'pointer', opacity: loadingProducts || !productQuery.trim() ? .5 : 1 }}>
-              {loadingProducts ? '...' : 'Buscar'}
-            </button>
-          </div>
-          {/* Resultados */}
-          <div style={{ maxHeight:280, overflowY:'auto' }}>
-            {loadingProducts && (
-              <div style={{ padding:16, fontSize:12, color:'var(--text3)', textAlign:'center' }}>Buscando en MercadoLibre...</div>
-            )}
-            {!loadingProducts && productError && (
-              <div style={{ padding:16, fontSize:12, color:'var(--red)', textAlign:'center' }}>{productError}</div>
-            )}
-            {!loadingProducts && !productError && productResults.length === 0 && productQuery && (
-              <div style={{ padding:16, fontSize:12, color:'var(--text3)', textAlign:'center' }}>
-                Ingresa un título o SKU y presiona Buscar
-              </div>
-            )}
-            {!loadingProducts && !productError && productResults.length === 0 && !productQuery && (
-              <div style={{ padding:16, fontSize:12, color:'var(--text3)', textAlign:'center' }}>
-                Ingresa un título o SKU y presiona Buscar
-              </div>
-            )}
-            {productResults.map((prod) => (
-              <div key={prod.id}
-                style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderBottom:'1px solid var(--border)', transition:'background .1s' }}
-                onMouseEnter={e => e.currentTarget.style.background='var(--surface2)'}
-                onMouseLeave={e => e.currentTarget.style.background='transparent'}
-              >
-                {prod.thumbnail ? (
-                  <img src={prod.thumbnail.replace('http://','https://')} alt="" style={{ width:44, height:44, objectFit:'contain', borderRadius:6, border:'1px solid var(--border)', flexShrink:0, background:'#fff' }} onError={e => { e.target.style.display='none' }} />
-                ) : (
-                  <div style={{ width:44, height:44, borderRadius:6, border:'1px solid var(--border)', flexShrink:0, background:'var(--surface2)' }} />
-                )}
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', lineHeight:1.4, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>
-                    {prod.titulo}
-                  </div>
-                  <div style={{ fontSize:11, color:'var(--text3)', marginTop:2, display:'flex', gap:8, flexWrap:'wrap' }}>
-                    {prod.sku && <span>SKU: <code style={{ color:'var(--blue)', fontSize:10 }}>{prod.sku}</code></span>}
-                    {prod.precio && <span style={{ color:'var(--green)', fontWeight:600 }}>${Number(prod.precio).toLocaleString('es-MX')} MXN</span>}
-                  </div>
-                </div>
-                <button onClick={() => insertProductUrl(prod.permalink)}
-                  style={{ fontSize:11, fontWeight:700, padding:'6px 12px', borderRadius:'var(--radius-sm)', border:'1px solid var(--blue-border,#b0caff)', background:'var(--blue-light)', color:'var(--blue)', cursor:'pointer', flexShrink:0, whiteSpace:'nowrap' }}>
-                  Insertar URL
-                </button>
-              </div>
-            ))}
-            {productResults.length > 0 && (
-              <div style={{ padding:'6px 14px', fontSize:10, color:'var(--text3)', textAlign:'right', borderTop:'1px solid var(--border)' }}>
-                {productResults.length} resultado{productResults.length > 1 ? 's' : ''} — cuenta {item.cuenta}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* ── Bloque IA */}
       {!isResolved && !isClaim && item.respuesta_ia && (
         <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--purple-border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow-md)', overflow:'hidden' }}>
@@ -673,7 +560,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             </button>
           </div>
           {editMode
-            ? <textarea value={editText} onChange={e => setEditText(e.target.value)} rows={4} ref={editTextareaRef}
+            ? <textarea value={editText} onChange={e => setEditText(e.target.value)} rows={4}
                 style={{ width:'100%', border:'none', borderTop:'1px solid var(--border)', padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55, fontFamily:'inherit', resize:'vertical', outline:'none', background:'var(--blue-light)' }} />
             : <div style={{ padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55 }}>{item.respuesta_ia}</div>
           }
@@ -740,11 +627,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             <button onClick={loadTemplates}
               style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--amber-border)', background: showTemplates ? 'var(--amber)' : 'var(--amber-light)', color: showTemplates ? '#fff' : 'var(--amber)', cursor:'pointer' }}>
               📋 Templates
-            </button>
-            <button
-              onClick={() => { setShowProductPicker(p => !p); if (!showProductPicker) { setProductQuery(''); setProductResults([]) } }}
-              style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--blue-border,#b0caff)', background: showProductPicker ? 'var(--blue)' : 'var(--blue-light)', color: showProductPicker ? '#fff' : 'var(--blue)', cursor:'pointer' }}>
-              🔗 Producto
             </button>
             <button onClick={handleDiscard} disabled={sending}
               style={{ fontSize:12, fontWeight:600, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', background:'var(--surface)', color:'var(--text2)', cursor:'pointer' }}>
