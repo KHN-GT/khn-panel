@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import ConvPanel from '../components/ConvPanel'
 import { useInbox } from '../hooks/useInbox'
@@ -9,6 +10,7 @@ export default function Dashboard({ onLogout }) {
   const [selectedItem, setSelected] = useState(null)
   const [mobileTab, setMobileTab]   = useState('queue')
   const [isMobile, setIsMobile]     = useState(window.innerWidth < 768)
+  const navigate = useNavigate()
 
   const user = JSON.parse(localStorage.getItem('khn_user') || '{}')
 
@@ -22,7 +24,6 @@ export default function Dashboard({ onLogout }) {
     return () => window.removeEventListener('resize', handler)
   }, [])
 
-  // Cuando cambia el filtro de tipo, deseleccionar item actual si no pertenece al tipo
   useEffect(() => {
     if (selectedItem && selectedItem.tipo !== tipoFilter) {
       setSelected(null)
@@ -49,12 +50,11 @@ export default function Dashboard({ onLogout }) {
     'POST-VENTA': items.filter(i => i.tipo === 'POST-VENTA').length,
     'PRE-COMPRA': items.filter(i => i.tipo === 'PRE-COMPRA').length,
   }
-  const pendingCount  = items.length
-  const claimsCount   = counts['RECLAMO']
+  const pendingCount = items.length
+  const claimsCount  = counts['RECLAMO']
 
   return (
-    <div style={{ height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden',
-      fontSize: 15 /* fuente base más grande */ }}>
+    <div style={{ height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden', fontSize:15 }}>
 
       {/* Topbar */}
       <div style={{ background:'var(--surface)', borderBottom:'1.5px solid var(--border)',
@@ -79,7 +79,7 @@ export default function Dashboard({ onLogout }) {
           </div>
         )}
 
-        <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:12 }}>
+        <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:8 }}>
           {pendingCount > 0 && (
             <div style={{ fontSize:12, fontWeight:700, padding:'3px 10px', borderRadius:99,
               background:'var(--purple-light)', color:'var(--purple)',
@@ -88,8 +88,18 @@ export default function Dashboard({ onLogout }) {
             </div>
           )}
           <button onClick={refresh} title="Actualizar" style={{ fontSize:18, background:'none',
-            border:'none', color:'var(--text3)', cursor:'pointer', padding:'4px 6px',
-            borderRadius:6 }}>↺</button>
+            border:'none', color:'var(--text3)', cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>↺</button>
+
+          {/* Botón Reportes */}
+          <button onClick={() => navigate('/reportes')} title="Reportes"
+            style={{ fontSize:15, background:'none', border:'none', color:'var(--text3)',
+              cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>📊</button>
+
+          {/* Botón Configuración */}
+          <button onClick={() => navigate('/config')} title="Configuración"
+            style={{ fontSize:15, background:'none', border:'none', color:'var(--text3)',
+              cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>⚙️</button>
+
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <div style={{ width:30, height:30, borderRadius:'50%', background:'var(--purple-light)',
               display:'flex', alignItems:'center', justifyContent:'center',

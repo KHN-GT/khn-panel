@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Config from './pages/Config'
+import Reportes from './pages/Reportes'
 
 function PrivateRoute({ children }) {
   const authed = !!localStorage.getItem('khn_token')
@@ -26,14 +27,13 @@ export default function App() {
           authed ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />
         } />
         <Route path="/" element={
-          <PrivateRoute>
-            <Dashboard onLogout={handleLogout} />
-          </PrivateRoute>
+          <PrivateRoute><Dashboard onLogout={handleLogout} /></PrivateRoute>
         } />
         <Route path="/config" element={
-          <PrivateRoute>
-            <Config onBack={() => window.history.back()} />
-          </PrivateRoute>
+          <PrivateRoute><Config onBack={() => window.history.back()} /></PrivateRoute>
+        } />
+        <Route path="/reportes" element={
+          <PrivateRoute><Reportes /></PrivateRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
