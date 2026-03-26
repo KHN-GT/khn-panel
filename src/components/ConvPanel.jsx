@@ -18,8 +18,7 @@ const RAILWAY = 'https://worker-production-d575.up.railway.app'
 export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [editMode,  setEditMode]  = useState(false)
   const [editText,  setEditText]  = useState('')
-  const [corrMode,  setCorrMode]  = useState(false)
-  const [corrText,  setCorrText]  = useState('')
+
   const [sending,   setSending]   = useState(false)
   const [success,   setSuccess]   = useState('')
   const [copied,    setCopied]    = useState(false)
@@ -45,7 +44,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   useEffect(() => {
     setEditMode(false)
     setEditText(item?.respuesta_ia || '')
-    setCorrMode(false); setCorrText('')
     setSuccess(''); setCopied(false); setContexto([])
     setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([])
 
@@ -224,8 +222,18 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
   const handleApprove = async () => {
     setSending(true)
+    const textoFinal = editMode ? editText : item.respuesta_ia
     try {
-      await onApprove(item.id, editMode ? editText : item.respuesta_ia)
+      await onApprove(item.id, textoFinal)
+      // Si hubo edición humana, guardar como corrección de entrenamiento automáticamente
+      if (editMode && textoFinal !== item.respuesta_ia) {
+        const tok = localStorage.getItem('khn_token')
+        fetch(`${RAILWAY}/api/inbox/${item.id}/correct`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${tok}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correccion: textoFinal })
+        }).catch(() => {})
+      }
       setSuccess('✅ Enviado a MercadoLibre')
     } catch(e) { setSuccess('❌ Error: ' + (e?.message || 'Error desconocido')) }
     finally { setSending(false) }
@@ -890,10 +898,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             </button>
           </>
         )}
-          <button onClick={() => setCorrMode(true)}
-            style={{ fontSize:12, fontWeight:600, padding:'9px 16px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--amber-border)', background:'var(--amber-light)', color:'var(--amber)', cursor:'pointer' }}>
-            Corregir para entrenamiento
-          </button>
+
 
         {success && (
           <span style={{ fontSize:12, fontWeight:600, marginLeft:'auto', color: success.startsWith('❌') ? 'var(--red)' : 'var(--green)' }}>
