@@ -127,6 +127,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const isResolved= ['resuelto','descartado'].includes(item.estado)
   const numeroCopia = item.orden_id || item.claim_id || null
 
+  const URGENCIA_STYLE = {
+    CRITICO:     { color:'#dc2626', bg:'#fef2f2', border:'#fca5a5', label:'CRITICO',   icon:'🔴' },
+    URGENTE:     { color:'#ea580c', bg:'#fff7ed', border:'#fdba74', label:'URGENTE',   icon:'🟠' },
+    MODERADO:    { color:'#d97706', bg:'#fffbeb', border:'#fcd34d', label:'MODERADO',  icon:'🟡' },
+    INFORMATIVO: { color:'#16a34a', bg:'#f0fdf4', border:'#86efac', label:'NO AFECTA', icon:'🟢' },
+  }
+  const urgStyle = isClaim ? (URGENCIA_STYLE[item.urgencia] || URGENCIA_STYLE.MODERADO) : null
+
   const handleCopyNumero = () => {
     if (!numeroCopia) return
     navigator.clipboard.writeText(numeroCopia).then(() => {
@@ -253,9 +261,10 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5, background:ac.bg, color:ac.color, border:`1px solid ${ac.br}` }}>
             {item.cuenta}
           </span>
-          {isClaim && (
-            <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5, background:'var(--red-light)', color:'var(--red)', border:'1px solid var(--red-border)' }}>
-              🚨 RECLAMO
+          {isClaim && urgStyle && (
+            <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5,
+              background: urgStyle.bg, color: urgStyle.color, border:`1px solid ${urgStyle.border}` }}>
+              {urgStyle.icon} RECLAMO — {urgStyle.label}
             </span>
           )}
           {isResolved && (
@@ -300,15 +309,18 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               SKU <code style={{ fontSize:10, color:'var(--blue)' }}>{item.sku}</code>
             </div>
           )}
-          {item.claim_id && (
-            <div style={{ fontSize:11, color:'var(--red)', background:'var(--red-light)', border:'1px solid var(--red-border)', borderRadius:5, padding:'2px 8px', fontWeight:600 }}>
+          {item.claim_id && urgStyle && (
+            <div style={{ fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:5,
+              color: urgStyle.color, background: urgStyle.bg, border:`1px solid ${urgStyle.border}` }}>
               Reclamo #{item.claim_id}
             </div>
           )}
         </div>
-        {isClaim && item.timer_segundos != null && (
-          <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:8, background:'var(--red-light)', border:'1px solid var(--red-border)', borderRadius:'var(--radius-sm)', padding:'6px 10px' }}>
-            <span style={{ fontSize:11, fontWeight:600, color:'var(--red)' }}>Tiempo abierto:</span>
+        {isClaim && item.timer_segundos != null && urgStyle && (
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:8,
+            background: urgStyle.bg, border:`1px solid ${urgStyle.border}`,
+            borderRadius:'var(--radius-sm)', padding:'6px 10px' }}>
+            <span style={{ fontSize:11, fontWeight:600, color: urgStyle.color }}>Tiempo abierto:</span>
             <ClaimTimer segundosIniciales={item.timer_segundos} />
           </div>
         )}
