@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+﻿import { useState, useRef, useEffect } from 'react'
 import ClaimTimer from './ClaimTimer'
 
 const ACCT = {
@@ -131,9 +131,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
   if (!item) return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', gap:10, color:'var(--text3)' }}>
-      <div style={{ fontSize:36 }}>💬</div>
+      <div style={{ fontSize:36 }}>ðŸ’¬</div>
       <div style={{ fontSize:14, fontWeight:500, color:'var(--text2)' }}>Selecciona un mensaje</div>
-      <div style={{ fontSize:12 }}>para ver la conversación</div>
+      <div style={{ fontSize:12 }}>para ver la conversaciÃ³n</div>
     </div>
   )
 
@@ -144,10 +144,10 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const numeroCopia = item.orden_id || item.claim_id || null
 
   const URGENCIA_STYLE = {
-    CRITICO:     { color:'#dc2626', bg:'#fef2f2', border:'#fca5a5', label:'CRITICO',   icon:'🔴' },
-    URGENTE:     { color:'#ea580c', bg:'#fff7ed', border:'#fdba74', label:'URGENTE',   icon:'🟠' },
-    MODERADO:    { color:'#d97706', bg:'#fffbeb', border:'#fcd34d', label:'MODERADO',  icon:'🟡' },
-    INFORMATIVO: { color:'#16a34a', bg:'#f0fdf4', border:'#86efac', label:'NO AFECTA', icon:'🟢' },
+    CRITICO:     { color:'#dc2626', bg:'#fef2f2', border:'#fca5a5', label:'CRITICO',   icon:'ðŸ”´' },
+    URGENTE:     { color:'#ea580c', bg:'#fff7ed', border:'#fdba74', label:'URGENTE',   icon:'ðŸŸ ' },
+    MODERADO:    { color:'#d97706', bg:'#fffbeb', border:'#fcd34d', label:'MODERADO',  icon:'ðŸŸ¡' },
+    INFORMATIVO: { color:'#16a34a', bg:'#f0fdf4', border:'#86efac', label:'NO AFECTA', icon:'ðŸŸ¢' },
   }
   const urgStyle = isClaim ? (URGENCIA_STYLE[item.urgencia] || URGENCIA_STYLE.MODERADO) : null
 
@@ -192,7 +192,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   }
 
   const handleDeleteQuestion = async () => {
-    if (!window.confirm('¿Eliminar esta pregunta de Mercado Libre? Esta accion no se puede deshacer en ML.')) return
+    if (!window.confirm('Â¿Eliminar esta pregunta de Mercado Libre? Esta accion no se puede deshacer en ML.')) return
     const token = localStorage.getItem('khn_token')
     setSending(true)
     try {
@@ -202,12 +202,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       })
       const d = await r.json()
       if (d.ok) {
-        setSuccess(d.ml_eliminado ? '🗑 Eliminada en ML y panel' : '🗑 Eliminada del panel')
+        setSuccess(d.ml_eliminado ? 'ðŸ—‘ Eliminada en ML y panel' : 'ðŸ—‘ Eliminada del panel')
         setTimeout(() => onDiscard(item.id), 900)
       } else {
-        setSuccess('❌ ' + (d.error || 'Error al eliminar'))
+        setSuccess('âŒ ' + (d.error || 'Error al eliminar'))
       }
-    } catch { setSuccess('❌ Error de conexión') }
+    } catch { setSuccess('âŒ Error de conexiÃ³n') }
     finally { setSending(false) }
   }
 
@@ -222,15 +222,15 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setSending(true)
     try {
       await onApprove(item.id, editMode ? editText : item.respuesta_ia)
-      setSuccess('✅ Enviado a MercadoLibre')
-    } catch(e) { setSuccess('❌ Error: ' + (e?.message || 'Error desconocido')) }
+      setSuccess('âœ… Enviado a MercadoLibre')
+    } catch(e) { setSuccess('âŒ Error: ' + (e?.message || 'Error desconocido')) }
     finally { setSending(false) }
   }
 
   const handleDiscard = async () => {
     setSending(true)
-    try { await onDiscard(item.id); setSuccess('🗑 Descartado') }
-    catch { setSuccess('❌ Error al descartar') }
+    try { await onDiscard(item.id); setSuccess('ðŸ—‘ Descartado') }
+    catch { setSuccess('âŒ Error al descartar') }
     finally { setSending(false) }
   }
 
@@ -242,22 +242,22 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       })
-      setSuccess('✅ Marcado como atendido')
+      setSuccess('âœ… Marcado como atendido')
       setTimeout(() => onDiscard(item.id), 800)
-    } catch { setSuccess('❌ Error') }
+    } catch { setSuccess('âŒ Error') }
     finally { setSending(false) }
   }
 
   const handleCorrect = async () => {
     if (!corrText.trim()) return
     setSending(true)
-    try { await onCorrect(item.id, corrText); setSuccess('📚 Corrección guardada'); setCorrMode(false); setCorrText('') }
-    catch { setSuccess('❌ Error') }
+    try { await onCorrect(item.id, corrText); setSuccess('ðŸ“š CorrecciÃ³n guardada'); setCorrMode(false); setCorrText('') }
+    catch { setSuccess('âŒ Error') }
     finally { setSending(false) }
   }
 
-  // ── hilo_json: cada mensaje tiene { r: 'b'|'s', t: '...' }
-  // r='b' → buyer (comprador) | r='s' → seller (vendedor/nosotros)
+  // â”€â”€ hilo_json: cada mensaje tiene { r: 'b'|'s', t: '...' }
+  // r='b' â†’ buyer (comprador) | r='s' â†’ seller (vendedor/nosotros)
   const hilo = Array.isArray(item.hilo_json) ? item.hilo_json : []
 
   const fmtTs = (ts) => {
@@ -298,7 +298,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         </div>
         <div style={{ fontSize:10, color:'var(--text3)', marginTop:3, paddingLeft:4, paddingRight:4, display:'flex', gap:6, alignItems:'center' }}>
           <span>{isSeller ? (item.cuenta || 'Seller') : (item.comprador || 'Comprador')}</span>
-          {ts && <span style={{ color:'var(--text3)', opacity:.7 }}>· {ts}</span>}
+          {ts && <span style={{ color:'var(--text3)', opacity:.7 }}>Â· {ts}</span>}
         </div>
       </div>
     )
@@ -316,7 +316,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const ESTADO_ENVIO = {
     shipped:    { label:'Enviado',     color:'var(--blue)',   bg:'var(--blue-light)'   },
     delivered:  { label:'Entregado',   color:'var(--green)',  bg:'var(--green-light)'  },
-    ready_to_ship:{ label:'Listo envío',color:'var(--amber)', bg:'var(--amber-light)'  },
+    ready_to_ship:{ label:'Listo envÃ­o',color:'var(--amber)', bg:'var(--amber-light)'  },
     pending:    { label:'Pendiente',   color:'var(--amber)',  bg:'var(--amber-light)'  },
     cancelled:  { label:'Cancelado',   color:'var(--red)',    bg:'var(--red-light)'    },
   }
@@ -330,7 +330,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
 
-      {/* ── Header */}
+      {/* â”€â”€ Header */}
       <div style={{ padding:'14px 18px', borderBottom:'1.5px solid var(--border)', background:'var(--surface)', flexShrink:0, boxShadow:'var(--shadow)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
           <span style={{ fontSize:14, fontWeight:700, color:'var(--text)' }}>{item.comprador || 'Comprador'}</span>
@@ -340,22 +340,22 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           {isClaim && urgStyle && (
             <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5,
               background: urgStyle.bg, color: urgStyle.color, border:`1px solid ${urgStyle.border}` }}>
-              {urgStyle.icon} RECLAMO — {urgStyle.label}
+              {urgStyle.icon} RECLAMO â€” {urgStyle.label}
             </span>
           )}
           {item.tipo === 'PRE-COMPRA' && item.pedido_hecho && (
             <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5,
               background:'#dcfce7', color:'#16a34a', border:'1px solid #86efac' }}>
-              ✓ Pedido hecho
+              âœ“ Pedido hecho
             </span>
           )}
           {isResolved && (
             <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5, background:'var(--green-light)', color:'var(--green)', border:'1px solid var(--green-border)', marginLeft:'auto' }}>
-              {item.estado === 'resuelto' ? '✓ ATENDIDO' : '✗ DESCARTADO'}
+              {item.estado === 'resuelto' ? 'âœ“ ATENDIDO' : 'âœ— DESCARTADO'}
             </span>
           )}
         </div>
-        {/* Producto: imagen + título completo */}
+        {/* Producto: imagen + tÃ­tulo completo */}
         {(item.imagen_thumbnail || item.producto) && (
           <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:6, padding:'8px 10px', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)' }}>
             {item.imagen_thumbnail && (
@@ -418,17 +418,17 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               }}>
                 {e.nombre}
                 <span onClick={() => quitarEtiqueta(e.id)}
-                  style={{ cursor:'pointer', opacity:.7, fontSize:11, lineHeight:1 }}>×</span>
+                  style={{ cursor:'pointer', opacity:.7, fontSize:11, lineHeight:1 }}>Ã—</span>
               </span>
             ))}
           </div>
         )}
       </div>
 
-      {/* ── Contenido principal: hilo + sidebar orden */}
+      {/* â”€â”€ Contenido principal: hilo + sidebar orden */}
       <div style={{ flex:1, display:'flex', overflow:'hidden' }}>
 
-      {/* ── Hilo */}
+      {/* â”€â”€ Hilo */}
       <div ref={threadRef} style={{ flex:1, overflowY:'auto', padding:'14px', display:'flex', flexDirection:'column', gap:10 }}>
 
         {/* Loader de contexto */}
@@ -440,14 +440,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         {isClaim && contexto.length > 0 && (
           <>
             <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--text3)', padding:'4px 0', borderBottom:'1px dashed var(--border)', marginBottom:4 }}>
-              📋 Mensajes previos de post-venta — misma orden
+              ðŸ“‹ Mensajes previos de post-venta â€” misma orden
             </div>
             {contexto.map((msg, i) => {
               const hiloCtx = Array.isArray(msg.hilo_json) ? msg.hilo_json : []
               return hiloCtx.map((m, j) => renderBubble(m, j, { dimmed: true, keyPrefix: `ctx-${i}-` }))
             })}
             <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--red)', padding:'4px 0', borderBottom:'1px dashed var(--red-border)', marginBottom:4 }}>
-              🚨 Inicio del reclamo
+              ðŸš¨ Inicio del reclamo
             </div>
           </>
         )}
@@ -456,7 +456,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         {item.tipo === 'PRE-COMPRA' && contexto.length > 0 && (
           <>
             <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--text3)', padding:'4px 0', borderBottom:'1px dashed var(--border)', marginBottom:4 }}>
-              📋 {contexto.length} pregunta{contexto.length > 1 ? 's' : ''} previa{contexto.length > 1 ? 's' : ''} sobre este producto
+              ðŸ“‹ {contexto.length} pregunta{contexto.length > 1 ? 's' : ''} previa{contexto.length > 1 ? 's' : ''} sobre este producto
             </div>
             {contexto.map((msg, i) => (
               <div key={`pctx-${i}`} style={{ opacity: 0.65 }}>
@@ -465,7 +465,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               </div>
             ))}
             <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--purple)', padding:'4px 0', borderBottom:'1px dashed var(--purple-border)', marginBottom:4 }}>
-              💬 Pregunta actual
+              ðŸ’¬ Pregunta actual
             </div>
           </>
         )}
@@ -491,14 +491,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         )}
       </div>
 
-      {/* ── Sidebar derecho: info de la orden (solo POST-VENTA) */}
+      {/* â”€â”€ Sidebar derecho: info de la orden (solo POST-VENTA) */}
       {isPostVenta && (
         <div style={{ width:240, flexShrink:0, borderLeft:'1.5px solid var(--border)', overflowY:'auto', background:'var(--surface)', display:'flex', flexDirection:'column' }}>
           {loadingOrden ? (
             <div style={{ padding:16, fontSize:11, color:'var(--text3)', textAlign:'center' }}>Cargando orden...</div>
           ) : ordenData ? (
             <>
-              {/* Estado orden + envío */}
+              {/* Estado orden + envÃ­o */}
               <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
                 <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Estado</div>
                 {(() => {
@@ -512,7 +512,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                       </div>
                       {ordenData.envio_estado && (
                         <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                          <span style={{ fontSize:10, color:'var(--text3)', minWidth:46 }}>Envío</span>
+                          <span style={{ fontSize:10, color:'var(--text3)', minWidth:46 }}>EnvÃ­o</span>
                           <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:ee.bg, color:ee.color }}>{ee.label}</span>
                         </div>
                       )}
@@ -529,12 +529,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                     onError={e => { e.target.style.display='none' }} />
                 )}
                 <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', lineHeight:1.4, marginBottom:4 }}>
-                  {ordenData.producto || item.producto || '—'}
+                  {ordenData.producto || item.producto || 'â€”'}
                 </div>
                 {ordenData.variante && (
                   <div style={{ fontSize:11, color:'var(--purple)', marginBottom:4 }}>{ordenData.variante}</div>
                 )}
-                <div style={{ fontSize:11, color:'var(--text3)', marginBottom:2 }}>SKU: {ordenData.sku || item.sku || '—'}</div>
+                <div style={{ fontSize:11, color:'var(--text3)', marginBottom:2 }}>SKU: {ordenData.sku || item.sku || 'â€”'}</div>
                 <div style={{ fontSize:11, color:'var(--text3)', marginBottom:2 }}>Cant: {ordenData.cantidad || 1}</div>
                 {ordenData.total && (
                   <div style={{ fontSize:13, fontWeight:700, color:'var(--green)', marginTop:6 }}>{fmtPeso(ordenData.total)}</div>
@@ -555,12 +555,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 ))}
               </div>
 
-              {/* Envío */}
+              {/* EnvÃ­o */}
               {(ordenData.transportista || ordenData.tracking_number) && (
                 <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
-                  <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Envío</div>
+                  <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>EnvÃ­o</div>
                   {ordenData.transportista && (
-                    <div style={{ fontSize:11, color:'var(--text2)', marginBottom:4 }}>🚚 {ordenData.transportista}</div>
+                    <div style={{ fontSize:11, color:'var(--text2)', marginBottom:4 }}>ðŸšš {ordenData.transportista}</div>
                   )}
                   {ordenData.tracking_number && (
                     <div style={{ fontSize:10, color:'var(--text3)', wordBreak:'break-all', marginBottom:6 }}>
@@ -570,7 +570,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   {ordenData.tracking_url && (
                     <a href={ordenData.tracking_url} target="_blank" rel="noreferrer"
                       style={{ fontSize:11, fontWeight:600, color:'var(--blue)', textDecoration:'none', display:'block', padding:'5px 0' }}>
-                      Ver seguimiento →
+                      Ver seguimiento â†’
                     </a>
                   )}
                 </div>
@@ -595,14 +595,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
       </div>{/* fin flex row */}
 
-      {/* ── Panel de Templates */}
+      {/* â”€â”€ Panel de Templates */}
       {showTemplates && !isResolved && !isClaim && (
         <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--amber-border)', borderRadius:'var(--radius)', overflow:'hidden', boxShadow:'var(--shadow-md)' }}>
           {/* Header */}
           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', background:'var(--amber-light)', borderBottom:'1px solid var(--amber-border)' }}>
-            <span style={{ fontSize:11, fontWeight:700, color:'var(--amber)', flex:1 }}>📋 TEMPLATES DE RESPUESTA</span>
+            <span style={{ fontSize:11, fontWeight:700, color:'var(--amber)', flex:1 }}>ðŸ“‹ TEMPLATES DE RESPUESTA</span>
             <button onClick={() => { setShowTemplates(false); setTplBusqueda('') }}
-              style={{ fontSize:14, background:'none', border:'none', cursor:'pointer', color:'var(--text3)', lineHeight:1 }}>✕</button>
+              style={{ fontSize:14, background:'none', border:'none', cursor:'pointer', color:'var(--text3)', lineHeight:1 }}>âœ•</button>
           </div>
           {/* Buscador */}
           <div style={{ padding:'8px 14px', borderBottom:'1px solid var(--border)' }}>
@@ -626,7 +626,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               if (filtrados.length === 0) return (
                 <div style={{ padding:16, fontSize:12, color:'var(--text3)', textAlign:'center' }}>Sin resultados</div>
               )
-              // Agrupar por categoría
+              // Agrupar por categorÃ­a
               const porCategoria = filtrados.reduce((acc, t) => {
                 const cat = t.categoria || 'GENERAL'
                 if (!acc[cat]) acc[cat] = []
@@ -658,7 +658,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         </div>
       )}
 
-      {/* ── Bloque IA */}
+      {/* â”€â”€ Bloque IA */}
       {!isResolved && !isClaim && item.respuesta_ia && (
         <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--purple-border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow-md)', overflow:'hidden' }}>
           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', background:'var(--purple-light)', borderBottom:'1px solid var(--purple-border)' }}>
@@ -667,15 +667,15 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             {item.agente && <span style={{ fontSize:11, color:'var(--text3)', marginLeft:'auto' }}>Agente: {item.agente}</span>}
             <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
               style={{ marginLeft: item.agente ? 0 : 'auto', fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:5, border:'1px solid var(--purple-border)', background: editMode ? 'var(--purple)' : 'transparent', color: editMode ? '#fff' : 'var(--purple)', cursor:'pointer' }}>
-              {editMode ? 'Cancelar' : '✏️ Editar'}
+              {editMode ? 'Cancelar' : 'âœï¸ Editar'}
             </button>
           </div>
           {editMode
-            ? <textarea value={editText} onChange={e => setEditText(e.target.value)} rows={4}
+            ? <textarea value={editText} onChange={e => setEditText(e.target.value)} onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); handleApprove(); }}} rows={4}
                 style={{ width:'100%', border:'none', borderTop:'1px solid var(--border)', padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55, fontFamily:'inherit', resize:'vertical', outline:'none', background:'var(--blue-light)' }} />
-            : <div style={{ padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55 }}>{item.respuesta_ia}</div>
+            : <div onClick={() => { setEditMode(true); setEditText(item.respuesta_ia) }} style={{ padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55, cursor:'text' }}>{item.respuesta_ia}</div>
           }
-          {/* Botones inline — Usar / Copiar */}
+          {/* Botones inline â€” Usar / Copiar */}
           {!editMode && (
             <div style={{ display:'flex', gap:6, padding:'6px 14px 10px', borderTop:'1px solid var(--border)', background:'var(--surface2)' }}>
               <button onClick={handleApprove} disabled={sending}
@@ -684,7 +684,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               </button>
               <button onClick={() => {
                 navigator.clipboard.writeText(item.respuesta_ia)
-                setSuccess('✓ Copiado')
+                setSuccess('âœ“ Copiado')
                 setTimeout(() => setSuccess(''), 2000)
               }}
                 style={{ fontSize:11, fontWeight:600, padding:'4px 14px', borderRadius:99, background:'transparent', color:'var(--text2)', border:'1px solid var(--border)', cursor:'pointer' }}>
@@ -699,7 +699,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         </div>
       )}
 
-      {/* ── Corrección post-envío */}
+      {/* â”€â”€ CorrecciÃ³n post-envÃ­o */}
       {isResolved && item.estado === 'resuelto' && corrMode && (
         <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--amber-border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
           <div style={{ padding:'8px 14px', background:'var(--amber-light)', borderBottom:'1px solid var(--amber-border)', fontSize:11, fontWeight:700, color:'var(--amber)' }}>
@@ -720,13 +720,13 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         </div>
       )}
 
-      {/* ── Panel de Etiquetas */}
+      {/* â”€â”€ Panel de Etiquetas */}
       {showEtiquetas && (
         <div style={{ margin:'0 14px 8px', background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 14px', background:'var(--surface2)', borderBottom:'1px solid var(--border)' }}>
-            <span style={{ fontSize:11, fontWeight:700, color:'var(--text2)', textTransform:'uppercase', letterSpacing:'.05em' }}>🏷 Etiquetas</span>
+            <span style={{ fontSize:11, fontWeight:700, color:'var(--text2)', textTransform:'uppercase', letterSpacing:'.05em' }}>ðŸ· Etiquetas</span>
             <button onClick={() => { setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([]) }}
-              style={{ marginLeft:'auto', background:'none', border:'none', cursor:'pointer', fontSize:14, color:'var(--text3)' }}>×</button>
+              style={{ marginLeft:'auto', background:'none', border:'none', cursor:'pointer', fontSize:14, color:'var(--text3)' }}>Ã—</button>
           </div>
           <div style={{ padding:'10px 14px' }}>
             {/* Input para escribir/buscar etiqueta */}
@@ -780,7 +780,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   }}>
                     {e.nombre}
                     <span onClick={() => quitarEtiqueta(e.id)}
-                      style={{ cursor:'pointer', opacity:.7, fontSize:13 }}>×</span>
+                      style={{ cursor:'pointer', opacity:.7, fontSize:13 }}>Ã—</span>
                   </span>
                 ))}
               </div>
@@ -789,18 +789,18 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         </div>
       )}
 
-      {/* ── Barra de acciones */}
+      {/* â”€â”€ Barra de acciones */}
       <div style={{ padding:'12px 14px', borderTop:'1.5px solid var(--border)', background:'var(--surface)', display:'flex', gap:8, flexShrink:0, flexWrap:'wrap', alignItems:'center' }}>
 
         {isClaim && (
           <>
             <button onClick={handleCopyNumero} disabled={!numeroCopia}
               style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)', background: copied ? 'var(--green)' : 'var(--red)', color:'#fff', cursor:'pointer', transition:'background .2s', display:'inline-flex', alignItems:'center', gap:6 }}>
-              {copied ? '✓ Número copiado' : '🔗 Ver reclamo en ML'}
+              {copied ? 'âœ“ NÃºmero copiado' : 'ðŸ”— Ver reclamo en ML'}
             </button>
             <button onClick={handleMarkResolved} disabled={sending}
               style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--green-border)', background:'var(--green)', color:'#fff', cursor:'pointer', opacity: sending ? .6 : 1 }}>
-              {sending ? 'Guardando...' : '✓ Marcar atendido'}
+              {sending ? 'Guardando...' : 'âœ“ Marcar atendido'}
             </button>
             <button onClick={handleDiscard} disabled={sending}
               style={{ fontSize:12, fontWeight:600, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', background:'var(--surface)', color:'var(--text2)', cursor:'pointer' }}>
@@ -817,7 +817,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             </button>
             <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
               style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--purple-border)', background:'var(--purple-light)', color:'var(--purple)', cursor:'pointer' }}>
-              {editMode ? 'Cancelar edición' : '✏️ Editar'}
+              {editMode ? 'Cancelar ediciÃ³n' : 'âœï¸ Editar'}
             </button>
             {editMode && (
               <button onClick={handleApprove} disabled={sending || !editText.trim()}
@@ -827,7 +827,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             )}
             <button onClick={loadTemplates}
               style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--amber-border)', background: showTemplates ? 'var(--amber)' : 'var(--amber-light)', color: showTemplates ? '#fff' : 'var(--amber)', cursor:'pointer' }}>
-              📋 Templates
+              ðŸ“‹ Templates
             </button>
             <button onClick={handleDiscard} disabled={sending}
               style={{ fontSize:12, fontWeight:600, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', background:'var(--surface)', color:'var(--text2)', cursor:'pointer' }}>
@@ -836,7 +836,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             <button onClick={handleDeleteQuestion} disabled={sending}
               title="Eliminar esta pregunta directamente en Mercado Libre"
               style={{ fontSize:11, fontWeight:600, padding:'9px 13px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)', background:'var(--red-light)', color:'var(--red)', cursor:'pointer', opacity: sending ? .6 : 1 }}>
-              🗑 Eliminar en ML
+              ðŸ—‘ Eliminar en ML
             </button>
           </>
         )}
@@ -847,20 +847,21 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         )}
 
         {success && (
-          <span style={{ fontSize:12, fontWeight:600, marginLeft:'auto', color: success.startsWith('❌') ? 'var(--red)' : 'var(--green)' }}>
+          <span style={{ fontSize:12, fontWeight:600, marginLeft:'auto', color: success.startsWith('âŒ') ? 'var(--red)' : 'var(--green)' }}>
             {success}
           </span>
         )}
-        {/* Botón etiquetas — siempre visible */}
+        {/* BotÃ³n etiquetas â€” siempre visible */}
         <button onClick={() => setShowEtiquetas(!showEtiquetas)}
           style={{ marginLeft:'auto', fontSize:11, fontWeight:700, padding:'7px 13px', borderRadius:'var(--radius-sm)',
             border:`1.5px solid ${showEtiquetas ? 'var(--purple)' : 'var(--border)'}`,
             background: showEtiquetas ? 'var(--purple)' : 'transparent',
             color: showEtiquetas ? '#fff' : 'var(--text3)', cursor:'pointer',
             display:'flex', alignItems:'center', gap:5 }}>
-          🏷 {etiquetas.length > 0 ? etiquetas.length : ''}
+          ðŸ· {etiquetas.length > 0 ? etiquetas.length : ''}
         </button>
       </div>
     </div>
   )
 }
+
