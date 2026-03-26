@@ -675,6 +675,27 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 style={{ width:'100%', border:'none', borderTop:'1px solid var(--border)', padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55, fontFamily:'inherit', resize:'vertical', outline:'none', background:'var(--blue-light)' }} />
             : <div style={{ padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55 }}>{item.respuesta_ia}</div>
           }
+          {/* Botones inline — Usar / Copiar */}
+          {!editMode && (
+            <div style={{ display:'flex', gap:6, padding:'6px 14px 10px', borderTop:'1px solid var(--border)', background:'var(--surface2)' }}>
+              <button onClick={handleApprove} disabled={sending}
+                style={{ fontSize:11, fontWeight:700, padding:'4px 14px', borderRadius:99, background:'var(--green)', color:'#fff', border:'none', cursor:'pointer', opacity: sending ? .6 : 1 }}>
+                {sending ? 'Enviando...' : 'Usar'}
+              </button>
+              <button onClick={() => {
+                navigator.clipboard.writeText(item.respuesta_ia)
+                setSuccess('✓ Copiado')
+                setTimeout(() => setSuccess(''), 2000)
+              }}
+                style={{ fontSize:11, fontWeight:600, padding:'4px 14px', borderRadius:99, background:'transparent', color:'var(--text2)', border:'1px solid var(--border)', cursor:'pointer' }}>
+                Copiar
+              </button>
+              <button onClick={handleDiscard} disabled={sending}
+                style={{ fontSize:11, fontWeight:600, padding:'4px 14px', borderRadius:99, background:'transparent', color:'var(--text3)', border:'1px solid var(--border)', cursor:'pointer' }}>
+                Descartar
+              </button>
+            </div>
+          )}
         </div>
       )}
 
