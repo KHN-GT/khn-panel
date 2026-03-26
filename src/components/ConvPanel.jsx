@@ -287,8 +287,8 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     return (
       <div key={`${keyPrefix}${i}`} style={{ display:'flex', flexDirection:'column', alignItems: isSeller ? 'flex-end' : 'flex-start', opacity: dimmed ? 0.75 : 1 }}>
         <div style={{
-          maxWidth: '80%', padding: '10px 14px', borderRadius: 12,
-          fontSize: 13, lineHeight: 1.55,
+          maxWidth: '82%', padding: '12px 16px', borderRadius: 12,
+          fontSize: 14, lineHeight: 1.6,
           color: dimmed ? 'var(--text2)' : 'var(--text)',
           background: isSeller
             ? (dimmed ? '#f0f2ff' : 'var(--purple-light)')
@@ -300,7 +300,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         }}>
           {text}
         </div>
-        <div style={{ fontSize:10, color:'var(--text3)', marginTop:3, paddingLeft:4, paddingRight:4, display:'flex', gap:6, alignItems:'center' }}>
+        <div style={{ fontSize:11, color:'var(--text3)', marginTop:4, paddingLeft:4, paddingRight:4, display:'flex', gap:6, alignItems:'center' }}>
           <span>{isSeller ? (item.cuenta || 'Seller') : (item.comprador || 'Comprador')}</span>
           {ts && <span style={{ color:'var(--text3)', opacity:.7 }}>· {ts}</span>}
         </div>
@@ -337,7 +337,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       {/* ── Header */}
       <div style={{ padding:'14px 18px', borderBottom:'1.5px solid var(--border)', background:'var(--surface)', flexShrink:0, boxShadow:'var(--shadow)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
-          <span style={{ fontSize:14, fontWeight:700, color:'var(--text)' }}>{item.comprador || 'Comprador'}</span>
+          <span style={{ fontSize:17, fontWeight:700, color:'var(--text)' }}>{item.comprador || 'Comprador'}</span>
           <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5, background:ac.bg, color:ac.color, border:`1px solid ${ac.br}` }}>
             {item.cuenta}
           </span>
@@ -381,18 +381,18 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 }}
                 src={item.imagen_thumbnail}
                 alt="producto"
-                style={{ width:52, height:52, objectFit:'contain', borderRadius:6, border:'1px solid var(--border)', flexShrink:0, background:'#fff', cursor:'zoom-in' }}
+                style={{ width:72, height:72, objectFit:'contain', borderRadius:8, border:'1px solid var(--border)', flexShrink:0, background:'#fff', cursor:'zoom-in' }}
                 onError={e => { e.target.style.display='none' }}
               />
             )}
             <div style={{ minWidth:0 }}>
               {item.producto && (
-                <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', lineHeight:1.4, wordBreak:'break-word' }}>
+                <div style={{ fontSize:14, fontWeight:600, color:'var(--text)', lineHeight:1.4, wordBreak:'break-word' }}>
                   {item.producto}
                 </div>
               )}
               {item.sku && (
-                <div style={{ fontSize:11, color:'var(--text3)', marginTop:2 }}>
+                <div style={{ fontSize:12, color:'var(--text3)', marginTop:3 }}>
                   SKU: <code style={{ color:'var(--blue)', fontSize:10 }}>{item.sku}</code>
                 </div>
               )}
@@ -691,14 +691,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           </div>
           {editMode
             ? <textarea value={editText} onChange={e => setEditText(e.target.value)} onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); handleApprove(); }}} rows={7}
-                style={{ width:'100%', border:'none', borderTop:'1px solid var(--border)', padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55, fontFamily:'inherit', resize:'vertical', outline:'none', background:'var(--blue-light)' }} />
-            : <div onClick={() => { setEditMode(true); setEditText(item.respuesta_ia.replace(/\n+/g, ' ').trim()) }} style={{ padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55, cursor:'text' }}>{item.respuesta_ia}</div>
+                style={{ width:'100%', border:'none', borderTop:'1px solid var(--border)', padding:'14px 16px', fontSize:14, color:'var(--text)', lineHeight:1.6, fontFamily:'inherit', resize:'vertical', outline:'none', background:'var(--blue-light)' }} />
+            : <div onClick={() => { setEditMode(true); setEditText(item.respuesta_ia.replace(/\n+/g, ' ').trim()) }} style={{ padding:'14px 16px', fontSize:14, color:'var(--text)', lineHeight:1.6, cursor:'text' }}>{item.respuesta_ia}</div>
           }
           {/* Botones inline — Usar / Copiar */}
           {!editMode && (
             <div style={{ display:'flex', gap:6, padding:'6px 14px 10px', borderTop:'1px solid var(--border)', background:'var(--surface2)' }}>
               <button onClick={handleApprove} disabled={sending}
-                style={{ fontSize:11, fontWeight:700, padding:'4px 14px', borderRadius:99, background:'var(--green)', color:'#fff', border:'none', cursor:'pointer', opacity: sending ? .6 : 1 }}>
+                style={{ fontSize:12, fontWeight:700, padding:'6px 16px', borderRadius:99, background:'var(--green)', color:'#fff', border:'none', cursor:'pointer', opacity: sending ? .6 : 1 }}>
                 {sending ? 'Enviando...' : 'Usar'}
               </button>
               <button onClick={() => {
