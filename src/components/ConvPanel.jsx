@@ -36,6 +36,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [etqSugeridas,  setEtqSugeridas]  = useState([])
   const [etqInput,      setEtqInput]      = useState('')
   const [loadingEtq,    setLoadingEtq]    = useState(false)
+  const [showGallery,   setShowGallery]   = useState(false)
+  const [galleryImages, setGalleryImages] = useState([])
+  const [galleryIdx,    setGalleryIdx]    = useState(0)
+  const [loadingGallery,setLoadingGallery]= useState(false)
+  const [showGallery,   setShowGallery]   = useState(false)
+  const [galleryImages, setGalleryImages] = useState([])
+  const [galleryIdx,    setGalleryIdx]    = useState(0)
+  const [loadingGallery,setLoadingGallery]= useState(false)
   const threadRef = useRef(null)
 
   useEffect(() => {
@@ -300,7 +308,147 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           <span>{isSeller ? (item.cuenta || 'Seller') : (item.comprador || 'Comprador')}</span>
           {ts && <span style={{ color:'var(--text3)', opacity:.7 }}>Â· {ts}</span>}
         </div>
-      </div>
+        {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
     )
   }
 
@@ -359,10 +507,20 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         {(item.imagen_thumbnail || item.producto) && (
           <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:6, padding:'8px 10px', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)' }}>
             {item.imagen_thumbnail && (
-              <img
-                src={item.imagen_thumbnail}
-                alt="producto"
-                style={{ width:52, height:52, objectFit:'contain', borderRadius:6, border:'1px solid var(--border)', flexShrink:0, background:'#fff' }}
+              <img onClick={async () => {
+                setShowGallery(true); setGalleryIdx(0)
+                if (galleryImages.length === 0) {
+                  setLoadingGallery(true)
+                  const tok = localStorage.getItem('khn_token')
+                  try {
+                    const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/imagenes`, { headers: {'Authorization': `Bearer ${tok}`} })
+                    const d = await r.json()
+                    setGalleryImages(d.pictures?.length ? d.pictures : [item.imagen_thumbnail])
+                  } catch { setGalleryImages([item.imagen_thumbnail]) }
+                  finally { setLoadingGallery(false) }
+                }
+              }}
+              src={item.imagen_thumbnail} alt="producto" style={{ cursor:'zoom-in', width:52, height:52, objectFit:'contain', borderRadius:6, border:'1px solid var(--border)', flexShrink:0, background:'#fff' }}
                 onError={e => { e.target.style.display='none' }}
               />
             )}
@@ -370,32 +528,872 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               {item.producto && (
                 <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', lineHeight:1.4, wordBreak:'break-word' }}>
                   {item.producto}
-                </div>
+                  {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
               )}
               {item.sku && (
                 <div style={{ fontSize:11, color:'var(--text3)', marginTop:2 }}>
                   SKU: <code style={{ color:'var(--blue)', fontSize:10 }}>{item.sku}</code>
-                </div>
+                  {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
               )}
             </div>
+            {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
           </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
         )}
         <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop: (item.imagen_thumbnail || item.producto) ? 6 : 0 }}>
           {item.orden_id && (
             <div style={{ fontSize:11, color:'var(--text2)', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:5, padding:'2px 8px' }}>
               Orden <code style={{ fontSize:10, color:'var(--blue)' }}>#{item.orden_id}</code>
-            </div>
+              {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
           )}
           {!item.producto && item.sku && (
             <div style={{ fontSize:11, color:'var(--text2)', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:5, padding:'2px 8px' }}>
               SKU <code style={{ fontSize:10, color:'var(--blue)' }}>{item.sku}</code>
-            </div>
+              {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
           )}
           {item.claim_id && urgStyle && (
             <div style={{ fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:5,
               color: urgStyle.color, background: urgStyle.bg, border:`1px solid ${urgStyle.border}` }}>
               Reclamo #{item.claim_id}
-            </div>
+              {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
           )}
         </div>
         {isClaim && item.timer_segundos != null && urgStyle && (
@@ -404,7 +1402,147 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             borderRadius:'var(--radius-sm)', padding:'6px 10px' }}>
             <span style={{ fontSize:11, fontWeight:600, color: urgStyle.color }}>Tiempo abierto:</span>
             <ClaimTimer segundosIniciales={item.timer_segundos} />
+            {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
           </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
         )}
         {/* Etiquetas asignadas */}
         {etiquetas.length > 0 && (
@@ -421,7 +1559,147 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   style={{ cursor:'pointer', opacity:.7, fontSize:11, lineHeight:1 }}>Ã—</span>
               </span>
             ))}
+            {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
           </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
         )}
       </div>
 
@@ -487,7 +1765,147 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             <div style={{ fontSize:10, color:'var(--text3)', marginTop:3, textAlign:'right', paddingRight:4 }}>
               {item.atendido_por || 'Sistema'}
             </div>
+            {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
           </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
         )}
       </div>
 
@@ -514,9 +1932,289 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                         <div style={{ display:'flex', alignItems:'center', gap:6 }}>
                           <span style={{ fontSize:10, color:'var(--text3)', minWidth:46 }}>EnvÃ­o</span>
                           <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:ee.bg, color:ee.color }}>{ee.label}</span>
-                        </div>
+                          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
                       )}
-                    </div>
+                      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
                   )
                 })()}
               </div>
@@ -565,7 +2263,147 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   {ordenData.tracking_number && (
                     <div style={{ fontSize:10, color:'var(--text3)', wordBreak:'break-all', marginBottom:6 }}>
                       {ordenData.tracking_number.substring(0,20)}...
-                    </div>
+                      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
                   )}
                   {ordenData.tracking_url && (
                     <a href={ordenData.tracking_url} target="_blank" rel="noreferrer"
@@ -573,7 +2411,147 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                       Ver seguimiento â†’
                     </a>
                   )}
-                </div>
+                  {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
               )}
 
               {/* Comprador */}
@@ -588,9 +2566,289 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           ) : (
             <div style={{ padding:16, fontSize:11, color:'var(--text3)', textAlign:'center', lineHeight:1.6 }}>
               Sin datos<br/>de la orden
-            </div>
-          )}
+              {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+          )}
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
       )}
 
       </div>{/* fin flex row */}
@@ -655,7 +2913,147 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               ))
             })()}
           </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
       )}
 
       {/* â”€â”€ Bloque IA */}
@@ -694,9 +3092,289 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 style={{ fontSize:11, fontWeight:600, padding:'4px 14px', borderRadius:99, background:'transparent', color:'var(--text3)', border:'1px solid var(--border)', cursor:'pointer' }}>
                 Descartar
               </button>
-            </div>
-          )}
+              {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+          )}
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
       )}
 
       {/* â”€â”€ CorrecciÃ³n post-envÃ­o */}
@@ -717,7 +3395,147 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               Cancelar
             </button>
           </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
       )}
 
       {/* â”€â”€ Panel de Etiquetas */}
@@ -757,15 +3575,435 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                       onMouseEnter={e => e.currentTarget.style.background='var(--purple-light)'}
                       onMouseLeave={e => e.currentTarget.style.background='transparent'}>
                       + Crear "{etqInput}"
-                    </div>
+                      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
                   )}
-                </div>
+                  {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
               )}
               {/* Crear si no hay sugerencias */}
               {etqInput.trim() && etqSugeridas.length === 0 && (
                 <div style={{ marginTop:4, fontSize:11, color:'var(--text3)' }}>
                   Presiona Enter para crear <strong>"{etqInput}"</strong>
-                </div>
+                  {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
               )}
             </div>
             {/* Etiquetas ya asignadas */}
@@ -783,10 +4021,290 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                       style={{ cursor:'pointer', opacity:.7, fontSize:13 }}>Ã—</span>
                   </span>
                 ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
               </div>
             )}
           </div>
         </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
       )}
 
       {/* â”€â”€ Barra de acciones */}
@@ -861,9 +4379,151 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           ðŸ· {etiquetas.length > 0 ? etiquetas.length : ''}
         </button>
       </div>
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+                {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+            )}
+          </div>
+          {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+      )}
+
+      {/* Modal Galeria */}
+      {showGallery && (
+        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10, boxShadow:'0 8px 40px rgba(0,0,0,.5)' }}>
+            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555', lineHeight:1 }}>x</button>
+            {loadingGallery
+              ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando imagenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`} style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />
+            }
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666' }}>{galleryIdx+1} / {galleryImages.length}</span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer', color: galleryIdx===galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500 }}>
+                {galleryImages.map((img,i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt={`thumb ${i+1}`}
+                    style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
+
+
 
 
 
