@@ -370,7 +370,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                     setLoadingGallery(true)
                     const tok = localStorage.getItem('khn_token')
                     try {
-                      const r = await fetch(RAILWAY + '/api/inbox/' + item.id + '/imagenes', { headers: { Authorization: 'Bearer ' + tok } })
+                      const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/imagenes`, {
+                        headers: { Authorization: 'Bearer ' + tok }
+                      })
                       const d = await r.json()
                       setGalleryImages(d.pictures?.length ? d.pictures : [item.imagen_thumbnail])
                     } catch { setGalleryImages([item.imagen_thumbnail]) }
@@ -378,7 +380,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   }
                 }}
                 src={item.imagen_thumbnail}
-                alt='producto'
+                alt="producto"
                 style={{ width:52, height:52, objectFit:'contain', borderRadius:6, border:'1px solid var(--border)', flexShrink:0, background:'#fff', cursor:'zoom-in' }}
                 onError={e => { e.target.style.display='none' }}
               />
@@ -878,31 +880,56 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           ðŸ· {etiquetas.length > 0 ? etiquetas.length : ''}
         </button>
       </div>
+      {/* ── Modal Galería ── */}
       {showGallery && (
-        <div onClick={() => setShowGallery(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.82)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
-          <div onClick={e => e.stopPropagation()} style={{ position:'relative', background:'#fff', borderRadius:12, padding:'12px', maxWidth:'92vw', maxHeight:'90vh', display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
-            <button onClick={() => setShowGallery(false)} style={{ position:'absolute', top:8, right:8, fontSize:18, background:'none', border:'none', cursor:'pointer', color:'#555' }}>x</button>
-            {loadingGallery ? <div style={{ padding:40, fontSize:13, color:'#888' }}>Cargando...</div>
-              : <img src={galleryImages[galleryIdx]} alt='img' style={{ maxWidth:'80vw', maxHeight:'70vh', objectFit:'contain', borderRadius:8 }} />}
+        <div
+          onClick={() => { setShowGallery(false); setGalleryImages([]); }}
+          style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.85)', zIndex:9999,
+            display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ position:'relative', background:'#fff', borderRadius:12, padding:'16px',
+              maxWidth:'92vw', maxHeight:'92vh', display:'flex', flexDirection:'column',
+              alignItems:'center', gap:12, boxShadow:'0 8px 48px rgba(0,0,0,.6)' }}>
+            <button onClick={() => { setShowGallery(false); setGalleryImages([]); }}
+              style={{ position:'absolute', top:10, right:12, fontSize:20, background:'none',
+                border:'none', cursor:'pointer', color:'#666', lineHeight:1, fontWeight:700 }}>✕</button>
+            {loadingGallery
+              ? <div style={{ padding:48, fontSize:13, color:'#888' }}>Cargando imágenes...</div>
+              : <img src={galleryImages[galleryIdx]} alt={`imagen ${galleryIdx+1}`}
+                  style={{ maxWidth:'78vw', maxHeight:'68vh', objectFit:'contain', borderRadius:8 }} />
+            }
             {galleryImages.length > 1 && (
-              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                <button onClick={() => setGalleryIdx(i => Math.max(0,i-1))} disabled={galleryIdx===0} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer' }}>&#8592;</button>
-                <span style={{ fontSize:12 }}>{galleryIdx+1} / {galleryImages.length}</span>
-                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1,i+1))} disabled={galleryIdx===galleryImages.length-1} style={{ fontSize:20, background:'none', border:'none', cursor:'pointer' }}>&#8594;</button>
+              <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                <button onClick={() => setGalleryIdx(i => Math.max(0, i-1))}
+                  disabled={galleryIdx === 0}
+                  style={{ fontSize:22, background:'none', border:'none', cursor:'pointer',
+                    color: galleryIdx === 0 ? '#ccc' : '#333' }}>&#8592;</button>
+                <span style={{ fontSize:12, color:'#666', minWidth:50, textAlign:'center' }}>
+                  {galleryIdx+1} / {galleryImages.length}
+                </span>
+                <button onClick={() => setGalleryIdx(i => Math.min(galleryImages.length-1, i+1))}
+                  disabled={galleryIdx === galleryImages.length-1}
+                  style={{ fontSize:22, background:'none', border:'none', cursor:'pointer',
+                    color: galleryIdx === galleryImages.length-1 ? '#ccc' : '#333' }}>&#8594;</button>
               </div>
             )}
             {galleryImages.length > 1 && (
-              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:500, marginTop:8 }}>
-                {galleryImages.map((img,i) => (
-                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt='' style={{ width:48, height:48, objectFit:'contain', borderRadius:4, cursor:'pointer', border: i===galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd', background:'#f9f9f9' }} />
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', maxWidth:520 }}>
+                {galleryImages.map((img, i) => (
+                  <img key={i} src={img} onClick={() => setGalleryIdx(i)} alt=""
+                    style={{ width:50, height:50, objectFit:'contain', borderRadius:5,
+                      cursor:'pointer', background:'#f5f5f5',
+                      border: i === galleryIdx ? '2px solid var(--purple)' : '1px solid #ddd' }} />
                 ))}
               </div>
             )}
           </div>
         </div>
       )}
+
     </div>
   )
 }
+
 
 
