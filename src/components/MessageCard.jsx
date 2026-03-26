@@ -135,6 +135,27 @@ export default function MessageCard({ item, selected, onClick }) {
         </div>
       )}
 
+      {/* Badge de estado — solo PRE-COMPRA */}
+      {isPrecompra && (() => {
+        const ESTADO_BADGE = {
+          pendiente:      { label: 'Sin respuesta',     color: '#d97706', bg: '#fffbeb', br: '#fcd34d' },
+          IA_sugerida:    { label: 'Respuesta IA lista', color: '#7c3aed', bg: '#f5f3ff', br: '#c4b5fd' },
+          resuelto:       { label: 'Respondida',         color: '#059669', bg: '#f0fdf4', br: '#86efac' },
+          fuera_horario:  { label: 'Fuera de horario',   color: '#6b7280', bg: '#f9fafb', br: '#d1d5db' },
+          descartado:     { label: 'Descartada',         color: '#6b7280', bg: '#f9fafb', br: '#d1d5db' },
+        }
+        const b = ESTADO_BADGE[item.estado]
+        if (!b) return null
+        return (
+          <div style={{ marginBottom:4 }}>
+            <span style={{ fontSize:9, fontWeight:700, padding:'2px 7px', borderRadius:99,
+              background:b.bg, color:b.color, border:`1px solid ${b.br}`, letterSpacing:'.04em' }}>
+              {b.label}
+            </span>
+          </div>
+        )
+      })()}
+
       {/* Preview pregunta */}
       <div style={{ fontSize:12, color:'var(--text3)',
         whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
