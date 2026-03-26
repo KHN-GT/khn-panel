@@ -124,6 +124,23 @@ export default function MessageCard({ item, selected, onClick }) {
         </div>
       )}
 
+      {/* Precio y stock — solo PRE-COMPRA */}
+      {isPrecompra && (item.precio != null || item.stock != null) && (
+        <div style={{ display:'flex', gap:8, marginBottom:4, alignItems:'center' }}>
+          {item.precio != null && (
+            <span style={{ fontSize:11, fontWeight:700, color:'var(--text)' }}>
+              MX${Number(item.precio).toLocaleString('es-MX', {minimumFractionDigits:0})}
+            </span>
+          )}
+          {item.stock != null && (
+            <span style={{ fontSize:10, color: item.stock > 0 ? '#059669' : '#dc2626',
+              fontWeight:600 }}>
+              {item.stock > 0 ? `${item.stock.toLocaleString()} en stock` : 'Sin stock'}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Badge Pedido hecho — solo PRE-COMPRA */}
       {isPrecompra && item.pedido_hecho && (
         <div style={{ marginBottom:4 }}>
