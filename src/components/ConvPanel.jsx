@@ -370,7 +370,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                     setLoadingGallery(true)
                     const tok = localStorage.getItem('khn_token')
                     try {
-                      const r = await fetch(RAILWAY_URL + '/api/inbox/' + item.id + '/imagenes', { headers: { Authorization: 'Bearer ' + tok } })
+                      const r = await fetch(RAILWAY + '/api/inbox/' + item.id + '/imagenes', { headers: { Authorization: 'Bearer ' + tok } })
                       const d = await r.json()
                       setGalleryImages(d.pictures?.length ? d.pictures : [item.imagen_thumbnail])
                     } catch { setGalleryImages([item.imagen_thumbnail]) }
