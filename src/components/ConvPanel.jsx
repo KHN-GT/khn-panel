@@ -518,13 +518,13 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         {/* Contexto pre-compra: preguntas anteriores del mismo SKU */}
         {item.tipo === 'PRE-COMPRA' && contexto.length > 0 && (
           <>
-            <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--text3)', padding:'4px 0', borderBottom:'1px dashed var(--border)', marginBottom:4 }}>
+            <div style={{ textAlign:'center', fontSize:12, fontWeight:700, color:'var(--text2)', padding:'6px 0', borderBottom:'1px solid var(--border)', marginBottom:8 }}>
               📋 {contexto.length} pregunta{contexto.length > 1 ? 's' : ''} previa{contexto.length > 1 ? 's' : ''} sobre este producto
             </div>
             {contexto.map((msg, i) => (
-              <div key={`pctx-${i}`} style={{ opacity: 0.65 }}>
+              <div key={`pctx-${i}`} style={{ opacity: 0.85 }}>
                 {renderBubble({ r: 'b', t: msg.mensaje_cliente || '' }, 0, { dimmed: true, keyPrefix: `pctx-q-${i}-` })}
-                {msg.respuesta_final && renderBubble({ r: 's', t: msg.respuesta_final }, 1, { dimmed: true, keyPrefix: `pctx-a-${i}-` })}
+                {(msg.respuesta_final || msg.respuesta_ia) && renderBubble({ r: 's', t: msg.respuesta_final || msg.respuesta_ia }, 1, { dimmed: true, keyPrefix: `pctx-a-${i}-` })}
               </div>
             ))}
             <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--purple)', padding:'4px 0', borderBottom:'1px dashed var(--purple-border)', marginBottom:4 }}>
