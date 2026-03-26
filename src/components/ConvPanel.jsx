@@ -343,6 +343,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               {urgStyle.icon} RECLAMO — {urgStyle.label}
             </span>
           )}
+          {item.tipo === 'PRE-COMPRA' && item.pedido_hecho && (
+            <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5,
+              background:'#dcfce7', color:'#16a34a', border:'1px solid #86efac' }}>
+              ✓ Pedido hecho
+            </span>
+          )}
           {isResolved && (
             <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5, background:'var(--green-light)', color:'var(--green)', border:'1px solid var(--green-border)', marginLeft:'auto' }}>
               {item.estado === 'resuelto' ? '✓ ATENDIDO' : '✗ DESCARTADO'}

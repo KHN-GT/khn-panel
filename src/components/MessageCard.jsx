@@ -124,6 +124,17 @@ export default function MessageCard({ item, selected, onClick }) {
         </div>
       )}
 
+      {/* Badge Pedido hecho — solo PRE-COMPRA */}
+      {isPrecompra && item.pedido_hecho && (
+        <div style={{ marginBottom:4 }}>
+          <span style={{ fontSize:9, fontWeight:700, padding:'2px 7px', borderRadius:99,
+            background:'#dcfce7', color:'#16a34a', border:'1px solid #86efac',
+            letterSpacing:'.04em' }}>
+            ✓ Pedido hecho
+          </span>
+        </div>
+      )}
+
       {/* Preview pregunta */}
       <div style={{ fontSize:12, color:'var(--text3)',
         whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
