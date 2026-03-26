@@ -209,9 +209,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         setSuccess(d.ml_eliminado ? '🗑 Eliminada en ML y panel' : '🗑 Eliminada del panel')
         setTimeout(() => onDiscard(item.id), 900)
       } else {
-        setSuccess('âŒ ' + (d.error || 'Error al eliminar'))
+        setSuccess('❌ ' + (d.error || 'Error al eliminar'))
       }
-    } catch { setSuccess('âŒ Error de conexión') }
+    } catch { setSuccess('❌ Error de conexión') }
     finally { setSending(false) }
   }
 
@@ -227,14 +227,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     try {
       await onApprove(item.id, editMode ? editText : item.respuesta_ia)
       setSuccess('✅ Enviado a MercadoLibre')
-    } catch(e) { setSuccess('âŒ Error: ' + (e?.message || 'Error desconocido')) }
+    } catch(e) { setSuccess('❌ Error: ' + (e?.message || 'Error desconocido')) }
     finally { setSending(false) }
   }
 
   const handleDiscard = async () => {
     setSending(true)
     try { await onDiscard(item.id); setSuccess('🗑 Descartado') }
-    catch { setSuccess('âŒ Error al descartar') }
+    catch { setSuccess('❌ Error al descartar') }
     finally { setSending(false) }
   }
 
@@ -248,7 +248,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       })
       setSuccess('✅ Marcado como atendido')
       setTimeout(() => onDiscard(item.id), 800)
-    } catch { setSuccess('âŒ Error') }
+    } catch { setSuccess('❌ Error') }
     finally { setSending(false) }
   }
 
@@ -256,7 +256,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     if (!corrText.trim()) return
     setSending(true)
     try { await onCorrect(item.id, corrText); setSuccess('📚 Corrección guardada'); setCorrMode(false); setCorrText('') }
-    catch { setSuccess('âŒ Error') }
+    catch { setSuccess('❌ Error') }
     finally { setSending(false) }
   }
 
@@ -774,7 +774,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       {showEtiquetas && (
         <div style={{ margin:'0 14px 8px', background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 14px', background:'var(--surface2)', borderBottom:'1px solid var(--border)' }}>
-            <span style={{ fontSize:11, fontWeight:700, color:'var(--text2)', textTransform:'uppercase', letterSpacing:'.05em' }}>ðŸ· Etiquetas</span>
+            <span style={{ fontSize:11, fontWeight:700, color:'var(--text2)', textTransform:'uppercase', letterSpacing:'.05em' }}>🏷 Etiquetas</span>
             <button onClick={() => { setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([]) }}
               style={{ marginLeft:'auto', background:'none', border:'none', cursor:'pointer', fontSize:14, color:'var(--text3)' }}>×</button>
           </div>
@@ -894,10 +894,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             style={{ fontSize:12, fontWeight:600, padding:'9px 16px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--amber-border)', background:'var(--amber-light)', color:'var(--amber)', cursor:'pointer' }}>
             Corregir para entrenamiento
           </button>
-        )}
 
         {success && (
-          <span style={{ fontSize:12, fontWeight:600, marginLeft:'auto', color: success.startsWith('âŒ') ? 'var(--red)' : 'var(--green)' }}>
+          <span style={{ fontSize:12, fontWeight:600, marginLeft:'auto', color: success.startsWith('❌') ? 'var(--red)' : 'var(--green)' }}>
             {success}
           </span>
         )}
@@ -908,7 +907,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             background: showEtiquetas ? 'var(--purple)' : 'transparent',
             color: showEtiquetas ? '#fff' : 'var(--text3)', cursor:'pointer',
             display:'flex', alignItems:'center', gap:5 }}>
-          ðŸ· {etiquetas.length > 0 ? etiquetas.length : ''}
+          🏷 {etiquetas.length > 0 ? etiquetas.length : ''}
         </button>
       </div>
       {/* ── Modal Galería ── */}
