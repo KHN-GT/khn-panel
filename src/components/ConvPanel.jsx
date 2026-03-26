@@ -191,6 +191,26 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     } catch {}
   }
 
+  const handleDeleteQuestion = async () => {
+    if (!window.confirm('¿Eliminar esta pregunta de Mercado Libre? Esta accion no se puede deshacer en ML.')) return
+    const token = localStorage.getItem('khn_token')
+    setSending(true)
+    try {
+      const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/delete_question`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const d = await r.json()
+      if (d.ok) {
+        setSuccess(d.ml_eliminado ? '🗑 Eliminada en ML y panel' : '🗑 Eliminada del panel')
+        setTimeout(() => onDiscard(item.id), 900)
+      } else {
+        setSuccess('❌ ' + (d.error || 'Error al eliminar'))
+      }
+    } catch { setSuccess('❌ Error de conexión') }
+    finally { setSending(false) }
+  }
+
   const handleCopyNumero = () => {
     if (!numeroCopia) return
     navigator.clipboard.writeText(numeroCopia).then(() => {
@@ -786,10 +806,13 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               style={{ fontSize:12, fontWeight:600, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', background:'var(--surface)', color:'var(--text2)', cursor:'pointer' }}>
               Descartar
             </button>
+            <button onClick={handleDeleteQuestion} disabled={sending}
+              title="Eliminar esta pregunta directamente en Mercado Libre"
+              style={{ fontSize:11, fontWeight:600, padding:'9px 13px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)', background:'var(--red-light)', color:'var(--red)', cursor:'pointer', opacity: sending ? .6 : 1 }}>
+              🗑 Eliminar en ML
+            </button>
           </>
         )}
-
-        {isResolved && item.estado === 'resuelto' && !corrMode && !isClaim && (
           <button onClick={() => setCorrMode(true)}
             style={{ fontSize:12, fontWeight:600, padding:'9px 16px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--amber-border)', background:'var(--amber-light)', color:'var(--amber)', cursor:'pointer' }}>
             Corregir para entrenamiento
