@@ -90,7 +90,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     // Pre-compra: historial completo de preguntas del mismo SKU
     if (item?.tipo === 'PRE-COMPRA' && item?.sku) {
       setLoadingCtx(true)
-      fetch(`${RAILWAY}/api/inbox?tipo=PRE-COMPRA&sku=${item.sku}&cuenta=${item.cuenta}&comprador_id=${item.comprador_id || ''}&estado=pendiente,en_progreso,IA_sugerida,resuelto,descartado&limit=50`, {
+      fetch(`${RAILWAY}/api/inbox?tipo=PRE-COMPRA&sku=${item.sku}&cuenta=${item.cuenta}&comprador=${encodeURIComponent(item.comprador || '')}&estado=pendiente,en_progreso,IA_sugerida,resuelto,descartado&limit=50`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(r => r.ok ? r.json() : { items: [] })
