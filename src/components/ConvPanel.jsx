@@ -673,7 +673,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           {editMode
             ? <textarea value={editText} onChange={e => setEditText(e.target.value)} onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); handleApprove(); }}} rows={7}
                 style={{ width:'100%', border:'none', borderTop:'1px solid var(--border)', padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55, fontFamily:'inherit', resize:'vertical', outline:'none', background:'var(--blue-light)' }} />
-            : <div onClick={() => { setEditMode(true); setEditText(item.respuesta_ia.replace(/\n{3,}/g, '\n\n').trim()) }} style={{ padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55, cursor:'text' }}>{item.respuesta_ia}</div>
+            : <div onClick={() => { setEditMode(true); setEditText(item.respuesta_ia.replace(/\n+/g, ' ').trim()) }} style={{ padding:'12px 14px', fontSize:13, color:'var(--text)', lineHeight:1.55, cursor:'text' }}>{item.respuesta_ia}</div>
           }
           {/* Botones inline â€” Usar / Copiar */}
           {!editMode && (
