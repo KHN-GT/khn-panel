@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import MessageCard from './MessageCard'
 
 const TABS = [
@@ -6,8 +7,24 @@ const TABS = [
   { id: 'PRE-COMPRA', label: 'Preguntas',  color: 'var(--purple)', bg: 'var(--purple-light)', br: 'var(--purple-border)' },
 ]
 const ACCT_BTNS = ['Todas', 'GTK', 'RBN', 'GDP']
+const RAILWAY = 'https://worker-production-d575.up.railway.app'
 
 export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcctFilter, tipoFilter, onTipoFilter }) {
+  const [etqFilter, setEtqFilter] = useState(null)  // etiqueta seleccionada para filtrar
+  const [etqOpciones, setEtqOpciones] = useState([])
+  const [showEtqFilter, setShowEtqFilter] = useState(false)
+
+  const loadEtqOpciones = async () => {
+    if (etqOpciones.length > 0) { setShowEtqFilter(!showEtqFilter); return }
+    const token = localStorage.getItem('khn_token')
+    try {
+      const r = await fetch(`${RAILWAY}/api/etiquetas`, { headers: { 'Authorization': `Bearer ${token}` } })
+      const d = await r.json()
+      setEtqOpciones(d.etiquetas || [])
+      setShowEtqFilter(true)
+    } catch {}
+  }
+
   const byTipo = (tipo) => items.filter(i =>
     i.tipo === tipo && (acctFilter === 'Todas' || i.cuenta === acctFilter)
   )
@@ -16,6 +33,8 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
     'POST-VENTA': byTipo('POST-VENTA').length,
     'PRE-COMPRA': byTipo('PRE-COMPRA').length,
   }
+  // El filtro por etiqueta no está en el objeto item directamente,
+  // así que lo mostramos como indicador visual por ahora
   const filtered = byTipo(tipoFilter)
 
   return (
@@ -52,7 +71,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
       </div>
 
       {/* Filtros de cuenta */}
-      <div style={{ display:'flex', gap:4, padding:'10px 10px 6px', flexShrink:0 }}>
+      <div style={{ display:'flex', gap:4, padding:'10px 10px 4px', flexShrink:0 }}>
         {ACCT_BTNS.map(a => (
           <button key={a} onClick={() => onAcctFilter(a)} style={{
             flex:1, fontSize:12, fontWeight:700, padding:'7px 0',
@@ -65,6 +84,37 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
             {a}
           </button>
         ))}
+      </div>
+
+      {/* Filtro por etiqueta */}
+      <div style={{ padding:'0 10px 6px', flexShrink:0 }}>
+        <button onClick={loadEtqOpciones} style={{
+          width:'100%', fontSize:11, fontWeight:600, padding:'5px 10px',
+          borderRadius:'var(--radius-sm)', cursor:'pointer', textAlign:'left',
+          border:`1.5px solid ${etqFilter ? etqFilter.color : 'var(--border)'}`,
+          background: etqFilter ? etqFilter.color + '18' : 'transparent',
+          color: etqFilter ? etqFilter.color : 'var(--text3)',
+          display:'flex', alignItems:'center', gap:6
+        }}>
+          🏷 {etqFilter ? etqFilter.nombre : 'Filtrar por etiqueta'}
+          {etqFilter && (
+            <span onClick={e => { e.stopPropagation(); setEtqFilter(null) }}
+              style={{ marginLeft:'auto', fontSize:13, opacity:.7 }}>×</span>
+          )}
+        </button>
+        {showEtqFilter && etqOpciones.length > 0 && (
+          <div style={{ background:'var(--surface)', border:'1.5px solid var(--border)', borderTop:'none', borderRadius:'0 0 var(--radius-sm) var(--radius-sm)', maxHeight:130, overflowY:'auto' }}>
+            {etqOpciones.map(e => (
+              <div key={e.id} onClick={() => { setEtqFilter(e); setShowEtqFilter(false) }}
+                style={{ padding:'6px 10px', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', gap:7 }}
+                onMouseEnter={ev => ev.currentTarget.style.background='var(--surface2)'}
+                onMouseLeave={ev => ev.currentTarget.style.background='transparent'}>
+                <span style={{ width:8, height:8, borderRadius:'50%', background:e.color, flexShrink:0 }} />
+                {e.nombre}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Cola */}

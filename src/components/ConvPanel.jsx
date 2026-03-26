@@ -31,6 +31,11 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [templates,     setTemplates]     = useState([])
   const [loadingTpl,    setLoadingTpl]    = useState(false)
   const [tplBusqueda,   setTplBusqueda]   = useState('')
+  const [showEtiquetas, setShowEtiquetas] = useState(false)
+  const [etiquetas,     setEtiquetas]     = useState([])
+  const [etqSugeridas,  setEtqSugeridas]  = useState([])
+  const [etqInput,      setEtqInput]      = useState('')
+  const [loadingEtq,    setLoadingEtq]    = useState(false)
   const threadRef = useRef(null)
 
   useEffect(() => {
@@ -38,9 +43,20 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setEditText(item?.respuesta_ia || '')
     setCorrMode(false); setCorrText('')
     setSuccess(''); setCopied(false); setContexto([])
+    setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([])
 
     const token = localStorage.getItem('khn_token')
     setOrdenData(null)
+
+    // Cargar etiquetas del mensaje actual
+    if (item?.id) {
+      fetch(`${RAILWAY}/api/inbox/${item.id}/etiquetas`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(r => r.ok ? r.json() : { etiquetas: [] })
+        .then(data => setEtiquetas(data.etiquetas || []))
+        .catch(() => {})
+    }
 
     // Post-venta: cargar detalles de la orden en vivo
     if (item?.tipo === 'POST-VENTA' && item?.id) {
@@ -134,6 +150,46 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     INFORMATIVO: { color:'#16a34a', bg:'#f0fdf4', border:'#86efac', label:'NO AFECTA', icon:'🟢' },
   }
   const urgStyle = isClaim ? (URGENCIA_STYLE[item.urgencia] || URGENCIA_STYLE.MODERADO) : null
+
+  const buscarEtiquetas = async (q) => {
+    if (!q.trim()) { setEtqSugeridas([]); return }
+    const token = localStorage.getItem('khn_token')
+    try {
+      const r = await fetch(`${RAILWAY}/api/etiquetas?q=${encodeURIComponent(q)}&cuenta=${item.cuenta}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const d = await r.json()
+      setEtqSugeridas(d.etiquetas || [])
+    } catch { setEtqSugeridas([]) }
+  }
+
+  const agregarEtiqueta = async (nombre, color) => {
+    const token = localStorage.getItem('khn_token')
+    setLoadingEtq(true)
+    try {
+      const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/etiquetas`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: nombre.trim(), color })
+      })
+      const d = await r.json()
+      if (d.ok && d.etiqueta) {
+        setEtiquetas(prev => prev.find(e => e.id === d.etiqueta.id) ? prev : [...prev, d.etiqueta])
+        setEtqInput(''); setEtqSugeridas([])
+      }
+    } catch {} finally { setLoadingEtq(false) }
+  }
+
+  const quitarEtiqueta = async (etiquetaId) => {
+    const token = localStorage.getItem('khn_token')
+    try {
+      await fetch(`${RAILWAY}/api/inbox/${item.id}/etiquetas/${etiquetaId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      setEtiquetas(prev => prev.filter(e => e.id !== etiquetaId))
+    } catch {}
+  }
 
   const handleCopyNumero = () => {
     if (!numeroCopia) return
@@ -322,6 +378,23 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             borderRadius:'var(--radius-sm)', padding:'6px 10px' }}>
             <span style={{ fontSize:11, fontWeight:600, color: urgStyle.color }}>Tiempo abierto:</span>
             <ClaimTimer segundosIniciales={item.timer_segundos} />
+          </div>
+        )}
+        {/* Etiquetas asignadas */}
+        {etiquetas.length > 0 && (
+          <div style={{ display:'flex', flexWrap:'wrap', gap:4, marginTop:6 }}>
+            {etiquetas.map(e => (
+              <span key={e.id} style={{
+                fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:99,
+                background: e.color + '22', color: e.color,
+                border:`1px solid ${e.color}55`,
+                display:'inline-flex', alignItems:'center', gap:4, cursor:'default'
+              }}>
+                {e.nombre}
+                <span onClick={() => quitarEtiqueta(e.id)}
+                  style={{ cursor:'pointer', opacity:.7, fontSize:11, lineHeight:1 }}>×</span>
+              </span>
+            ))}
           </div>
         )}
       </div>
@@ -600,6 +673,75 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         </div>
       )}
 
+      {/* ── Panel de Etiquetas */}
+      {showEtiquetas && (
+        <div style={{ margin:'0 14px 8px', background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 14px', background:'var(--surface2)', borderBottom:'1px solid var(--border)' }}>
+            <span style={{ fontSize:11, fontWeight:700, color:'var(--text2)', textTransform:'uppercase', letterSpacing:'.05em' }}>🏷 Etiquetas</span>
+            <button onClick={() => { setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([]) }}
+              style={{ marginLeft:'auto', background:'none', border:'none', cursor:'pointer', fontSize:14, color:'var(--text3)' }}>×</button>
+          </div>
+          <div style={{ padding:'10px 14px' }}>
+            {/* Input para escribir/buscar etiqueta */}
+            <div style={{ position:'relative' }}>
+              <input
+                value={etqInput}
+                onChange={e => { setEtqInput(e.target.value); buscarEtiquetas(e.target.value) }}
+                onKeyDown={e => { if (e.key === 'Enter' && etqInput.trim()) agregarEtiqueta(etqInput) }}
+                placeholder="Escribe una etiqueta y presiona Enter..."
+                style={{ width:'100%', padding:'8px 12px', fontSize:12, border:'1.5px solid var(--border)', borderRadius:'var(--radius-sm)', outline:'none', color:'var(--text)', background:'var(--surface)', boxSizing:'border-box' }}
+              />
+              {/* Sugerencias */}
+              {etqSugeridas.length > 0 && (
+                <div style={{ position:'absolute', top:'100%', left:0, right:0, background:'var(--surface)', border:'1.5px solid var(--border)', borderTop:'none', borderRadius:'0 0 var(--radius-sm) var(--radius-sm)', zIndex:10, maxHeight:140, overflowY:'auto' }}>
+                  {etqSugeridas.filter(s => !etiquetas.find(e => e.id === s.id)).map(s => (
+                    <div key={s.id} onClick={() => agregarEtiqueta(s.nombre, s.color)}
+                      style={{ padding:'7px 12px', fontSize:12, cursor:'pointer', display:'flex', alignItems:'center', gap:8 }}
+                      onMouseEnter={e => e.currentTarget.style.background='var(--surface2)'}
+                      onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                      <span style={{ width:10, height:10, borderRadius:'50%', background:s.color, flexShrink:0 }} />
+                      {s.nombre}
+                    </div>
+                  ))}
+                  {/* Opcion crear nueva */}
+                  {etqInput.trim() && !etqSugeridas.find(s => s.nombre.toLowerCase() === etqInput.toLowerCase()) && (
+                    <div onClick={() => agregarEtiqueta(etqInput)}
+                      style={{ padding:'7px 12px', fontSize:12, cursor:'pointer', color:'var(--purple)', fontWeight:600, borderTop:'1px solid var(--border)' }}
+                      onMouseEnter={e => e.currentTarget.style.background='var(--purple-light)'}
+                      onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                      + Crear "{etqInput}"
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Crear si no hay sugerencias */}
+              {etqInput.trim() && etqSugeridas.length === 0 && (
+                <div style={{ marginTop:4, fontSize:11, color:'var(--text3)' }}>
+                  Presiona Enter para crear <strong>"{etqInput}"</strong>
+                </div>
+              )}
+            </div>
+            {/* Etiquetas ya asignadas */}
+            {etiquetas.length > 0 && (
+              <div style={{ display:'flex', flexWrap:'wrap', gap:4, marginTop:10 }}>
+                {etiquetas.map(e => (
+                  <span key={e.id} style={{
+                    fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:99,
+                    background: e.color + '22', color: e.color,
+                    border:`1px solid ${e.color}55`,
+                    display:'inline-flex', alignItems:'center', gap:5
+                  }}>
+                    {e.nombre}
+                    <span onClick={() => quitarEtiqueta(e.id)}
+                      style={{ cursor:'pointer', opacity:.7, fontSize:13 }}>×</span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Barra de acciones */}
       <div style={{ padding:'12px 14px', borderTop:'1.5px solid var(--border)', background:'var(--surface)', display:'flex', gap:8, flexShrink:0, flexWrap:'wrap', alignItems:'center' }}>
 
@@ -659,6 +801,15 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             {success}
           </span>
         )}
+        {/* Botón etiquetas — siempre visible */}
+        <button onClick={() => setShowEtiquetas(!showEtiquetas)}
+          style={{ marginLeft:'auto', fontSize:11, fontWeight:700, padding:'7px 13px', borderRadius:'var(--radius-sm)',
+            border:`1.5px solid ${showEtiquetas ? 'var(--purple)' : 'var(--border)'}`,
+            background: showEtiquetas ? 'var(--purple)' : 'transparent',
+            color: showEtiquetas ? '#fff' : 'var(--text3)', cursor:'pointer',
+            display:'flex', alignItems:'center', gap:5 }}>
+          🏷 {etiquetas.length > 0 ? etiquetas.length : ''}
+        </button>
       </div>
     </div>
   )
