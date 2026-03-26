@@ -345,7 +345,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       {/* ── Header */}
       <div style={{ padding:'14px 18px', borderBottom:'1.5px solid var(--border)', background:'var(--surface)', flexShrink:0, boxShadow:'var(--shadow)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
-          <span style={{ fontSize:17, fontWeight:700, color:'var(--text)' }}>{item.comprador || 'Comprador'}</span>
+          <div style={{ display:'flex', flexDirection:'column', gap:1 }}>
+            <span style={{ fontSize:17, fontWeight:700, color:'var(--text)' }}>{item.comprador || 'Comprador'}</span>
+            {item.comprador_nombre && (
+              <span style={{ fontSize:12, color:'var(--text3)', fontWeight:400 }}>{item.comprador_nombre}</span>
+            )}
+          </div>
           <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5, background:ac.bg, color:ac.color, border:`1px solid ${ac.br}` }}>
             {item.cuenta}
           </span>
