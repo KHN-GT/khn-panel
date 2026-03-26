@@ -387,13 +387,26 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             )}
             <div style={{ minWidth:0 }}>
               {item.producto && (
-                <div style={{ fontSize:14, fontWeight:600, color:'var(--text)', lineHeight:1.4, wordBreak:'break-word' }}>
-                  {item.producto}
-                </div>
+                <a
+                  href={item.item_id ? `https://articulo.mercadolibre.com.mx/${item.item_id.replace('MLM','MLM-')}` : '#'}
+                  target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize:14, fontWeight:600, color:'var(--blue)', lineHeight:1.4,
+                    wordBreak:'break-word', textDecoration:'none', cursor:'pointer' }}
+                  onMouseEnter={e => e.currentTarget.style.textDecoration='underline'}
+                  onMouseLeave={e => e.currentTarget.style.textDecoration='none'}
+                  title="Ver publicación en Mercado Libre"
+                >
+                  {item.producto} ↗
+                </a>
               )}
               {item.sku && (
-                <div style={{ fontSize:12, color:'var(--text3)', marginTop:3 }}>
-                  SKU: <code style={{ color:'var(--blue)', fontSize:10 }}>{item.sku}</code>
+                <div
+                  onClick={() => { navigator.clipboard.writeText(item.sku); }}
+                  title="Clic para copiar SKU"
+                  style={{ fontSize:12, color:'var(--text3)', marginTop:3, cursor:'pointer',
+                    display:'inline-flex', alignItems:'center', gap:4 }}>
+                  SKU: <code style={{ color:'var(--blue)', fontSize:12, fontWeight:600 }}>{item.sku}</code>
+                  <span style={{ fontSize:10, color:'var(--text3)', opacity:.6 }}>⎘</span>
                 </div>
               )}
             </div>
@@ -401,13 +414,31 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         )}
         <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop: (item.imagen_thumbnail || item.producto) ? 6 : 0 }}>
           {item.orden_id && (
-            <div style={{ fontSize:11, color:'var(--text2)', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:5, padding:'2px 8px' }}>
-              Orden <code style={{ fontSize:10, color:'var(--blue)' }}>#{item.orden_id}</code>
+            <div
+              onClick={() => { navigator.clipboard.writeText(item.orden_id); }}
+              title="Clic para copiar número de orden"
+              style={{ fontSize:12, color:'var(--text2)', background:'var(--surface2)',
+                border:'1px solid var(--border)', borderRadius:5, padding:'3px 10px',
+                cursor:'pointer', display:'inline-flex', alignItems:'center', gap:4 }}
+              onMouseEnter={e => e.currentTarget.style.background='var(--blue-light)'}
+              onMouseLeave={e => e.currentTarget.style.background='var(--surface2)'}
+            >
+              Orden <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
+              <span style={{ fontSize:10, color:'var(--text3)', opacity:.6 }}>⎘</span>
             </div>
           )}
           {!item.producto && item.sku && (
-            <div style={{ fontSize:11, color:'var(--text2)', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:5, padding:'2px 8px' }}>
-              SKU <code style={{ fontSize:10, color:'var(--blue)' }}>{item.sku}</code>
+            <div
+              onClick={() => { navigator.clipboard.writeText(item.sku); }}
+              title="Clic para copiar SKU"
+              style={{ fontSize:12, color:'var(--text2)', background:'var(--surface2)',
+                border:'1px solid var(--border)', borderRadius:5, padding:'3px 10px',
+                cursor:'pointer', display:'inline-flex', alignItems:'center', gap:4 }}
+              onMouseEnter={e => e.currentTarget.style.background='var(--blue-light)'}
+              onMouseLeave={e => e.currentTarget.style.background='var(--surface2)'}
+            >
+              SKU <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>{item.sku}</code>
+              <span style={{ fontSize:10, color:'var(--text3)', opacity:.6 }}>⎘</span>
             </div>
           )}
           {item.claim_id && urgStyle && (
