@@ -717,7 +717,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             {item.agente && <span style={{ fontSize:11, color:'var(--text3)', marginLeft:'auto' }}>Agente: {item.agente}</span>}
             <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
               style={{ marginLeft: item.agente ? 0 : 'auto', fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:5, border:'1px solid var(--purple-border)', background: editMode ? 'var(--purple)' : 'transparent', color: editMode ? '#fff' : 'var(--purple)', cursor:'pointer' }}>
-              {editMode ? 'Cancelar' : 'âœï¸ Editar'}
+              {editMode ? 'Cancelar' : '✏️ Editar'}
             </button>
           </div>
           {editMode
@@ -867,7 +867,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             </button>
             <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
               style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--purple-border)', background:'var(--purple-light)', color:'var(--purple)', cursor:'pointer' }}>
-              {editMode ? 'Cancelar edición' : 'âœï¸ Editar'}
+              {editMode ? 'Cancelar edición' : '✏️ Editar'}
             </button>
             {editMode && (
               <button onClick={handleApprove} disabled={sending || !editText.trim()}
