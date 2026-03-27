@@ -91,7 +91,7 @@ export default function MessageCard({ item, selected, onClick }) {
         {/* Timer PRE-COMPRA pendiente */}
         {isPrecompra && isPendiente && elapsedSecs !== null && (
           <span style={{
-            fontSize:10, fontWeight:700, padding:'2px 6px', borderRadius:99,
+            fontSize:12, fontWeight:700, padding:'2px 6px', borderRadius:99,
             color: timerColor(elapsedSecs),
             background: timerColor(elapsedSecs) + '18',
             border: `1px solid ${timerColor(elapsedSecs)}44`,
@@ -100,7 +100,7 @@ export default function MessageCard({ item, selected, onClick }) {
             {fmtElapsed(elapsedSecs)}
           </span>
         )}
-        <span style={{ fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:5,
+        <span style={{ fontSize:12, fontWeight:700, padding:'2px 7px', borderRadius:5,
           background:ac.bg, color:ac.color, border:`1px solid ${ac.br}`, flexShrink:0 }}>
           {item.cuenta}
         </span>
@@ -128,12 +128,12 @@ export default function MessageCard({ item, selected, onClick }) {
       {isPrecompra && (item.precio != null || item.stock != null) && (
         <div style={{ display:'flex', gap:8, marginBottom:4, alignItems:'center' }}>
           {item.precio != null && (
-            <span style={{ fontSize:11, fontWeight:700, color:'var(--text)' }}>
+            <span style={{ fontSize:13, fontWeight:700, color:'var(--text)' }}>
               MX${Number(item.precio).toLocaleString('es-MX', {minimumFractionDigits:0})}
             </span>
           )}
           {item.stock != null && (
-            <span style={{ fontSize:10, color: item.stock > 0 ? '#059669' : '#dc2626',
+            <span style={{ fontSize:12, color: item.stock > 0 ? '#059669' : '#dc2626',
               fontWeight:600 }}>
               {item.stock > 0 ? `${item.stock.toLocaleString()} en stock` : 'Sin stock'}
             </span>

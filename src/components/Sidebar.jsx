@@ -89,7 +89,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
       {/* Filtro por etiqueta */}
       <div style={{ padding:'0 10px 6px', flexShrink:0 }}>
         <button onClick={loadEtqOpciones} style={{
-          width:'100%', fontSize:11, fontWeight:600, padding:'5px 10px',
+          width:'100%', fontSize:13, fontWeight:600, padding:'5px 10px',
           borderRadius:'var(--radius-sm)', cursor:'pointer', textAlign:'left',
           border:`1.5px solid ${etqFilter ? etqFilter.color : 'var(--border)'}`,
           background: etqFilter ? etqFilter.color + '18' : 'transparent',
@@ -106,7 +106,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
           <div style={{ background:'var(--surface)', border:'1.5px solid var(--border)', borderTop:'none', borderRadius:'0 0 var(--radius-sm) var(--radius-sm)', maxHeight:130, overflowY:'auto' }}>
             {etqOpciones.map(e => (
               <div key={e.id} onClick={() => { setEtqFilter(e); setShowEtqFilter(false) }}
-                style={{ padding:'6px 10px', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', gap:7 }}
+                style={{ padding:'6px 10px', fontSize:13, cursor:'pointer', display:'flex', alignItems:'center', gap:7 }}
                 onMouseEnter={ev => ev.currentTarget.style.background='var(--surface2)'}
                 onMouseLeave={ev => ev.currentTarget.style.background='transparent'}>
                 <span style={{ width:8, height:8, borderRadius:'50%', background:e.color, flexShrink:0 }} />

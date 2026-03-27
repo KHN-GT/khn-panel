@@ -308,7 +308,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         }}>
           {text}
         </div>
-        <div style={{ fontSize:11, color:'var(--text3)', marginTop:4, paddingLeft:4, paddingRight:4, display:'flex', gap:6, alignItems:'center' }}>
+        <div style={{ fontSize:13, color:'var(--text3)', marginTop:4, paddingLeft:4, paddingRight:4, display:'flex', gap:6, alignItems:'center' }}>
           <span>{isSeller ? (item.cuenta || 'Seller') : (item.comprador || 'Comprador')}</span>
           {ts && <span style={{ color:'var(--text3)', opacity:.7 }}>· {ts}</span>}
         </div>
@@ -351,23 +351,23 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               <span style={{ fontSize:12, color:'var(--text3)', fontWeight:400 }}>{item.comprador_nombre}</span>
             )}
           </div>
-          <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5, background:ac.bg, color:ac.color, border:`1px solid ${ac.br}` }}>
+          <span style={{ fontSize:12, fontWeight:700, padding:'3px 8px', borderRadius:5, background:ac.bg, color:ac.color, border:`1px solid ${ac.br}` }}>
             {item.cuenta}
           </span>
           {isClaim && urgStyle && (
-            <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5,
+            <span style={{ fontSize:12, fontWeight:700, padding:'3px 8px', borderRadius:5,
               background: urgStyle.bg, color: urgStyle.color, border:`1px solid ${urgStyle.border}` }}>
               {urgStyle.icon} RECLAMO — {urgStyle.label}
             </span>
           )}
           {item.tipo === 'PRE-COMPRA' && item.pedido_hecho && (
-            <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5,
+            <span style={{ fontSize:12, fontWeight:700, padding:'3px 8px', borderRadius:5,
               background:'#dcfce7', color:'#16a34a', border:'1px solid #86efac' }}>
               ✓ Pedido hecho
             </span>
           )}
           {isResolved && (
-            <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:5, background:'var(--green-light)', color:'var(--green)', border:'1px solid var(--green-border)', marginLeft:'auto' }}>
+            <span style={{ fontSize:12, fontWeight:700, padding:'3px 8px', borderRadius:5, background:'var(--green-light)', color:'var(--green)', border:'1px solid var(--green-border)', marginLeft:'auto' }}>
               {item.estado === 'resuelto' ? '✓ ATENDIDO' : '✗ DESCARTADO'}
             </span>
           )}
@@ -419,7 +419,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   style={{ fontSize:12, color:'var(--text3)', marginTop:3, cursor:'pointer',
                     display:'inline-flex', alignItems:'center', gap:4 }}>
                   SKU: <code style={{ color:'var(--blue)', fontSize:12, fontWeight:600 }}>{item.sku}</code>
-                  <span style={{ fontSize:10, color:'var(--text3)', opacity:.6 }}>⎘</span>
+                  <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span>
                 </div>
               )}
             </div>
@@ -437,7 +437,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               onMouseLeave={e => e.currentTarget.style.background='var(--surface2)'}
             >
               Orden <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
-              <span style={{ fontSize:10, color:'var(--text3)', opacity:.6 }}>⎘</span>
+              <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span>
             </div>
           )}
           {!item.producto && item.sku && (
@@ -451,11 +451,11 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               onMouseLeave={e => e.currentTarget.style.background='var(--surface2)'}
             >
               SKU <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>{item.sku}</code>
-              <span style={{ fontSize:10, color:'var(--text3)', opacity:.6 }}>⎘</span>
+              <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span>
             </div>
           )}
           {item.claim_id && urgStyle && (
-            <div style={{ fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:5,
+            <div style={{ fontSize:13, fontWeight:600, padding:'2px 8px', borderRadius:5,
               color: urgStyle.color, background: urgStyle.bg, border:`1px solid ${urgStyle.border}` }}>
               Reclamo #{item.claim_id}
             </div>
@@ -465,7 +465,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:8,
             background: urgStyle.bg, border:`1px solid ${urgStyle.border}`,
             borderRadius:'var(--radius-sm)', padding:'6px 10px' }}>
-            <span style={{ fontSize:11, fontWeight:600, color: urgStyle.color }}>Tiempo abierto:</span>
+            <span style={{ fontSize:13, fontWeight:600, color: urgStyle.color }}>Tiempo abierto:</span>
             <ClaimTimer segundosIniciales={item.timer_segundos} />
           </div>
         )}
@@ -474,14 +474,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           <div style={{ display:'flex', flexWrap:'wrap', gap:4, marginTop:6 }}>
             {etiquetas.map(e => (
               <span key={e.id} style={{
-                fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:99,
+                fontSize:12, fontWeight:700, padding:'2px 8px', borderRadius:99,
                 background: e.color + '22', color: e.color,
                 border:`1px solid ${e.color}55`,
                 display:'inline-flex', alignItems:'center', gap:4, cursor:'default'
               }}>
                 {e.nombre}
                 <span onClick={() => quitarEtiqueta(e.id)}
-                  style={{ cursor:'pointer', opacity:.7, fontSize:11, lineHeight:1 }}>×</span>
+                  style={{ cursor:'pointer', opacity:.7, fontSize:13, lineHeight:1 }}>×</span>
               </span>
             ))}
           </div>
@@ -496,20 +496,20 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
         {/* Loader de contexto */}
         {loadingCtx && (
-          <div style={{ textAlign:'center', fontSize:11, color:'var(--text3)', padding:'8px 0' }}>Cargando historial...</div>
+          <div style={{ textAlign:'center', fontSize:13, color:'var(--text3)', padding:'8px 0' }}>Cargando historial...</div>
         )}
 
         {/* Contexto reclamos: post-venta previos del mismo orden */}
         {isClaim && contexto.length > 0 && (
           <>
-            <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--text3)', padding:'4px 0', borderBottom:'1px dashed var(--border)', marginBottom:4 }}>
+            <div style={{ textAlign:'center', fontSize:13, fontWeight:600, color:'var(--text3)', padding:'4px 0', borderBottom:'1px dashed var(--border)', marginBottom:4 }}>
               📋 Mensajes previos de post-venta — misma orden
             </div>
             {contexto.map((msg, i) => {
               const hiloCtx = Array.isArray(msg.hilo_json) ? msg.hilo_json : []
               return hiloCtx.map((m, j) => renderBubble(m, j, { dimmed: true, keyPrefix: `ctx-${i}-` }))
             })}
-            <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--red)', padding:'4px 0', borderBottom:'1px dashed var(--red-border)', marginBottom:4 }}>
+            <div style={{ textAlign:'center', fontSize:13, fontWeight:600, color:'var(--red)', padding:'4px 0', borderBottom:'1px dashed var(--red-border)', marginBottom:4 }}>
               🚨 Inicio del reclamo
             </div>
           </>
@@ -527,7 +527,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 {(msg.respuesta_final || msg.respuesta_ia) && renderBubble({ r: 's', t: msg.respuesta_final || msg.respuesta_ia }, 1, { dimmed: true, keyPrefix: `pctx-a-${i}-` })}
               </div>
             ))}
-            <div style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--purple)', padding:'4px 0', borderBottom:'1px dashed var(--purple-border)', marginBottom:4 }}>
+            <div style={{ textAlign:'center', fontSize:13, fontWeight:600, color:'var(--purple)', padding:'4px 0', borderBottom:'1px dashed var(--purple-border)', marginBottom:4 }}>
               💬 Pregunta actual
             </div>
           </>
@@ -547,7 +547,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             <div style={{ maxWidth:'80%', padding:'10px 14px', borderRadius:12, background:'var(--green-light)', border:'1px solid var(--green-border)', fontSize:13, lineHeight:1.55, color:'var(--text)' }}>
               {item.respuesta_final}
             </div>
-            <div style={{ fontSize:10, color:'var(--text3)', marginTop:3, textAlign:'right', paddingRight:4 }}>
+            <div style={{ fontSize:12, color:'var(--text3)', marginTop:3, textAlign:'right', paddingRight:4 }}>
               {item.atendido_por || 'Sistema'}
             </div>
           </div>
@@ -558,25 +558,25 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       {isPostVenta && (
         <div style={{ width:240, flexShrink:0, borderLeft:'1.5px solid var(--border)', overflowY:'auto', background:'var(--surface)', display:'flex', flexDirection:'column' }}>
           {loadingOrden ? (
-            <div style={{ padding:16, fontSize:11, color:'var(--text3)', textAlign:'center' }}>Cargando orden...</div>
+            <div style={{ padding:16, fontSize:13, color:'var(--text3)', textAlign:'center' }}>Cargando orden...</div>
           ) : ordenData ? (
             <>
               {/* Estado orden + envío */}
               <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
-                <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Estado</div>
+                <div style={{ fontSize:12, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Estado</div>
                 {(() => {
                   const eo = ESTADO_ORDEN[ordenData.estado_orden] || { label: ordenData.estado_orden, color:'var(--text2)', bg:'var(--surface2)' }
                   const ee = ESTADO_ENVIO[ordenData.envio_estado]  || { label: ordenData.envio_estado,  color:'var(--text2)', bg:'var(--surface2)' }
                   return (
                     <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
                       <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                        <span style={{ fontSize:10, color:'var(--text3)', minWidth:46 }}>Orden</span>
-                        <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:eo.bg, color:eo.color }}>{eo.label}</span>
+                        <span style={{ fontSize:12, color:'var(--text3)', minWidth:46 }}>Orden</span>
+                        <span style={{ fontSize:13, fontWeight:700, padding:'2px 8px', borderRadius:99, background:eo.bg, color:eo.color }}>{eo.label}</span>
                       </div>
                       {ordenData.envio_estado && (
                         <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                          <span style={{ fontSize:10, color:'var(--text3)', minWidth:46 }}>Envío</span>
-                          <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:ee.bg, color:ee.color }}>{ee.label}</span>
+                          <span style={{ fontSize:12, color:'var(--text3)', minWidth:46 }}>Envío</span>
+                          <span style={{ fontSize:13, fontWeight:700, padding:'2px 8px', borderRadius:99, background:ee.bg, color:ee.color }}>{ee.label}</span>
                         </div>
                       )}
                     </div>
@@ -586,7 +586,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
               {/* Producto + precio */}
               <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
-                <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Producto</div>
+                <div style={{ fontSize:12, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Producto</div>
                 {item.imagen_thumbnail && (
                   <img src={item.imagen_thumbnail} alt="" style={{ width:'100%', maxHeight:80, objectFit:'contain', borderRadius:6, border:'1px solid var(--border)', background:'#fff', marginBottom:8 }}
                     onError={e => { e.target.style.display='none' }} />
@@ -595,10 +595,10 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   {ordenData.producto || item.producto || '—'}
                 </div>
                 {ordenData.variante && (
-                  <div style={{ fontSize:11, color:'var(--purple)', marginBottom:4 }}>{ordenData.variante}</div>
+                  <div style={{ fontSize:13, color:'var(--purple)', marginBottom:4 }}>{ordenData.variante}</div>
                 )}
-                <div style={{ fontSize:11, color:'var(--text3)', marginBottom:2 }}>SKU: {ordenData.sku || item.sku || '—'}</div>
-                <div style={{ fontSize:11, color:'var(--text3)', marginBottom:2 }}>Cant: {ordenData.cantidad || 1}</div>
+                <div style={{ fontSize:13, color:'var(--text3)', marginBottom:2 }}>SKU: {ordenData.sku || item.sku || '—'}</div>
+                <div style={{ fontSize:13, color:'var(--text3)', marginBottom:2 }}>Cant: {ordenData.cantidad || 1}</div>
                 {ordenData.total && (
                   <div style={{ fontSize:13, fontWeight:700, color:'var(--green)', marginTop:6 }}>{fmtPeso(ordenData.total)}</div>
                 )}
@@ -606,14 +606,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
               {/* Fechas */}
               <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
-                <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Fechas</div>
+                <div style={{ fontSize:12, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Fechas</div>
                 {[
                   { label:'Compra',    val: fmtFecha(ordenData.fecha_compra) },
                   { label:'Entrega est.', val: fmtFecha(ordenData.fecha_entrega_estimada) || fmtFecha(ordenData.fecha_entrega_desde) },
                 ].filter(r => r.val).map(row => (
                   <div key={row.label} style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
-                    <span style={{ fontSize:11, color:'var(--text3)' }}>{row.label}</span>
-                    <span style={{ fontSize:11, color:'var(--text)', fontWeight:600 }}>{row.val}</span>
+                    <span style={{ fontSize:13, color:'var(--text3)' }}>{row.label}</span>
+                    <span style={{ fontSize:13, color:'var(--text)', fontWeight:600 }}>{row.val}</span>
                   </div>
                 ))}
               </div>
@@ -621,18 +621,18 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               {/* Envío */}
               {(ordenData.transportista || ordenData.tracking_number) && (
                 <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
-                  <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Envío</div>
+                  <div style={{ fontSize:12, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Envío</div>
                   {ordenData.transportista && (
-                    <div style={{ fontSize:11, color:'var(--text2)', marginBottom:4 }}>🚚 {ordenData.transportista}</div>
+                    <div style={{ fontSize:13, color:'var(--text2)', marginBottom:4 }}>🚚 {ordenData.transportista}</div>
                   )}
                   {ordenData.tracking_number && (
-                    <div style={{ fontSize:10, color:'var(--text3)', wordBreak:'break-all', marginBottom:6 }}>
+                    <div style={{ fontSize:12, color:'var(--text3)', wordBreak:'break-all', marginBottom:6 }}>
                       {ordenData.tracking_number.substring(0,20)}...
                     </div>
                   )}
                   {ordenData.tracking_url && (
                     <a href={ordenData.tracking_url} target="_blank" rel="noreferrer"
-                      style={{ fontSize:11, fontWeight:600, color:'var(--blue)', textDecoration:'none', display:'block', padding:'5px 0' }}>
+                      style={{ fontSize:13, fontWeight:600, color:'var(--blue)', textDecoration:'none', display:'block', padding:'5px 0' }}>
                       Ver seguimiento →
                     </a>
                   )}
@@ -641,15 +641,15 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
               {/* Comprador */}
               <div style={{ padding:'12px 14px' }}>
-                <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Comprador</div>
+                <div style={{ fontSize:12, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Comprador</div>
                 <div style={{ fontSize:12, fontWeight:600, color:'var(--text)' }}>{ordenData.comprador || item.comprador}</div>
                 {ordenData.comprador_id && (
-                  <div style={{ fontSize:10, color:'var(--text3)', marginTop:2 }}>ID: {ordenData.comprador_id}</div>
+                  <div style={{ fontSize:12, color:'var(--text3)', marginTop:2 }}>ID: {ordenData.comprador_id}</div>
                 )}
               </div>
             </>
           ) : (
-            <div style={{ padding:16, fontSize:11, color:'var(--text3)', textAlign:'center', lineHeight:1.6 }}>
+            <div style={{ padding:16, fontSize:13, color:'var(--text3)', textAlign:'center', lineHeight:1.6 }}>
               Sin datos<br/>de la orden
             </div>
           )}
@@ -663,7 +663,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--amber-border)', borderRadius:'var(--radius)', overflow:'hidden', boxShadow:'var(--shadow-md)' }}>
           {/* Header */}
           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', background:'var(--amber-light)', borderBottom:'1px solid var(--amber-border)' }}>
-            <span style={{ fontSize:11, fontWeight:700, color:'var(--amber)', flex:1 }}>📋 TEMPLATES DE RESPUESTA</span>
+            <span style={{ fontSize:13, fontWeight:700, color:'var(--amber)', flex:1 }}>📋 TEMPLATES DE RESPUESTA</span>
             <button onClick={() => { setShowTemplates(false); setTplBusqueda('') }}
               style={{ fontSize:14, background:'none', border:'none', cursor:'pointer', color:'var(--text3)', lineHeight:1 }}>✕</button>
           </div>
@@ -698,7 +698,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               }, {})
               return Object.entries(porCategoria).map(([cat, items]) => (
                 <div key={cat}>
-                  <div style={{ padding:'5px 14px', fontSize:10, fontWeight:700, color:'var(--text3)', background:'var(--surface2)', textTransform:'uppercase', letterSpacing:'.05em', borderBottom:'1px solid var(--border)' }}>
+                  <div style={{ padding:'5px 14px', fontSize:12, fontWeight:700, color:'var(--text3)', background:'var(--surface2)', textTransform:'uppercase', letterSpacing:'.05em', borderBottom:'1px solid var(--border)' }}>
                     {cat}
                   </div>
                   {items.map(t => (
@@ -709,7 +709,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                       onMouseLeave={e => e.currentTarget.style.background='transparent'}
                     >
                       <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', marginBottom:3 }}>{t.titulo}</div>
-                      <div style={{ fontSize:11, color:'var(--text3)', lineHeight:1.4, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>
+                      <div style={{ fontSize:13, color:'var(--text3)', lineHeight:1.4, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>
                         {t.texto}
                       </div>
                     </div>
@@ -725,11 +725,11 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       {!isResolved && !isClaim && item.respuesta_ia && (
         <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--purple-border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow-md)', overflow:'hidden' }}>
           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', background:'var(--purple-light)', borderBottom:'1px solid var(--purple-border)' }}>
-            <span style={{ fontSize:11, fontWeight:700, color:'var(--purple)', letterSpacing:'.05em', textTransform:'uppercase' }}>Respuesta IA</span>
-            <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:99, background:cf.bg, color:cf.color, border:`1px solid ${cf.br}` }}>{cf.label}</span>
-            {item.agente && <span style={{ fontSize:11, color:'var(--text3)', marginLeft:'auto' }}>Agente: {item.agente}</span>}
+            <span style={{ fontSize:13, fontWeight:700, color:'var(--purple)', letterSpacing:'.05em', textTransform:'uppercase' }}>Respuesta IA</span>
+            <span style={{ fontSize:12, fontWeight:700, padding:'2px 8px', borderRadius:99, background:cf.bg, color:cf.color, border:`1px solid ${cf.br}` }}>{cf.label}</span>
+            {item.agente && <span style={{ fontSize:13, color:'var(--text3)', marginLeft:'auto' }}>Agente: {item.agente}</span>}
             <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
-              style={{ marginLeft: item.agente ? 0 : 'auto', fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:5, border:'1px solid var(--purple-border)', background: editMode ? 'var(--purple)' : 'transparent', color: editMode ? '#fff' : 'var(--purple)', cursor:'pointer' }}>
+              style={{ marginLeft: item.agente ? 0 : 'auto', fontSize:13, fontWeight:600, padding:'3px 10px', borderRadius:5, border:'1px solid var(--purple-border)', background: editMode ? 'var(--purple)' : 'transparent', color: editMode ? '#fff' : 'var(--purple)', cursor:'pointer' }}>
               {editMode ? 'Cancelar' : '✏️ Editar'}
             </button>
           </div>
@@ -750,11 +750,11 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 setSuccess('✓ Copiado')
                 setTimeout(() => setSuccess(''), 2000)
               }}
-                style={{ fontSize:11, fontWeight:600, padding:'4px 14px', borderRadius:99, background:'transparent', color:'var(--text2)', border:'1px solid var(--border)', cursor:'pointer' }}>
+                style={{ fontSize:13, fontWeight:600, padding:'4px 14px', borderRadius:99, background:'transparent', color:'var(--text2)', border:'1px solid var(--border)', cursor:'pointer' }}>
                 Copiar
               </button>
               <button onClick={handleDiscard} disabled={sending}
-                style={{ fontSize:11, fontWeight:600, padding:'4px 14px', borderRadius:99, background:'transparent', color:'var(--text3)', border:'1px solid var(--border)', cursor:'pointer' }}>
+                style={{ fontSize:13, fontWeight:600, padding:'4px 14px', borderRadius:99, background:'transparent', color:'var(--text3)', border:'1px solid var(--border)', cursor:'pointer' }}>
                 Descartar
               </button>
             </div>
@@ -765,7 +765,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       {/* ── Corrección post-envío */}
       {isResolved && item.estado === 'resuelto' && corrMode && (
         <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--amber-border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
-          <div style={{ padding:'8px 14px', background:'var(--amber-light)', borderBottom:'1px solid var(--amber-border)', fontSize:11, fontWeight:700, color:'var(--amber)' }}>
+          <div style={{ padding:'8px 14px', background:'var(--amber-light)', borderBottom:'1px solid var(--amber-border)', fontSize:13, fontWeight:700, color:'var(--amber)' }}>
             CORREGIR PARA ENTRENAMIENTO
           </div>
           <textarea value={corrText} onChange={e => setCorrText(e.target.value)} rows={3} placeholder="Escribe la respuesta correcta..."
@@ -787,7 +787,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       {showEtiquetas && (
         <div style={{ margin:'0 14px 8px', background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 14px', background:'var(--surface2)', borderBottom:'1px solid var(--border)' }}>
-            <span style={{ fontSize:11, fontWeight:700, color:'var(--text2)', textTransform:'uppercase', letterSpacing:'.05em' }}>🏷 Etiquetas</span>
+            <span style={{ fontSize:13, fontWeight:700, color:'var(--text2)', textTransform:'uppercase', letterSpacing:'.05em' }}>🏷 Etiquetas</span>
             <button onClick={() => { setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([]) }}
               style={{ marginLeft:'auto', background:'none', border:'none', cursor:'pointer', fontSize:14, color:'var(--text3)' }}>×</button>
           </div>
@@ -826,7 +826,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               )}
               {/* Crear si no hay sugerencias */}
               {etqInput.trim() && etqSugeridas.length === 0 && (
-                <div style={{ marginTop:4, fontSize:11, color:'var(--text3)' }}>
+                <div style={{ marginTop:4, fontSize:13, color:'var(--text3)' }}>
                   Presiona Enter para crear <strong>"{etqInput}"</strong>
                 </div>
               )}
@@ -836,7 +836,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               <div style={{ display:'flex', flexWrap:'wrap', gap:4, marginTop:10 }}>
                 {etiquetas.map(e => (
                   <span key={e.id} style={{
-                    fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:99,
+                    fontSize:13, fontWeight:600, padding:'3px 10px', borderRadius:99,
                     background: e.color + '22', color: e.color,
                     border:`1px solid ${e.color}55`,
                     display:'inline-flex', alignItems:'center', gap:5
@@ -898,7 +898,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             </button>
             <button onClick={handleDeleteQuestion} disabled={sending}
               title="Eliminar esta pregunta directamente en Mercado Libre"
-              style={{ fontSize:11, fontWeight:600, padding:'9px 13px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)', background:'var(--red-light)', color:'var(--red)', cursor:'pointer', opacity: sending ? .6 : 1 }}>
+              style={{ fontSize:13, fontWeight:600, padding:'9px 13px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)', background:'var(--red-light)', color:'var(--red)', cursor:'pointer', opacity: sending ? .6 : 1 }}>
               🗑 Eliminar en ML
             </button>
           </>
@@ -912,7 +912,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         )}
         {/* Botón etiquetas — siempre visible */}
         <button onClick={() => setShowEtiquetas(!showEtiquetas)}
-          style={{ marginLeft:'auto', fontSize:11, fontWeight:700, padding:'7px 13px', borderRadius:'var(--radius-sm)',
+          style={{ marginLeft:'auto', fontSize:13, fontWeight:700, padding:'7px 13px', borderRadius:'var(--radius-sm)',
             border:`1.5px solid ${showEtiquetas ? 'var(--purple)' : 'var(--border)'}`,
             background: showEtiquetas ? 'var(--purple)' : 'transparent',
             color: showEtiquetas ? '#fff' : 'var(--text3)', cursor:'pointer',
