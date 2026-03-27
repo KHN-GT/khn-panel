@@ -1,4 +1,4 @@
-import Topbar from '../components/Topbar'
+﻿import Topbar from '../components/Topbar'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -69,7 +69,7 @@ export default function Reportes({ onLogout }) {
     return true
   })
 
-  // Métricas — resuelto + descartado = atendidos
+  // MÃ©tricas â€” resuelto + descartado = atendidos
   const total     = filtrados.length
   const atendidos = filtrados.filter(i => ['resuelto','descartado'].includes(i.estado)).length
   const pendientes= filtrados.filter(i => i.estado === 'pendiente').length
@@ -79,22 +79,16 @@ export default function Reportes({ onLogout }) {
   return (
     <div style={{ height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
       <Topbar onLogout={onLogout} />
-        <div style={{ width:1, height:20, background:'var(--border)' }} />
-        <div style={{ fontSize:13, color:'var(--text3)', fontWeight:500 }}>📊 Reportes e Historial</div>
-        <button onClick={cargar} style={{ marginLeft:'auto', fontSize:13, fontWeight:600, padding:'5px 14px', borderRadius:'var(--radius-sm)', background:'var(--purple-light)', color:'var(--purple)', border:'1px solid var(--purple-border)', cursor:'pointer' }}>
-          🔄 Actualizar
-        </button>
-      </div>
 
       <div style={{ flex:1, overflowY:'auto', padding:'20px 24px' }}>
 
-        {/* ── Métricas */}
+        {/* â”€â”€ MÃ©tricas */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:12, marginBottom:20 }}>
           {[
             { label:'Total mensajes',   value: total,              color:'var(--purple)', bg:'var(--purple-light)', br:'var(--purple-border)' },
             { label:'Atendidos',        value: atendidos,          color:'var(--green)',  bg:'var(--green-light)',  br:'var(--green-border)'  },
             { label:'Pendientes',       value: pendientes,         color:'var(--amber)',  bg:'var(--amber-light)',  br:'var(--amber-border)'  },
-            { label:'Tasa atención',    value: tasaAten + '%',     color:'var(--blue)',   bg:'var(--blue-light)',   br:'var(--blue-border)'   },
+            { label:'Tasa atenciÃ³n',    value: tasaAten + '%',     color:'var(--blue)',   bg:'var(--blue-light)',   br:'var(--blue-border)'   },
           ].map(m => (
             <div key={m.label} style={{ background:m.bg, border:`1.5px solid ${m.br}`, borderRadius:'var(--radius)', padding:'16px 20px' }}>
               <div style={{ fontSize:11, fontWeight:600, color:m.color, marginBottom:6 }}>{m.label}</div>
@@ -103,7 +97,7 @@ export default function Reportes({ onLogout }) {
           ))}
         </div>
 
-        {/* ── Fila 2 métricas: desglose por tipo */}
+        {/* â”€â”€ Fila 2 mÃ©tricas: desglose por tipo */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:12, marginBottom:20 }}>
           {[
             { label:'Reclamos',   value: filtrados.filter(i=>i.tipo==='RECLAMO').length,      ...TIPO_COLOR['RECLAMO']      },
@@ -117,7 +111,7 @@ export default function Reportes({ onLogout }) {
           ))}
         </div>
 
-        {/* ── Filtros */}
+        {/* â”€â”€ Filtros */}
         <div style={{ background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', padding:'14px 16px', marginBottom:16, display:'flex', flexWrap:'wrap', gap:12, alignItems:'center' }}>
           <input
             value={busqueda} onChange={e => setBusqueda(e.target.value)}
@@ -153,12 +147,12 @@ export default function Reportes({ onLogout }) {
           </div>
         </div>
 
-        {/* ── Tabla */}
+        {/* â”€â”€ Tabla */}
         {loading ? (
           <div style={{ textAlign:'center', padding:40, color:'var(--text3)' }}>Cargando historial...</div>
         ) : filtrados.length === 0 ? (
           <div style={{ textAlign:'center', padding:40, color:'var(--text3)' }}>
-            <div style={{ fontSize:32, marginBottom:10 }}>📭</div>
+            <div style={{ fontSize:32, marginBottom:10 }}>ðŸ“­</div>
             <div style={{ fontSize:14, fontWeight:600 }}>Sin resultados</div>
           </div>
         ) : (
@@ -178,13 +172,13 @@ export default function Reportes({ onLogout }) {
               const ac  = ACCT_COLOR[item.cuenta]  || ACCT_COLOR.GTK
               const fecha = item.creado_en
                 ? new Date(item.creado_en).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'2-digit' })
-                : '—'
-              // Línea de producto: título completo si existe, si no SKU con label
+                : 'â€”'
+              // LÃ­nea de producto: tÃ­tulo completo si existe, si no SKU con label
               const productoLabel = item.producto
                 ? item.producto
                 : item.sku
                   ? `SKU: ${item.sku}`
-                  : '—'
+                  : 'â€”'
               return (
                 <div key={item.id} style={{ display:'grid', gridTemplateColumns:'1fr 100px 110px 100px 130px 110px', padding:'10px 16px', borderBottom: i < filtrados.length-1 ? '1px solid var(--border)' : 'none', alignItems:'center', background: i%2===0 ? 'transparent' : 'var(--surface2)' }}>
                   <div style={{ display:'flex', alignItems:'center', gap:10, minWidth:0 }}>
@@ -219,7 +213,7 @@ export default function Reportes({ onLogout }) {
                     </span>
                   </div>
                   <div style={{ fontSize:12, color:'var(--text2)' }}>{fecha}</div>
-                  <div style={{ fontSize:12, color:'var(--text3)' }}>{item.atendido_por || '—'}</div>
+                  <div style={{ fontSize:12, color:'var(--text3)' }}>{item.atendido_por || 'â€”'}</div>
                 </div>
               )
             })}
