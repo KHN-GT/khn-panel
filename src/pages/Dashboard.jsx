@@ -91,7 +91,11 @@ export default function Dashboard({ onLogout }) {
             border:'none', color:'var(--text3)', cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>↺</button>
 
           {/* Botón Reportes */}
-          <button onClick={() => navigate('/reportes')} title="Reportes"
+          <button onClick={() => navigate('/supervision')} title="Supervisión IA"
+            style={{ fontSize:15, background:'none', border:'none', color:'var(--text3)',
+              cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>🔍</button>
+
+          <button onClick={() => navigate('/reportes')} title="Reportes" 
             style={{ fontSize:15, background:'none', border:'none', color:'var(--text3)',
               cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>📊</button>
 

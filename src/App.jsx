@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Config from './pages/Config'
 import Reportes from './pages/Reportes'
+import Supervision from './pages/Supervision'
 
 function PrivateRoute({ children }) {
   const authed = !!localStorage.getItem('khn_token')
@@ -34,6 +35,9 @@ export default function App() {
         } />
         <Route path="/reportes" element={
           <PrivateRoute><Reportes /></PrivateRoute>
+        } />
+        <Route path="/supervision" element={
+          <PrivateRoute><Supervision /></PrivateRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
