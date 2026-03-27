@@ -29,7 +29,12 @@ export function useInbox(filters = {}) {
   useEffect(() => {
     fetchInbox()
     pollRef.current = setInterval(fetchInbox, 30000)
-    return () => clearInterval(pollRef.current)
+    // Escuchar evento inbox-refresh (disparado por handleEspera)
+    window.addEventListener('inbox-refresh', fetchInbox)
+    return () => {
+      clearInterval(pollRef.current)
+      window.removeEventListener('inbox-refresh', fetchInbox)
+    }
   }, [fetchInbox])
 
   const approve = async (id, respuesta) => {

@@ -387,7 +387,8 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       if (d.ok) {
         setShowEspera(false)
         setMotivoEspera('')
-        if (onDiscard) onDiscard(item.id)
+        // Disparar refresh sin llamar /discard
+        window.dispatchEvent(new CustomEvent('inbox-refresh'))
       }
     } catch(e) { console.error(e) }
     finally { setSendingEspera(false) }
