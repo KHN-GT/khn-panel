@@ -477,6 +477,28 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span>
                 </div>
               )}
+                {/* Tabs Posventa/Preventa inline */}
+                {item.tipo === 'POST-VENTA' && (
+                  <div style={{ display:'inline-flex', borderRadius:6, overflow:'hidden', border:'1px solid var(--border)', marginLeft:8 }}>
+                    {['postventa','preventa'].map(tab => (
+                      <button key={tab} onClick={() => setActiveTab(tab)} style={{
+                        padding:'3px 12px', border:'none', cursor:'pointer', fontSize:12,
+                        fontWeight: activeTab===tab ? '600' : '400',
+                        background: activeTab===tab ? 'var(--blue)' : 'var(--surface2)',
+                        color: activeTab===tab ? '#fff' : 'var(--text2)',
+                        transition:'all 0.15s', display:'flex', alignItems:'center', gap:4,
+                      }}>
+                        {tab==='postventa' ? 'Posventa' : 'Preventa'}
+                        {tab==='preventa' && preventaItems.length>0 && (
+                          <span style={{ background:'rgba(255,255,255,0.3)', borderRadius:999, fontSize:10, padding:'0 5px', fontWeight:700 }}>
+                            {preventaItems.length}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
             </div>
           </div>
         )}
@@ -572,6 +594,33 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         )}
 
 {(item && item.tipo !== 'POST-VENTA') || activeTab === 'postventa' ? (
+
+        {/* Panel Preventa */}
+        {item.tipo === 'POST-VENTA' && activeTab === 'preventa' && (
+          <div style={{ flex:1, overflowY:'auto', padding:'16px', display:'flex', flexDirection:'column', gap:'12px' }}>
+            {loadingPreventa ? (
+              <p style={{ color:'var(--text3)', textAlign:'center', marginTop:40 }}>Cargando...</p>
+            ) : preventaItems.length === 0 ? (
+              <p style={{ color:'var(--text3)', textAlign:'center', marginTop:40 }}>Sin preguntas previas</p>
+            ) : preventaItems.map(prev => (
+              <div key={prev.id} style={{ background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px' }}>
+                <div style={{ display:'flex', gap:8, marginBottom:8 }}>
+                  <span style={{ fontSize:13, color:'var(--text3)', flexShrink:0, fontWeight:600 }}>Q</span>
+                  <span style={{ fontSize:14, color:'var(--text)', lineHeight:1.4 }}>{prev.mensaje_cliente || '---'}</span>
+                </div>
+                {(prev.respuesta_final || prev.respuesta_ia) && (
+                  <div style={{ display:'flex', gap:8, paddingTop:8, borderTop:'1px solid var(--border)' }}>
+                    <span style={{ fontSize:13, color:'var(--blue)', flexShrink:0, fontWeight:600 }}>A</span>
+                    <span style={{ fontSize:14, color:'var(--text2)', lineHeight:1.4 }}>{prev.respuesta_final || prev.respuesta_ia}</span>
+                  </div>
+                )}
+                <div style={{ marginTop:6, fontSize:11, color:'var(--text3)', textAlign:'right' }}>
+                  {prev.creado_en ? new Date(prev.creado_en).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}) : ''}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 <div ref={threadRef} style={{ flex:1, overflowY:'auto', padding:'14px', display:'flex', flexDirection:'column', gap:10 }}>
 
         {/* Loader de contexto */}
