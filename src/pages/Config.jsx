@@ -1,4 +1,4 @@
-import Topbar from '../components/Topbar'
+﻿import Topbar from '../components/Topbar'
 import { useState, useEffect } from 'react'
 
 const RAILWAY = 'https://worker-production-d575.up.railway.app'
@@ -225,12 +225,12 @@ export default function Config({ onLogout }) {
 
       {/* ── Topbar */}
       <div style={{ background:'var(--surface)', borderBottom:'1.5px solid var(--border)', padding:'0 20px', height:54, display:'flex', alignItems:'center', gap:14, flexShrink:0, boxShadow:'var(--shadow)' }}>
-        <button onClick={onBack} style={{ fontSize:18, background:'none', border:'none', cursor:'pointer', color:'var(--text3)', padding:'4px 8px', borderRadius:6 }}>←</button>
+        <button onClick={() => window.history.back()} style={{ fontSize:18, background:'none', border:'none', cursor:'pointer', color:'var(--text3)', padding:'4px 8px', borderRadius:6 }}>â†</button>
         <div style={{ fontSize:17, fontWeight:800, color:'var(--text)', letterSpacing:'-.4px' }}>
           KHN<span style={{ color:'var(--purple)' }}>_botics</span>
         </div>
         <div style={{ width:1, height:20, background:'var(--border)' }} />
-        <div style={{ fontSize:13, color:'var(--text3)', fontWeight:500 }}>⚙️ Configuración</div>
+        <div style={{ fontSize:13, color:'var(--text3)', fontWeight:500 }}>âš™ï¸ Configuración</div>
         {msg && <span style={{ marginLeft:'auto', fontSize:12, fontWeight:700, color: msg.startsWith('✅') ? 'var(--green)' : 'var(--red)' }}>{msg}</span>}
       </div>
 
@@ -416,20 +416,20 @@ export default function Config({ onLogout }) {
                 <div style={{ background:'var(--surface)', border:'1.5px solid var(--purple-border)', borderRadius:'var(--radius)', overflow:'hidden', boxShadow:'var(--shadow-md)' }}>
                   <div style={{ padding:'12px 16px', background:'var(--purple-light)', borderBottom:'1px solid var(--purple-border)', display:'flex', alignItems:'center' }}>
                     <span style={{ fontSize:13, fontWeight:700, color:'var(--purple)', flex:1 }}>
-                      {editingTpl === 'new' ? '➕ Nuevo template' : `✏️ Editando: ${editingTpl.titulo}`}
+                      {editingTpl === 'new' ? '➕ Nuevo template' : `âœï¸ Editando: ${editingTpl.titulo}`}
                     </span>
                     <button onClick={cancelEdit} style={{ fontSize:14, background:'none', border:'none', cursor:'pointer', color:'var(--text3)' }}>✕</button>
                   </div>
                   <div style={{ padding:'16px', display:'flex', flexDirection:'column', gap:12 }}>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
                       <div>
-                        <label style={{ fontSize:11, fontWeight:700, color:'var(--text3)', display:'block', marginBottom:4 }}>TÍTULO *</label>
+                        <label style={{ fontSize:11, fontWeight:700, color:'var(--text3)', display:'block', marginBottom:4 }}>TÃTULO *</label>
                         <input value={tplForm.titulo} onChange={e => setTplForm(p => ({...p, titulo: e.target.value}))}
                           placeholder="Ej: Compatibilidad con HP 8015"
                           style={{ width:'100%', fontSize:13, padding:'8px 10px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', outline:'none', color:'var(--text)' }} />
                       </div>
                       <div>
-                        <label style={{ fontSize:11, fontWeight:700, color:'var(--text3)', display:'block', marginBottom:4 }}>CATEGORÍA</label>
+                        <label style={{ fontSize:11, fontWeight:700, color:'var(--text3)', display:'block', marginBottom:4 }}>CATEGORÃA</label>
                         <select value={tplForm.categoria} onChange={e => setTplForm(p => ({...p, categoria: e.target.value}))}
                           style={{ width:'100%', fontSize:13, padding:'8px 10px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', color:'var(--text)', outline:'none' }}>
                           {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
@@ -728,3 +728,4 @@ export default function Config({ onLogout }) {
     </div>
   )
 }
+
