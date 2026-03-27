@@ -20,6 +20,11 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [editText,  setEditText]  = useState('')
 
   const [sending,   setSending]   = useState(false)
+  const [hashQuery, setHashQuery] = useState('')
+  const [hashResults, setHashResults] = useState([])
+  const [hashLoading, setHashLoading] = useState(false)
+  const [hashVisible, setHashVisible] = useState(false)
+  const textareaRef = useRef(null)
   const [showEspera, setShowEspera] = useState(false)
   const [motivoEspera, setMotivoEspera] = useState('')
   const [sendingEspera, setSendingEspera] = useState(false)
@@ -392,6 +397,52 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       }
     } catch(e) { console.error(e) }
     finally { setSendingEspera(false) }
+  }
+
+
+  const buscarPublicaciones = async (q) => {
+    if (!q || q.length < 2) { setHashResults([]); setHashVisible(false); return }
+    setHashLoading(true)
+    try {
+      const token = localStorage.getItem('khn_token')
+      const r = await fetch(`${RAILWAY}/api/publicaciones/buscar?cuenta=${item.cuenta}&q=${encodeURIComponent(q)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const d = await r.json()
+      setHashResults(d.publicaciones || [])
+      setHashVisible((d.publicaciones || []).length > 0)
+    } catch { setHashResults([]) }
+    setHashLoading(false)
+  }
+
+  const handleTextareaChange = (e) => {
+    const val = e.target.value
+    setEditText(val)
+    // Detectar patron #palabra al final del texto o en el cursor
+    const cursor = e.target.selectionStart
+    const textBefore = val.slice(0, cursor)
+    const hashMatch = textBefore.match(/#([\w\s-]{1,40})$/)
+    if (hashMatch) {
+      setHashQuery(hashMatch[1])
+      buscarPublicaciones(hashMatch[1])
+    } else {
+      setHashQuery('')
+      setHashVisible(false)
+    }
+  }
+
+  const insertarEnlace = (pub) => {
+    const cursor = textareaRef.current?.selectionStart || editText.length
+    const textBefore = editText.slice(0, cursor)
+    const textAfter = editText.slice(cursor)
+    // Reemplazar #query con el enlace
+    const newBefore = textBefore.replace(/#([\w\s-]{1,40})$/, pub.permalink || pub.url || '')
+    setEditText(newBefore + textAfter)
+    setHashVisible(false)
+    setHashQuery('')
+    setHashResults([])
+    // Devolver foco al textarea
+    setTimeout(() => textareaRef.current?.focus(), 50)
   }
 
   return (
@@ -876,8 +927,57 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             </button>
           </div>
           {editMode
-            ? <textarea value={editText} onChange={e => setEditText(e.target.value)} onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); handleApprove(); }}} rows={7}
-                style={{ width:'100%', border:'none', borderTop:'1px solid var(--border)', padding:'14px 16px', fontSize:14, color:'var(--text)', lineHeight:1.6, fontFamily:'inherit', resize:'vertical', outline:'none', background:'var(--blue-light)' }} />
+            ? <div style={{ position: 'relative' }}>
+                <textarea
+                  ref={textareaRef}
+                  value={editText}
+                  onChange={handleTextareaChange}
+                  onKeyDown={e => {
+                    if (e.key === 'Escape') { setHashVisible(false); return }
+                    if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); handleApprove(); }
+                  }}
+                  rows={7}
+                  style={{ width:'100%', border:'none', borderTop:'1px solid var(--border)',
+                    padding:'14px 16px', fontSize:14, color:'var(--text)', lineHeight:1.6,
+                    fontFamily:'inherit', resize:'vertical', outline:'none', background:'var(--blue-light)' }}
+                />
+                {/* Hashtag picker — dropdown de publicaciones */}
+                {hashVisible && (
+                  <div style={{
+                    position: 'absolute', bottom: '100%', left: 0, right: 0, zIndex: 200,
+                    background: 'var(--surface)', border: '1.5px solid var(--blue)',
+                    borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-md)',
+                    maxHeight: 220, overflowY: 'auto',
+                  }}>
+                    <div style={{ padding: '6px 10px', fontSize: 11, color: 'var(--text3)', borderBottom: '1px solid var(--border)', fontWeight: 600 }}>
+                      🔗 Publicaciones — #{hashQuery}{hashLoading ? ' (buscando...)' : ''}
+                    </div>
+                    {hashResults.length === 0 && !hashLoading && (
+                      <div style={{ padding: '10px', fontSize: 13, color: 'var(--text3)', textAlign: 'center' }}>Sin resultados para #{hashQuery}</div>
+                    )}
+                    {hashResults.map(pub => (
+                      <div key={pub.id || pub.sku} onClick={() => insertarEnlace(pub)}
+                        style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 10px', cursor:'pointer', fontSize:13, borderBottom:'1px solid var(--border)' }}
+                        onMouseEnter={e => e.currentTarget.style.background='var(--blue-light)'}
+                        onMouseLeave={e => e.currentTarget.style.background='transparent'}
+                      >
+                        {pub.thumbnail && (
+                          <img src={pub.thumbnail} alt='' style={{ width:32, height:32, objectFit:'contain', borderRadius:4, flexShrink:0 }} />
+                        )}
+                        <div style={{ minWidth:0 }}>
+                          <div style={{ fontWeight:600, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                            {pub.titulo || pub.title || pub.sku}
+                          </div>
+                          <div style={{ fontSize:11, color:'var(--text3)' }}>
+                            {pub.sku && <span style={{ marginRight:8 }}>SKU: {pub.sku}</span>}
+                            {pub.precio && <span>${pub.precio} MXN</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             : <div onClick={() => { setEditMode(true); setEditText(item.respuesta_ia.replace(/\n+/g, ' ').trim()) }} style={{ padding:'14px 16px', fontSize:14, color:'var(--text)', lineHeight:1.6, cursor:'text' }}>{item.respuesta_ia}</div>
           }
           {/* Botones inline — Usar / Copiar */}
