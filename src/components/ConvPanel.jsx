@@ -483,7 +483,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             }}>⏸ EN ESPERA{item.motivo_espera ? ` — ${item.motivo_espera}` : ''}</span>
           )}
 
-          )}
           {item.tipo === 'PRE-COMPRA' && item.pedido_hecho && (
             <span style={{ fontSize:12, fontWeight:700, padding:'3px 8px', borderRadius:5,
               background:'#dcfce7', color:'#16a34a', border:'1px solid #86efac' }}>
