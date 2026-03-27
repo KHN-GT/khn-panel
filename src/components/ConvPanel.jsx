@@ -24,6 +24,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [hashResults, setHashResults] = useState([])
   const [hashLoading, setHashLoading] = useState(false)
   const [hashVisible, setHashVisible] = useState(false)
+  const [hashPos, setHashPos] = useState({bottom:0,left:0,right:0})
   const textareaRef = useRef(null)
   const [showEspera, setShowEspera] = useState(false)
   const [motivoEspera, setMotivoEspera] = useState('')
@@ -410,7 +411,13 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       })
       const d = await r.json()
       setHashResults(d.publicaciones || [])
-      setHashVisible((d.publicaciones || []).length > 0)
+      if ((d.publicaciones || []).length > 0 && textareaRef.current) {
+        const rect = textareaRef.current.getBoundingClientRect()
+        setHashPos({ bottom: window.innerHeight - rect.top + 4, left: rect.left, right: window.innerWidth - rect.right })
+        setHashVisible(true)
+      } else {
+        setHashVisible(false)
+      }
     } catch { setHashResults([]) }
     setHashLoading(false)
   }
@@ -946,10 +953,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 {/* Hashtag picker — dropdown de publicaciones */}
                 {hashVisible && (
                   <div style={{
-                    position: 'absolute', bottom: '100%', left: 0, right: 0, zIndex: 200,
+                    position: 'fixed',
+                    bottom: hashPos.bottom, left: hashPos.left, right: hashPos.right,
+                    zIndex: 9999,
                     background: 'var(--surface)', border: '1.5px solid var(--blue)',
-                    borderRadius: 8, boxShadow: '0 -4px 24px rgba(0,0,0,.12)',
-                    maxHeight: 260, overflowY: 'auto',
+                    borderRadius: 8, boxShadow: '0 -4px 24px rgba(0,0,0,.18)',
+                    maxHeight: 280, overflowY: 'auto',
                   }}>
                     <div style={{ padding: '7px 12px', fontSize: 11, color: 'var(--text3)',
                       borderBottom: '1px solid var(--border)', fontWeight: 700,
