@@ -138,6 +138,27 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setTplBusqueda('')
   }
 
+  // fetch preventa del mismo comprador+SKU
+  useEffect(() => {
+    if (!item || item.tipo !== 'POST-VENTA') { setPreventaItems([]); return }
+    if (!item.comprador || !item.sku) return
+    setLoadingPreventa(true)
+    const token = localStorage.getItem('khn_token')
+    const BASE = (import.meta.env.VITE_WORKER_URL || 'https://worker-production-d575.up.railway.app')
+    fetch(
+      BASE + '/api/inbox?tipo=PRE-COMPRA'
+      + '&comprador=' + encodeURIComponent(item.comprador)
+      + '&sku=' + encodeURIComponent(item.sku)
+      + '&cuenta=' + item.cuenta
+      + '&estado=pendiente,en_progreso,IA_sugerida,resuelto,descartado,enviada&limit=30',
+      { headers: { Authorization: 'Bearer ' + token } }
+    )
+      .then(r => r.json())
+      .then(d => setPreventaItems(Array.isArray(d) ? d : (d.items || [])))
+      .catch(() => setPreventaItems([]))
+      .finally(() => setLoadingPreventa(false))
+  }, [item?.id])
+
   if (!item) return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', gap:10, color:'var(--text3)' }}>
       <div style={{ fontSize:36 }}>💬</div>
@@ -347,26 +368,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   }
 
 
-  // fetch preventa del mismo comprador+SKU
-  useEffect(() => {
-    if (!item || item.tipo !== 'POST-VENTA') { setPreventaItems([]); return }
-    if (!item.comprador || !item.sku) return
-    setLoadingPreventa(true)
-    const token = localStorage.getItem('khn_token')
-    const BASE = (import.meta.env.VITE_WORKER_URL || 'https://worker-production-d575.up.railway.app')
-    fetch(
-      BASE + '/api/inbox?tipo=PRE-COMPRA'
-      + '&comprador=' + encodeURIComponent(item.comprador)
-      + '&sku=' + encodeURIComponent(item.sku)
-      + '&cuenta=' + item.cuenta
-      + '&estado=pendiente,en_progreso,IA_sugerida,resuelto,descartado,enviada&limit=30',
-      { headers: { Authorization: 'Bearer ' + token } }
-    )
-      .then(r => r.json())
-      .then(d => setPreventaItems(Array.isArray(d) ? d : (d.items || [])))
-      .catch(() => setPreventaItems([]))
-      .finally(() => setLoadingPreventa(false))
-  }, [item?.id])
 
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
