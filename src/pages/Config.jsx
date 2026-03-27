@@ -222,10 +222,7 @@ export default function Config({ onLogout }) {
 
   return (
     <div style={{ height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
-        <div style={{ width:1, height:20, background:'var(--border)' }} />
-        <div style={{ fontSize:13, color:'var(--text3)', fontWeight:500 }}>âš™ï¸ Configuración</div>
-        {msg && <span style={{ marginLeft:'auto', fontSize:12, fontWeight:700, color: msg.startsWith('✅') ? 'var(--green)' : 'var(--red)' }}>{msg}</span>}
-      </div>
+      <Topbar onLogout={onLogout} />
 
       <div style={{ flex:1, display:'flex', overflow:'hidden' }}>
 
