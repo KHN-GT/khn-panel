@@ -78,13 +78,7 @@ export default function Reportes({ onLogout }) {
 
   return (
     <div style={{ height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
-
-      {/* ── Topbar */}
-      <div style={{ background:'var(--surface)', borderBottom:'1.5px solid var(--border)', padding:'0 20px', height:54, display:'flex', alignItems:'center', gap:14, flexShrink:0, boxShadow:'var(--shadow)' }}>
-        <button onClick={() => navigate('/')} style={{ fontSize:18, background:'none', border:'none', cursor:'pointer', color:'var(--text3)', padding:'4px 8px', borderRadius:6 }}>←</button>
-        <div style={{ fontSize:17, fontWeight:800, color:'var(--text)', letterSpacing:'-.4px' }}>
-          KHN<span style={{ color:'var(--purple)' }}>_botics</span>
-        </div>
+      <Topbar onLogout={onLogout} />
         <div style={{ width:1, height:20, background:'var(--border)' }} />
         <div style={{ fontSize:13, color:'var(--text3)', fontWeight:500 }}>📊 Reportes e Historial</div>
         <button onClick={cargar} style={{ marginLeft:'auto', fontSize:13, fontWeight:600, padding:'5px 14px', borderRadius:'var(--radius-sm)', background:'var(--purple-light)', color:'var(--purple)', border:'1px solid var(--purple-border)', cursor:'pointer' }}>
