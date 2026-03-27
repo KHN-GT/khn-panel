@@ -27,6 +27,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [ordenData,     setOrdenData]     = useState(null)
   const [loadingOrden,  setLoadingOrden]  = useState(false)
   const [showTemplates, setShowTemplates] = useState(false)
+  const [activeTab, setActiveTab] = useState('postventa')
+  const [preventaItems, setPreventaItems] = useState([])
+  const [loadingPreventa, setLoadingPreventa] = useState(false)
   const [templates,     setTemplates]     = useState([])
   const [loadingTpl,    setLoadingTpl]    = useState(false)
   const [tplBusqueda,   setTplBusqueda]   = useState('')
@@ -343,6 +346,28 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     pending:    { label:'Pendiente',   color:'var(--amber)',  bg:'var(--amber-light)'  },
   }
 
+
+  // fetch preventa del mismo comprador+SKU
+  useEffect(() => {
+    if (!item || item.tipo !== 'POST-VENTA') { setPreventaItems([]); return }
+    if (!item.comprador || !item.sku) return
+    setLoadingPreventa(true)
+    const token = localStorage.getItem('khn_token')
+    const BASE = (import.meta.env.VITE_WORKER_URL || 'https://worker-production-d575.up.railway.app')
+    fetch(
+      BASE + '/api/inbox?tipo=PRE-COMPRA'
+      + '&comprador=' + encodeURIComponent(item.comprador)
+      + '&sku=' + encodeURIComponent(item.sku)
+      + '&cuenta=' + item.cuenta
+      + '&estado=pendiente,en_progreso,IA_sugerida,resuelto,descartado,enviada&limit=30',
+      { headers: { Authorization: 'Bearer ' + token } }
+    )
+      .then(r => r.json())
+      .then(d => setPreventaItems(Array.isArray(d) ? d : (d.items || [])))
+      .catch(() => setPreventaItems([]))
+      .finally(() => setLoadingPreventa(false))
+  }, [item && item.id])
+
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
 
@@ -521,6 +546,57 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       <div style={{ flex:1, display:'flex', overflow:'hidden' }}>
 
       {/* ── Hilo */}
+
+        {/* Tabs Postventa / Preventa */}
+        {item && item.tipo === 'POST-VENTA' && (
+          <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', background: '#f9fafb', flexShrink: 0 }}>
+            {['postventa', 'preventa'].map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)} style={{
+                flex: 1, padding: '10px 0', border: 'none', background: 'none',
+                cursor: 'pointer', fontSize: '14px',
+                fontWeight: activeTab === tab ? '600' : '400',
+                color: activeTab === tab ? '#2563eb' : '#6b7280',
+                borderBottom: activeTab === tab ? '2px solid #2563eb' : '2px solid transparent',
+                transition: 'all 0.15s',
+              }}>
+                {tab === 'postventa' ? 'Posventa' : 'Preventa'}
+                {tab === 'preventa' && preventaItems.length > 0 && (
+                  <span style={{ marginLeft: 6, background: '#2563eb', color: '#fff', borderRadius: 999, fontSize: 11, padding: '1px 6px' }}>
+                    {preventaItems.length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Contenido tab Preventa */}
+        {item && item.tipo === 'POST-VENTA' && activeTab === 'preventa' && (
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {loadingPreventa ? (
+              <p style={{ color: '#9ca3af', textAlign: 'center', marginTop: 40 }}>Cargando...</p>
+            ) : preventaItems.length === 0 ? (
+              <p style={{ color: '#9ca3af', textAlign: 'center', marginTop: 40 }}>Sin preguntas previas</p>
+            ) : preventaItems.map(prev => (
+              <div key={prev.id} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 14px' }}>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 13, color: '#64748b', flexShrink: 0 }}>Q:</span>
+                  <span style={{ fontSize: 14, color: '#1e293b', lineHeight: 1.4 }}>{prev.mensaje_cliente || '---'}</span>
+                </div>
+                {(prev.respuesta_final || prev.respuesta_ia) && (
+                  <div style={{ display: 'flex', gap: 8, paddingTop: 8, borderTop: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: 13, color: '#2563eb', flexShrink: 0 }}>A:</span>
+                    <span style={{ fontSize: 14, color: '#374151', lineHeight: 1.4 }}>{prev.respuesta_final || prev.respuesta_ia}</span>
+                  </div>
+                )}
+                <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>
+                  {prev.creado_en ? new Date(prev.creado_en).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
       <div ref={threadRef} style={{ flex:1, overflowY:'auto', padding:'14px', display:'flex', flexDirection:'column', gap:10 }}>
 
         {/* Loader de contexto */}
