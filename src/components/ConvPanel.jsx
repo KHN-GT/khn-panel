@@ -594,33 +594,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         )}
 
 {(item && item.tipo !== 'POST-VENTA') || activeTab === 'postventa' ? (
-
-        {/* Panel Preventa */}
-        {item.tipo === 'POST-VENTA' && activeTab === 'preventa' && (
-          <div style={{ flex:1, overflowY:'auto', padding:'16px', display:'flex', flexDirection:'column', gap:'12px' }}>
-            {loadingPreventa ? (
-              <p style={{ color:'var(--text3)', textAlign:'center', marginTop:40 }}>Cargando...</p>
-            ) : preventaItems.length === 0 ? (
-              <p style={{ color:'var(--text3)', textAlign:'center', marginTop:40 }}>Sin preguntas previas</p>
-            ) : preventaItems.map(prev => (
-              <div key={prev.id} style={{ background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px' }}>
-                <div style={{ display:'flex', gap:8, marginBottom:8 }}>
-                  <span style={{ fontSize:13, color:'var(--text3)', flexShrink:0, fontWeight:600 }}>Q</span>
-                  <span style={{ fontSize:14, color:'var(--text)', lineHeight:1.4 }}>{prev.mensaje_cliente || '---'}</span>
-                </div>
-                {(prev.respuesta_final || prev.respuesta_ia) && (
-                  <div style={{ display:'flex', gap:8, paddingTop:8, borderTop:'1px solid var(--border)' }}>
-                    <span style={{ fontSize:13, color:'var(--blue)', flexShrink:0, fontWeight:600 }}>A</span>
-                    <span style={{ fontSize:14, color:'var(--text2)', lineHeight:1.4 }}>{prev.respuesta_final || prev.respuesta_ia}</span>
-                  </div>
-                )}
-                <div style={{ marginTop:6, fontSize:11, color:'var(--text3)', textAlign:'right' }}>
-                  {prev.creado_en ? new Date(prev.creado_en).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}) : ''}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 <div ref={threadRef} style={{ flex:1, overflowY:'auto', padding:'14px', display:'flex', flexDirection:'column', gap:10 }}>
 
         {/* Loader de contexto */}
@@ -684,6 +657,33 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       </div>
 
 ) : null}
+
+        {/* Panel Preventa */}
+        {item.tipo === 'POST-VENTA' && activeTab === 'preventa' && (
+          <div style={{ flex:1, overflowY:'auto', padding:'16px', display:'flex', flexDirection:'column', gap:'12px' }}>
+            {loadingPreventa ? (
+              <p style={{ color:'var(--text3)', textAlign:'center', marginTop:40 }}>Cargando...</p>
+            ) : preventaItems.length === 0 ? (
+              <p style={{ color:'var(--text3)', textAlign:'center', marginTop:40 }}>Sin preguntas previas</p>
+            ) : preventaItems.map(prev => (
+              <div key={prev.id} style={{ background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px' }}>
+                <div style={{ display:'flex', gap:8, marginBottom:8 }}>
+                  <span style={{ fontSize:13, color:'var(--text3)', flexShrink:0, fontWeight:600 }}>Q</span>
+                  <span style={{ fontSize:14, color:'var(--text)', lineHeight:1.4 }}>{prev.mensaje_cliente || '---'}</span>
+                </div>
+                {(prev.respuesta_final || prev.respuesta_ia) && (
+                  <div style={{ display:'flex', gap:8, paddingTop:8, borderTop:'1px solid var(--border)' }}>
+                    <span style={{ fontSize:13, color:'var(--blue)', flexShrink:0, fontWeight:600 }}>A</span>
+                    <span style={{ fontSize:14, color:'var(--text2)', lineHeight:1.4 }}>{prev.respuesta_final || prev.respuesta_ia}</span>
+                  </div>
+                )}
+                <div style={{ marginTop:6, fontSize:11, color:'var(--text3)', textAlign:'right' }}>
+                  {prev.creado_en ? new Date(prev.creado_en).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}) : ''}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
 
         {/* Contenido tab Preventa */}
