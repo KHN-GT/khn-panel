@@ -222,13 +222,6 @@ export default function Config({ onLogout }) {
 
   return (
     <div style={{ height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
-
-      {/* ── Topbar */}
-      <div style={{ background:'var(--surface)', borderBottom:'1.5px solid var(--border)', padding:'0 20px', height:54, display:'flex', alignItems:'center', gap:14, flexShrink:0, boxShadow:'var(--shadow)' }}>
-        <button onClick={() => window.history.back()} style={{ fontSize:18, background:'none', border:'none', cursor:'pointer', color:'var(--text3)', padding:'4px 8px', borderRadius:6 }}>â†</button>
-        <div style={{ fontSize:17, fontWeight:800, color:'var(--text)', letterSpacing:'-.4px' }}>
-          KHN<span style={{ color:'var(--purple)' }}>_botics</span>
-        </div>
         <div style={{ width:1, height:20, background:'var(--border)' }} />
         <div style={{ fontSize:13, color:'var(--text3)', fontWeight:500 }}>âš™ï¸ Configuración</div>
         {msg && <span style={{ marginLeft:'auto', fontSize:12, fontWeight:700, color: msg.startsWith('✅') ? 'var(--green)' : 'var(--red)' }}>{msg}</span>}
