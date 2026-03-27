@@ -39,12 +39,16 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [galleryImages, setGalleryImages] = useState([])
   const [galleryIdx,    setGalleryIdx]    = useState(0)
   const [loadingGallery,setLoadingGallery]= useState(false)
+  const [showMeta,     setShowMeta]     = useState(false)
+  const [metaData,     setMetaData]     = useState(null)
+  const [loadingMeta,  setLoadingMeta]  = useState(false)
   const threadRef = useRef(null)
 
   useEffect(() => {
     setEditMode(false)
     setEditText(item?.respuesta_ia || '')
     setSuccess(''); setCopied(false); setContexto([])
+    setShowMeta(false); setMetaData(null)
     setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([])
 
     const token = localStorage.getItem('khn_token')
@@ -370,6 +374,31 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             <span style={{ fontSize:12, fontWeight:700, padding:'3px 8px', borderRadius:5, background:'var(--green-light)', color:'var(--green)', border:'1px solid var(--green-border)', marginLeft:'auto' }}>
               {item.estado === 'resuelto' ? '✓ ATENDIDO' : '✗ DESCARTADO'}
             </span>
+          )}
+          {item.comprador_id && (
+            <button
+              onClick={async () => {
+                setShowMeta(true)
+                if (!metaData) {
+                  setLoadingMeta(true)
+                  const tok = localStorage.getItem('khn_token')
+                  try {
+                    const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/comprador`, {
+                      headers: { Authorization: 'Bearer ' + tok }
+                    })
+                    const d = await r.json()
+                    setMetaData(d)
+                  } catch { setMetaData({ error: 'No se pudo cargar' }) }
+                  finally { setLoadingMeta(false) }
+                }
+              }}
+              title="Ver información del comprador"
+              style={{ marginLeft: isResolved ? 0 : 'auto', fontSize:13, fontWeight:700,
+                padding:'4px 10px', borderRadius:99, border:'1.5px solid var(--border)',
+                background: showMeta ? 'var(--purple)' : 'transparent',
+                color: showMeta ? '#fff' : 'var(--text3)', cursor:'pointer' }}>
+              ℹ
+            </button>
           )}
         </div>
         {/* Producto: imagen + título completo */}
@@ -920,6 +949,106 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           🏷 {etiquetas.length > 0 ? etiquetas.length : ''}
         </button>
       </div>
+      {/* ── Drawer Metadata Comprador ── */}
+      {showMeta && (
+        <div onClick={() => setShowMeta(false)}
+          style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.4)', zIndex:9990,
+            display:'flex', justifyContent:'flex-end' }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ width:320, background:'var(--surface)', height:'100%', overflowY:'auto',
+              boxShadow:'-4px 0 24px rgba(0,0,0,.15)', display:'flex', flexDirection:'column' }}>
+            {/* Header drawer */}
+            <div style={{ padding:'16px 18px', borderBottom:'1px solid var(--border)',
+              display:'flex', alignItems:'center', justifyContent:'space-between',
+              background:'var(--purple-light)' }}>
+              <span style={{ fontSize:14, fontWeight:700, color:'var(--purple)' }}>
+                ℹ Info del comprador
+              </span>
+              <button onClick={() => setShowMeta(false)}
+                style={{ fontSize:18, background:'none', border:'none', cursor:'pointer',
+                  color:'var(--text3)', lineHeight:1 }}>✕</button>
+            </div>
+            {/* Contenido */}
+            <div style={{ padding:'16px 18px', display:'flex', flexDirection:'column', gap:16 }}>
+              {loadingMeta ? (
+                <div style={{ textAlign:'center', padding:32, fontSize:13, color:'var(--text3)' }}>
+                  Cargando datos...
+                </div>
+              ) : metaData?.error ? (
+                <div style={{ fontSize:13, color:'var(--red)', padding:16, textAlign:'center' }}>
+                  {metaData.error}
+                </div>
+              ) : metaData ? (
+                <>
+                  {/* Nombre y nickname */}
+                  <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                    {metaData.nombre && (
+                      <span style={{ fontSize:16, fontWeight:700, color:'var(--text)' }}>
+                        {metaData.nombre}
+                      </span>
+                    )}
+                    <span style={{ fontSize:13, color:'var(--text3)' }}>@{metaData.nickname}</span>
+                  </div>
+                  {/* Reputacion */}
+                  {metaData.reputacion_label && (
+                    <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                      <span style={{ fontSize:12, fontWeight:600, color:'var(--text3)',
+                        textTransform:'uppercase', letterSpacing:'.05em' }}>Reputación</span>
+                      <span style={{ fontSize:13, fontWeight:700, padding:'4px 12px',
+                        borderRadius:99, display:'inline-flex', alignSelf:'flex-start',
+                        background: metaData.reputacion_bg, color: metaData.reputacion_color }}>
+                        ● {metaData.reputacion_label}
+                      </span>
+                    </div>
+                  )}
+                  {/* Ubicacion */}
+                  {(metaData.ciudad || metaData.estado) && (
+                    <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                      <span style={{ fontSize:12, fontWeight:600, color:'var(--text3)',
+                        textTransform:'uppercase', letterSpacing:'.05em' }}>Ubicación</span>
+                      <span style={{ fontSize:14, color:'var(--text)' }}>
+                        📍 {[metaData.ciudad, metaData.estado].filter(Boolean).join(', ')}
+                      </span>
+                    </div>
+                  )}
+                  {/* Compras */}
+                  {metaData.total_compras > 0 && (
+                    <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                      <span style={{ fontSize:12, fontWeight:600, color:'var(--text3)',
+                        textTransform:'uppercase', letterSpacing:'.05em' }}>Historial de compras</span>
+                      <div style={{ display:'flex', gap:12 }}>
+                        <div style={{ textAlign:'center' }}>
+                          <div style={{ fontSize:20, fontWeight:700, color:'var(--text)' }}>
+                            {metaData.total_compras}
+                          </div>
+                          <div style={{ fontSize:12, color:'var(--text3)' }}>Total</div>
+                        </div>
+                        <div style={{ textAlign:'center' }}>
+                          <div style={{ fontSize:20, fontWeight:700, color:'var(--green)' }}>
+                            {metaData.compras_completadas}
+                          </div>
+                          <div style={{ fontSize:12, color:'var(--text3)' }}>Completadas</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {/* Miembro desde */}
+                  {metaData.miembro_desde && (
+                    <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                      <span style={{ fontSize:12, fontWeight:600, color:'var(--text3)',
+                        textTransform:'uppercase', letterSpacing:'.05em' }}>Miembro desde</span>
+                      <span style={{ fontSize:14, color:'var(--text)' }}>
+                        📅 {new Date(metaData.miembro_desde).toLocaleDateString('es-MX', {year:'numeric',month:'long'})}
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Modal Galería ── */}
       {showGallery && (
         <div
