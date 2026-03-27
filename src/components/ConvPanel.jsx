@@ -366,7 +366,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       .then(d => setPreventaItems(Array.isArray(d) ? d : (d.items || [])))
       .catch(() => setPreventaItems([]))
       .finally(() => setLoadingPreventa(false))
-  }, [item && item.id])
+  }, [item?.id])
 
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
