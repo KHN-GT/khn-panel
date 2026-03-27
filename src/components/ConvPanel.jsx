@@ -436,7 +436,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     const textBefore = editText.slice(0, cursor)
     const textAfter = editText.slice(cursor)
     // Reemplazar #query con el enlace
-    const newBefore = textBefore.replace(/#([\w\s-]{1,40})$/, pub.permalink || pub.url || '')
+    const enlace = pub.permalink || pub.url || ''
+    const textoInsertar = enlace ? `ver producto: ${enlace}` : (pub.titulo || pub.sku)
+    const newBefore = textBefore.replace(/#([\w\s-]{1,40})$/, textoInsertar)
     setEditText(newBefore + textAfter)
     setHashVisible(false)
     setHashQuery('')
@@ -946,33 +948,44 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   <div style={{
                     position: 'absolute', bottom: '100%', left: 0, right: 0, zIndex: 200,
                     background: 'var(--surface)', border: '1.5px solid var(--blue)',
-                    borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-md)',
-                    maxHeight: 220, overflowY: 'auto',
+                    borderRadius: 8, boxShadow: '0 -4px 24px rgba(0,0,0,.12)',
+                    maxHeight: 260, overflowY: 'auto',
                   }}>
-                    <div style={{ padding: '6px 10px', fontSize: 11, color: 'var(--text3)', borderBottom: '1px solid var(--border)', fontWeight: 600 }}>
-                      🔗 Publicaciones — #{hashQuery}{hashLoading ? ' (buscando...)' : ''}
+                    <div style={{ padding: '7px 12px', fontSize: 11, color: 'var(--text3)',
+                      borderBottom: '1px solid var(--border)', fontWeight: 700,
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      background: 'var(--surface2)', borderRadius: '8px 8px 0 0' }}>
+                      🔗 <span>Publicaciones</span>
+                      <span style={{ color: 'var(--blue)', fontWeight: 800 }}>#{hashQuery}</span>
+                      {hashLoading && <span style={{ marginLeft: 'auto', opacity: .6 }}>buscando...</span>}
                     </div>
                     {hashResults.length === 0 && !hashLoading && (
-                      <div style={{ padding: '10px', fontSize: 13, color: 'var(--text3)', textAlign: 'center' }}>Sin resultados para #{hashQuery}</div>
+                      <div style={{ padding: '14px', fontSize: 13, color: 'var(--text3)', textAlign: 'center' }}>
+                        Sin resultados para <b>#{hashQuery}</b>
+                      </div>
                     )}
                     {hashResults.map(pub => (
                       <div key={pub.id || pub.sku} onClick={() => insertarEnlace(pub)}
-                        style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 10px', cursor:'pointer', fontSize:13, borderBottom:'1px solid var(--border)' }}
+                        style={{ display:'flex', alignItems:'center', gap:10,
+                          padding:'9px 12px', cursor:'pointer',
+                          borderBottom:'1px solid var(--border)', transition:'background .1s' }}
                         onMouseEnter={e => e.currentTarget.style.background='var(--blue-light)'}
                         onMouseLeave={e => e.currentTarget.style.background='transparent'}
                       >
-                        {pub.thumbnail && (
-                          <img src={pub.thumbnail} alt='' style={{ width:32, height:32, objectFit:'contain', borderRadius:4, flexShrink:0 }} />
-                        )}
-                        <div style={{ minWidth:0 }}>
-                          <div style={{ fontWeight:600, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                        {pub.thumbnail
+                          ? <img src={pub.thumbnail} alt='' style={{ width:38, height:38, objectFit:'contain', borderRadius:6, flexShrink:0, border:'1px solid var(--border)', background:'#fff' }} />
+                          : <div style={{ width:38, height:38, borderRadius:6, background:'var(--surface2)', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18 }}>📦</div>
+                        }
+                        <div style={{ minWidth:0, flex:1 }}>
+                          <div style={{ fontWeight:600, color:'var(--text)', fontSize:13,
+                            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                             {pub.titulo || pub.title || pub.sku}
                           </div>
-                          <div style={{ fontSize:11, color:'var(--text3)' }}>
-                            {pub.sku && <span style={{ marginRight:8 }}>SKU: {pub.sku}</span>}
-                            {pub.precio && <span>${pub.precio} MXN</span>}
+                          <div style={{ fontSize:11, color:'var(--text3)', marginTop:2, display:'flex', gap:8 }}>
+                            {pub.sku && <span style={{ background:'var(--surface2)', padding:'1px 6px', borderRadius:99 }}>SKU: {pub.sku}</span>}
                           </div>
                         </div>
+                        <span style={{ fontSize:11, color:'var(--blue)', flexShrink:0 }}>insertar →</span>
                       </div>
                     ))}
                   </div>
