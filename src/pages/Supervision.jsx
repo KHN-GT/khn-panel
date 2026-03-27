@@ -27,7 +27,7 @@ export default function Supervision({ onLogout }) {
   const load = async (off = 0) => {
     setLoading(true)
     const tok = localStorage.getItem('khn_token')
-    let url = `${RAILWAY}/api/feedback?limit=${LIMIT}&offset=${off}`
+    let url = `${RAILWAY}/api/feedback?limit=${LIMIT}&offset=${off}&excluir_accion=corregido_post_envio`
     if (filtCuenta) url += `&cuenta=${filtCuenta}`
     if (filtError)  url += `&es_error=${filtError}`
     if (filtDesde)  url += `&desde=${filtDesde}`
@@ -77,6 +77,11 @@ export default function Supervision({ onLogout }) {
       {/* Header */}
       <div style={{ padding:'16px 24px', borderBottom:'1.5px solid var(--border)', background:'var(--surface)', flexShrink:0 }}>
         <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
+          <button onClick={() => window.history.back()}
+            style={{ fontSize:14, fontWeight:600, padding:'5px 12px', borderRadius:'var(--radius-sm)',
+              border:'1px solid var(--border)', background:'transparent', color:'var(--text3)', cursor:'pointer' }}>
+            ← Volver
+          </button>
           <span style={{ fontSize:18, fontWeight:700, color:'var(--text)' }}>Supervisión de Respuestas IA</span>
           <span style={{ fontSize:13, color:'var(--text3)' }}>{total} registros</span>
           {success && <span style={{ fontSize:13, fontWeight:600, color:'var(--green)', marginLeft:'auto' }}>{success}</span>}
