@@ -20,6 +20,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [editText,  setEditText]  = useState('')
 
   const [sending,   setSending]   = useState(false)
+  const [showEspera, setShowEspera] = useState(false)
+  const [motivoEspera, setMotivoEspera] = useState('')
+  const [sendingEspera, setSendingEspera] = useState(false)
   const [success,   setSuccess]   = useState('')
   const [copied,    setCopied]    = useState(false)
   const [contexto,    setContexto]    = useState([])
@@ -369,6 +372,27 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
 
 
+
+  const handleEspera = async () => {
+    if (!motivoEspera) return
+    setSendingEspera(true)
+    try {
+      const token = localStorage.getItem('khn_token')
+      const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/espera`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ motivo: motivoEspera })
+      })
+      const d = await r.json()
+      if (d.ok) {
+        setShowEspera(false)
+        setMotivoEspera('')
+        if (onDiscard) onDiscard(item.id)
+      }
+    } catch(e) { console.error(e) }
+    finally { setSendingEspera(false) }
+  }
+
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
 
@@ -389,6 +413,15 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               background: urgStyle.bg, color: urgStyle.color, border:`1px solid ${urgStyle.border}` }}>
               {urgStyle.icon} RECLAMO — {urgStyle.label}
             </span>
+          )}
+          {isClaim && item.estado === 'en_espera' && (
+            <span style={{
+              background: '#fef3c7', color: '#b45309', border: '1px solid #f59e0b',
+              borderRadius: 99, fontSize: 11, fontWeight: 700, padding: '2px 10px',
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+            }}>⏸ EN ESPERA{item.motivo_espera ? ` — ${item.motivo_espera}` : ''}</span>
+          )}
+
           )}
           {item.tipo === 'PRE-COMPRA' && item.pedido_hecho && (
             <span style={{ fontSize:12, fontWeight:700, padding:'3px 8px', borderRadius:5,
@@ -990,6 +1023,72 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--purple-border)', background:'var(--purple-light)', color:'var(--purple)', cursor:'pointer' }}>
               {editMode ? 'Cancelar edición' : '✏️ Editar'}
             </button>
+
+        {/* Boton En Espera — solo reclamos */}
+        {isClaim && !isResolved && (
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => { setShowEspera(v => !v); setMotivoEspera('') }}
+              style={{
+                padding: '8px 14px', borderRadius: 'var(--radius-sm)', border: '1.5px solid #f59e0b',
+                background: showEspera ? '#fef3c7' : 'transparent',
+                color: '#b45309', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 6,
+              }}
+            >⏸ En espera</button>
+
+            {showEspera && (
+              <div style={{
+                position: 'absolute', bottom: '110%', left: 0, zIndex: 100,
+                background: 'var(--surface)', border: '1.5px solid #f59e0b',
+                borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-md)',
+                padding: '12px', minWidth: 240,
+              }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#b45309', marginBottom: 8 }}>Motivo de espera</div>
+                {[
+                  'Esperando devolucion del paquete',
+                  'Esperando respuesta del comprador',
+                  'Esperando resolucion de paqueteria',
+                  'Esperando autorizacion interna',
+                  'Otro motivo',
+                ].map(op => (
+                  <div
+                    key={op}
+                    onClick={() => setMotivoEspera(op)}
+                    style={{
+                      padding: '7px 10px', borderRadius: 6, marginBottom: 4, cursor: 'pointer',
+                      fontSize: 13, color: 'var(--text)',
+                      background: motivoEspera === op ? '#fef3c7' : 'var(--surface2)',
+                      border: motivoEspera === op ? '1.5px solid #f59e0b' : '1.5px solid transparent',
+                      fontWeight: motivoEspera === op ? 600 : 400,
+                    }}
+                  >{op}</div>
+                ))}
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <button
+                    onClick={handleEspera}
+                    disabled={!motivoEspera || sendingEspera}
+                    style={{
+                      flex: 1, padding: '7px 0', borderRadius: 6, border: 'none',
+                      background: motivoEspera ? '#f59e0b' : '#d1d5db',
+                      color: '#fff', fontWeight: 700, fontSize: 13,
+                      cursor: motivoEspera ? 'pointer' : 'not-allowed',
+                    }}
+                  >{sendingEspera ? 'Guardando...' : 'Confirmar'}</button>
+                  <button
+                    onClick={() => { setShowEspera(false); setMotivoEspera('') }}
+                    style={{
+                      padding: '7px 12px', borderRadius: 6, border: '1.5px solid var(--border)',
+                      background: 'var(--surface2)', color: 'var(--text2)',
+                      fontSize: 13, cursor: 'pointer',
+                    }}
+                  >Cancelar</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
             {editMode && (
               <button onClick={handleApprove} disabled={sending || !editText.trim()}
                 style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--green-border)', background:'var(--green)', color:'#fff', cursor:'pointer', opacity: sending ? .6 : 1 }}>
