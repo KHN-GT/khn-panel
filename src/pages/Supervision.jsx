@@ -1,3 +1,4 @@
+import Topbar from '../components/Topbar'
 import { useState, useEffect } from 'react'
 
 const RAILWAY = 'https://worker-production-d575.up.railway.app'
@@ -9,7 +10,7 @@ const ACCION_LABELS = {
   'fuera_horario':    { label: 'Fuera horario', color: '#9aa0b8', bg: '#f0f2f7' },
 }
 
-export default function Supervision() {
+export default function Supervision({ onLogout }) {
   const [items, setItems]           = useState([])
   const [total, setTotal]           = useState(0)
   const [loading, setLoading]       = useState(false)
@@ -71,6 +72,7 @@ export default function Supervision() {
 
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', overflow:'hidden', background:'var(--bg)' }}>
+      <Topbar onLogout={onLogout} />
 
       {/* Header */}
       <div style={{ padding:'16px 24px', borderBottom:'1.5px solid var(--border)', background:'var(--surface)', flexShrink:0 }}>

@@ -31,13 +31,13 @@ export default function App() {
           <PrivateRoute><Dashboard onLogout={handleLogout} /></PrivateRoute>
         } />
         <Route path="/config" element={
-          <PrivateRoute><Config onBack={() => window.history.back()} /></PrivateRoute>
+          <PrivateRoute><Config onLogout={handleLogout} /></PrivateRoute>
         } />
         <Route path="/reportes" element={
-          <PrivateRoute><Reportes /></PrivateRoute>
+          <PrivateRoute><Reportes onLogout={handleLogout} /></PrivateRoute>
         } />
         <Route path="/supervision" element={
-          <PrivateRoute><Supervision /></PrivateRoute>
+          <PrivateRoute><Supervision onLogout={handleLogout} /></PrivateRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

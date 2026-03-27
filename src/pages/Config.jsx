@@ -1,3 +1,4 @@
+import Topbar from '../components/Topbar'
 import { useState, useEffect } from 'react'
 
 const RAILWAY = 'https://worker-production-d575.up.railway.app'
@@ -22,7 +23,7 @@ function authHeaders() {
 
 const TEMPLATE_BLANK = { titulo:'', categoria:'GENERAL', texto:'', cuenta:'TODAS', activo:true, orden:0 }
 
-export default function Config({ onBack }) {
+export default function Config({ onLogout }) {
   const [tab,        setTab]        = useState('modos')
   const [cuentaTab,  setCuentaTab]  = useState('GTK')
   const [modos,      setModos]      = useState({})

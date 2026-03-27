@@ -1,3 +1,4 @@
+import Topbar from '../components/Topbar'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -27,7 +28,7 @@ function authHeaders() {
   return { 'Authorization': `Bearer ${localStorage.getItem('khn_token')}`, 'Content-Type': 'application/json' }
 }
 
-export default function Reportes() {
+export default function Reportes({ onLogout }) {
   const navigate = useNavigate()
   const [items,      setItems]      = useState([])
   const [loading,    setLoading]    = useState(true)
