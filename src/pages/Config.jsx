@@ -32,6 +32,7 @@ export default function Config({ onLogout }) {
   const [loading,    setLoading]    = useState(true)
   const [saving,     setSaving]     = useState(false)
   const [msg,        setMsg]        = useState('')
+  const [alertas,    setAlertas]    = useState({})
 
   // Templates state
   const [templates,     setTemplates]     = useState([])
@@ -56,7 +57,8 @@ export default function Config({ onLogout }) {
       fetch(`${RAILWAY}/api/config/modos`,    { headers: authHeaders() }).then(r=>r.json()),
       fetch(`${RAILWAY}/api/config/horarios`, { headers: authHeaders() }).then(r=>r.json()),
       fetch(`${RAILWAY}/api/config/mensajes`, { headers: authHeaders() }).then(r=>r.json()),
-    ]).then(([m, h, msg]) => { setModos(m); setHorarios(h); setMensajes(msg) })
+      fetch(`${RAILWAY}/api/config/alertas`,  { headers: authHeaders() }).then(r=>r.json()),
+    ]).then(([m, h, msg, al]) => { setModos(m); setHorarios(h); setMensajes(msg); setAlertas(al) })
       .finally(() => setLoading(false))
   }, [])
 
@@ -167,6 +169,27 @@ export default function Config({ onLogout }) {
     setImportando(false)
   }
 
+
+  // ── Alertas ───────────────────────────────────────────────────
+  const saveAlertas = async (cuenta) => {
+    setSaving(true)
+    try {
+      const r = await fetch(`${RAILWAY}/api/config/alertas/${cuenta}`, {
+        method: 'PUT', headers: authHeaders(),
+        body: JSON.stringify(alertas[cuenta] || { inicio: '08:00', fin: '21:00', activo: true })
+      })
+      if (r.ok) { flash('Horario de alertas guardado') } else { flash('Error al guardar') }
+    } catch { flash('Error de conexion') }
+    setSaving(false)
+  }
+
+  const updateAlerta = (cuenta, campo, valor) => {
+    setAlertas(prev => ({
+      ...prev,
+      [cuenta]: { ...(prev[cuenta] || { inicio: '08:00', fin: '21:00', activo: true }), [campo]: valor }
+    }))
+  }
+
   // ── Modos ─────────────────────────────────────────────────────
   const saveModo = async (cuenta, canal, campo, valor) => {
     setSaving(true)
@@ -234,6 +257,7 @@ export default function Config({ onLogout }) {
             { id:'mensajes',         label:'Mensajes',         desc:'Fuera de horario'       },
             { id:'templates',        label:'Templates',        desc:'Respuestas rapidas'     },
             { id:'compatibilidades', label:'Compatibilidades', desc:'SKU y modelos compat.'  },
+            { id:'alertas',          label:'Alertas',          desc:'Horario notif. Telegram' },
           ].map(s => (
             <button key={s.id} onClick={() => setTab(s.id)}
               style={{ textAlign:'left', padding:'10px 12px', borderRadius:'var(--radius-sm)', border: tab === s.id ? '1.5px solid var(--purple-border)' : '1.5px solid transparent', background: tab === s.id ? 'var(--purple-light)' : 'transparent', cursor:'pointer', transition:'all .15s' }}>
@@ -247,7 +271,7 @@ export default function Config({ onLogout }) {
         <div style={{ flex:1, overflowY:'auto', padding:'24px' }}>
 
           {/* Tabs de cuenta — no aplica a templates ni compatibilidades */}
-          {tab !== 'templates' && tab !== 'compatibilidades' && (
+          {tab !== 'templates' && tab !== 'compatibilidades' && tab !== 'alertas' && (
             <div style={{ display:'flex', gap:8, marginBottom:20 }}>
               {CUENTAS.map(c => {
                 const a = ACCT_COLOR[c]; const active = cuentaTab === c
@@ -744,6 +768,66 @@ export default function Config({ onLogout }) {
               })()}
             </div>
           )}
+
+          {/* ── ALERTAS TELEGRAM */}
+          {tab === 'alertas' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:20, maxWidth:540 }}>
+              <div>
+                <div style={{ fontSize:15, fontWeight:700, color:'var(--text)' }}>Horario de alertas Telegram</div>
+                <div style={{ fontSize:13, color:'var(--text3)', marginTop:4 }}>
+                  Las alertas de reclamos fuera de este horario se silenciaran automaticamente.
+                </div>
+              </div>
+
+              {['GTK','RBN','GDP'].map(cuenta => {
+                const al = alertas[cuenta] || { inicio:'08:00', fin:'21:00', activo:true }
+                const ac = ACCT_COLOR[cuenta]
+                return (
+                  <div key={cuenta} style={{ background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+                    <div style={{ padding:'12px 16px', background:'var(--surface2)', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:10 }}>
+                      <span style={{ fontSize:13, fontWeight:700, color: ac.color }}>{cuenta}</span>
+                      <label style={{ display:'flex', alignItems:'center', gap:6, marginLeft:'auto', cursor:'pointer' }}>
+                        <input type="checkbox" checked={al.activo !== false}
+                          onChange={e => updateAlerta(cuenta, 'activo', e.target.checked)}
+                          style={{ width:16, height:16 }} />
+                        <span style={{ fontSize:12, color:'var(--text2)' }}>
+                          {al.activo !== false ? 'Alertas activas' : 'Alertas desactivadas'}
+                        </span>
+                      </label>
+                    </div>
+                    <div style={{ padding:'16px', display:'flex', alignItems:'center', gap:20, opacity: al.activo !== false ? 1 : 0.4, pointerEvents: al.activo !== false ? 'auto' : 'none' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                        <span style={{ fontSize:12, color:'var(--text3)', whiteSpace:'nowrap' }}>Desde</span>
+                        <input type="time" value={al.inicio || '08:00'}
+                          onChange={e => updateAlerta(cuenta, 'inicio', e.target.value)}
+                          style={{ fontSize:13, padding:'6px 10px', borderRadius:6, border:'1px solid var(--border)', color:'var(--text)', background:'var(--bg)' }} />
+                      </div>
+                      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                        <span style={{ fontSize:12, color:'var(--text3)', whiteSpace:'nowrap' }}>Hasta</span>
+                        <input type="time" value={al.fin || '21:00'}
+                          onChange={e => updateAlerta(cuenta, 'fin', e.target.value)}
+                          style={{ fontSize:13, padding:'6px 10px', borderRadius:6, border:'1px solid var(--border)', color:'var(--text)', background:'var(--bg)' }} />
+                      </div>
+                      <span style={{ fontSize:12, color:'var(--text3)' }}>hora Mexico</span>
+                    </div>
+                    <div style={{ padding:'0 16px 14px' }}>
+                      <button onClick={() => saveAlertas(cuenta)} disabled={saving}
+                        style={{ fontSize:12, fontWeight:700, padding:'7px 18px', borderRadius:6,
+                          background:'var(--purple)', color:'#fff', border:'none', cursor:'pointer',
+                          opacity: saving ? 0.6 : 1 }}>
+                        {saving ? 'Guardando...' : 'Guardar'}
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+
+              <div style={{ fontSize:12, color:'var(--text3)', padding:'12px 14px', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, lineHeight:1.6 }}>
+                Los mensajes de inicio del worker, errores criticos del sistema y callbacks de Telegram seguiran funcionando siempre, independiente de este horario.
+              </div>
+            </div>
+          )}
+
 
         </div>
       </div>
