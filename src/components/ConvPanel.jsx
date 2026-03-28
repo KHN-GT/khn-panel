@@ -178,6 +178,34 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
   const ac  = ACCT[item.cuenta] || ACCT.GTK
   const cf  = CONF[item.confianza] || CONF.alta
+  const CLAIM_REASONS = {
+    'PNR9501': 'El comprador no recibio el producto',
+    'PNR9502': 'El comprador no recibio el producto (tracking sin movimiento)',
+    'PDD9500': 'Producto danado o defectuoso',
+    'PDD9501': 'Producto danado al recibirlo',
+    'PDD9502': 'Producto deja de funcionar',
+    'PNM9500': 'El producto no coincide con la descripcion',
+    'PNM9501': 'Producto diferente al anunciado',
+    'PNM9502': 'Producto de menor calidad que el anunciado',
+    'QTY9500': 'Cantidad incorrecta recibida',
+    'WPI9500': 'Datos de pago incorrectos',
+    'OTH9500': 'Otro motivo',
+    'OTH9501': 'El comprador se arrepintio de la compra',
+    'OTH9502': 'El comprador quiere cancelar',
+    'OTH9503': 'Demora en el envio',
+    'FRD9500': 'Posible fraude reportado por el comprador',
+    'CNT9500': 'Problemas de contacto con el vendedor',
+  }
+  const getClaimReason = (msg) => {
+    if (!msg) return msg
+    // Extraer codigo del mensaje "Reclamo — Motivo: PNR9501 | Stage: claim"
+    const match = msg.match(/Motivo:\s*([A-Z0-9]+)/)
+    if (!match) return msg.replace('Reclamo — ', '')
+    const code = match[1]
+    const desc = CLAIM_REASONS[code]
+    return desc ? `${desc} (${code})` : msg.replace('Reclamo — ', '')
+  }
+
   const isClaim   = item.tipo === 'RECLAMO' || item.tipo === 'reclamo' || !!item.claim_id || item.canal === 'reclamos'
   const isResolved= ['resuelto','descartado'].includes(item.estado)
   const numeroCopia = item.orden_id || item.claim_id || null
@@ -715,7 +743,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 {item.mensaje_cliente && (
                   <div style={{ marginBottom:4 }}>
                     <span style={{ color:'var(--text3)' }}>Motivo: </span>
-                    <b>{item.mensaje_cliente.replace('Reclamo — ','')}</b>
+                    <b>{getClaimReason(item.mensaje_cliente)}</b>
                   </div>
                 )}
                 {item.orden_id && (
