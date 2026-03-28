@@ -6,16 +6,20 @@ export default function Topbar({ onLogout, pendingCount = 0, claimsCount = 0, on
   const navigate = useNavigate()
   const location = useLocation()
   const user = JSON.parse(localStorage.getItem('khn_user') || '{}')
+  const rol = user.rol || 'operador'
+  const esSupervisorOAdmin = ['admin', 'supervisor'].includes(rol)
+  const esAdmin = rol === 'admin'
 
-  const navBtn = (path, icon, title) => {
+  const navBtn = (path, label, title) => {
     const active = location.pathname === path
     return (
       <button onClick={() => navigate(path)} title={title}
-        style={{ fontSize:15, background: active ? 'var(--purple-light)' : 'none',
-          border: active ? '1px solid var(--purple-border)' : 'none',
+        style={{ fontSize:13, fontWeight: active ? 700 : 500,
+          background: active ? 'var(--purple-light)' : 'none',
+          border: active ? '1px solid var(--purple-border)' : '1px solid transparent',
           color: active ? 'var(--purple)' : 'var(--text3)',
-          cursor:'pointer', padding:'5px 8px', borderRadius:6, lineHeight:1 }}>
-        {icon}
+          cursor:'pointer', padding:'5px 10px', borderRadius:6, lineHeight:1 }}>
+        {label}
       </button>
     )
   }
@@ -45,7 +49,6 @@ export default function Topbar({ onLogout, pendingCount = 0, claimsCount = 0, on
         </div>
       )}
 
-      {/* Espaciador */}
       <div style={{ flex:1 }} />
 
       {/* Badge pendientes */}
@@ -59,23 +62,33 @@ export default function Topbar({ onLogout, pendingCount = 0, claimsCount = 0, on
       {/* Refresh - solo en dashboard */}
       {onRefresh && (
         <button onClick={onRefresh} title="Actualizar"
-          style={{ fontSize:18, background:'none', border:'none', color:'var(--text3)', cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>
-          ↺
+          style={{ fontSize:16, background:'none', border:'none', color:'var(--text3)', cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>
+          &#8635;
         </button>
       )}
 
-      {/* Nav buttons */}
-      {navBtn('/supervision', '🔍', 'Supervisión IA')}
-      {navBtn('/reportes',   '📊', 'Reportes')}
-      {navBtn('/config',     '⚙️', 'Configuración')}
+      {/* Nav buttons segun rol */}
+      {navBtn('/supervision', 'Supervision', 'Supervision IA')}
+      {esSupervisorOAdmin && navBtn('/reportes', 'Reportes', 'Reportes')}
+      {esSupervisorOAdmin && navBtn('/config', 'Config', 'Configuracion')}
+      {esAdmin && navBtn('/usuarios', 'Usuarios', 'Gestion de usuarios')}
+
+      {/* Rol badge */}
+      <div style={{ fontSize:11, fontWeight:700, padding:'3px 9px', borderRadius:99, textTransform:'uppercase',
+        background: esAdmin ? '#2d1f5e' : esSupervisorOAdmin ? '#1a3a2a' : 'var(--surface2)',
+        color: esAdmin ? '#a78bfa' : esSupervisorOAdmin ? '#34d399' : 'var(--text3)',
+        border: esAdmin ? '1px solid #4c1d95' : esSupervisorOAdmin ? '1px solid #065f46' : '1px solid var(--border)' }}>
+        {rol}
+      </div>
 
       {/* Avatar + Salir */}
       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
         <div style={{ width:30, height:30, borderRadius:'50%', background:'var(--purple-light)',
           display:'flex', alignItems:'center', justifyContent:'center',
           fontSize:13, fontWeight:700, color:'var(--purple)', border:'1px solid var(--purple-border)' }}>
-          {(user.nombre || 'A').charAt(0).toUpperCase()}
+          {(user.nombre || user.username || 'A').charAt(0).toUpperCase()}
         </div>
+        <span style={{ fontSize:12, color:'var(--text3)' }}>{user.nombre || user.username}</span>
         <button onClick={onLogout} style={{ fontSize:13, color:'var(--text3)',
           background:'none', border:'none', cursor:'pointer', padding:'4px' }}>
           Salir

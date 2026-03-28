@@ -5,10 +5,30 @@ import Dashboard from './pages/Dashboard'
 import Config from './pages/Config'
 import Reportes from './pages/Reportes'
 import Supervision from './pages/Supervision'
+import Usuarios from './pages/Usuarios'
+
+function getUserRol() {
+  try { return JSON.parse(localStorage.getItem('khn_user') || '{}').rol || 'operador' } catch { return 'operador' }
+}
 
 function PrivateRoute({ children }) {
   const authed = !!localStorage.getItem('khn_token')
   return authed ? children : <Navigate to="/login" replace />
+}
+
+function AdminRoute({ children }) {
+  const authed = !!localStorage.getItem('khn_token')
+  if (!authed) return <Navigate to="/login" replace />
+  if (getUserRol() !== 'admin') return <Navigate to="/" replace />
+  return children
+}
+
+function SupervisorRoute({ children }) {
+  const authed = !!localStorage.getItem('khn_token')
+  if (!authed) return <Navigate to="/login" replace />
+  const rol = getUserRol()
+  if (!['admin', 'supervisor'].includes(rol)) return <Navigate to="/" replace />
+  return children
 }
 
 export default function App() {
@@ -30,14 +50,17 @@ export default function App() {
         <Route path="/" element={
           <PrivateRoute><Dashboard onLogout={handleLogout} /></PrivateRoute>
         } />
-        <Route path="/config" element={
-          <PrivateRoute><Config onLogout={handleLogout} /></PrivateRoute>
-        } />
-        <Route path="/reportes" element={
-          <PrivateRoute><Reportes onLogout={handleLogout} /></PrivateRoute>
-        } />
         <Route path="/supervision" element={
           <PrivateRoute><Supervision onLogout={handleLogout} /></PrivateRoute>
+        } />
+        <Route path="/reportes" element={
+          <SupervisorRoute><Reportes onLogout={handleLogout} /></SupervisorRoute>
+        } />
+        <Route path="/config" element={
+          <SupervisorRoute><Config onLogout={handleLogout} /></SupervisorRoute>
+        } />
+        <Route path="/usuarios" element={
+          <AdminRoute><Usuarios onLogout={handleLogout} /></AdminRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
