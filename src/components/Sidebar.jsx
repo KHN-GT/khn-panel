@@ -13,6 +13,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
   const [etqFilter, setEtqFilter] = useState(null)
   const [reclamoSubTab, setReclamoSubTab] = useState('activos')  // etiqueta seleccionada para filtrar
   const [postvtSubTab,  setPostvtSubTab]  = useState('pendientes')
+  const [precompSubTab, setPrecompSubTab] = useState('pendientes')
   const [etqOpciones, setEtqOpciones] = useState([])
   const [showEtqFilter, setShowEtqFilter] = useState(false)
 
@@ -46,7 +47,13 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
     ? filteredBase.filter(i => postvtSubTab === 'revisados'
         ? i.estado === 'resuelto'
         : i.estado === 'pendiente' || i.estado === 'en_progreso' || i.estado === 'IA_sugerida')
+    : tipoFilter === 'PRE-COMPRA'
+    ? filteredBase.filter(i => precompSubTab === 'respondidas'
+        ? i.estado === 'resuelto' || i.estado === 'enviada'
+        : i.estado === 'pendiente' || i.estado === 'en_progreso' || i.estado === 'IA_sugerida')
     : filteredBase
+  const countPCPendiente = byTipo('PRE-COMPRA').filter(i => i.estado === 'pendiente' || i.estado === 'en_progreso' || i.estado === 'IA_sugerida').length
+  const countPCRespondidas = byTipo('PRE-COMPRA').filter(i => i.estado === 'resuelto' || i.estado === 'enviada').length
   const countEspera     = byTipo('RECLAMO').filter(i => i.estado === 'en_espera').length
   const countActivos    = byTipo('RECLAMO').filter(i => i.estado !== 'en_espera').length
   const countPVPendiente = byTipo('POST-VENTA').filter(i => i.estado === 'pendiente' || i.estado === 'en_progreso').length
@@ -142,6 +149,30 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
                   color: postvtSubTab === st.id ? '#fff' : 'var(--text3)',
                   borderRadius: 99, fontSize: 10, fontWeight: 800, padding: '1px 6px',
                   border: '1px solid ' + (postvtSubTab === st.id ? 'var(--amber)' : 'var(--border)'),
+                }}>{st.count}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Sub-tabs Pendientes / Respondidas — solo Pre-compra */}
+      {tipoFilter === 'PRE-COMPRA' && (
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0, margin: '0 10px' }}>
+          {[{id:'pendientes',label:'Pendientes',count:countPCPendiente},{id:'respondidas',label:'Respondidas',count:countPCRespondidas}].map(st => (
+            <button key={st.id} onClick={() => setPrecompSubTab(st.id)} style={{
+              flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
+              fontSize: 12, fontWeight: precompSubTab === st.id ? 700 : 400,
+              color: precompSubTab === st.id ? 'var(--purple)' : 'var(--text3)',
+              borderBottom: precompSubTab === st.id ? '2px solid var(--purple)' : '2px solid transparent',
+              transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+            }}>
+              {st.label}
+              {st.count > 0 && (
+                <span style={{ background: precompSubTab === st.id ? 'var(--purple)' : 'var(--surface2)',
+                  color: precompSubTab === st.id ? '#fff' : 'var(--text3)',
+                  borderRadius: 99, fontSize: 10, fontWeight: 800, padding: '1px 6px',
+                  border: '1px solid ' + (precompSubTab === st.id ? 'var(--purple)' : 'var(--border)'),
                 }}>{st.count}</span>
               )}
             </button>
