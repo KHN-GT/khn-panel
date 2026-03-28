@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react"
+import { useSound } from "./useSound"
 
 const RAILWAY = "https://worker-production-d575.up.railway.app"
 
@@ -14,6 +15,8 @@ async function apiFetch(path, opts = {}) {
 
 export function useInbox(filters = {}) {
   const [items, setItems] = useState([])
+  const { playAlert } = useSound()
+  const prevIdsRef = useRef(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const pollRef = useRef(null)
@@ -22,9 +25,26 @@ export function useInbox(filters = {}) {
     try {
       const params = filters.cuenta ? "?cuenta=" + filters.cuenta : ""
       const data = await apiFetch("/api/inbox" + params)
-      if (data) { setItems(data.items || []); setError(null) }
+      if (data) {
+        const newItems = data.items || []
+        // Detectar items genuinamente nuevos (no en el set anterior)
+        if (prevIdsRef.current.size > 0) {
+          const added = newItems.filter(i => !prevIdsRef.current.has(i.id))
+          // Disparar una alerta por tipo (prioridad: RECLAMO > POST-VENTA > PRE-COMPRA)
+          const tipos = ['RECLAMO', 'POST-VENTA', 'PRE-COMPRA']
+          for (const tipo of tipos) {
+            if (added.some(i => i.tipo === tipo)) {
+              playAlert(tipo)
+              break // solo un sonido a la vez
+            }
+          }
+        }
+        prevIdsRef.current = new Set(newItems.map(i => i.id))
+        setItems(newItems)
+        setError(null)
+      }
     } catch(e) { setError(e.message) } finally { setLoading(false) }
-  }, [filters.cuenta])
+  }, [filters.cuenta, playAlert])
 
   useEffect(() => {
     fetchInbox()
