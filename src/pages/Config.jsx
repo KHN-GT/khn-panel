@@ -258,7 +258,8 @@ export default function Config({ onLogout }) {
             { id:'mensajes',         label:'Mensajes',         desc:'Fuera de horario'       },
             { id:'templates',        label:'Templates',        desc:'Respuestas rapidas'     },
             { id:'compatibilidades', label:'Compatibilidades', desc:'SKU y modelos compat.'  },
-            { id:'alertas',          label:'Alertas', 'Sonidos',          desc:'Horario notif. Telegram' },
+            { id:'alertas',          label:'Alertas',          desc:'Horario notif. Telegram' },
+            { id:'sonidos',          label:'Sonidos',          desc:'Alertas sonoras panel'  },
           ].map(s => (
             <button key={s.id} onClick={() => setTab(s.id)}
               style={{ textAlign:'left', padding:'10px 12px', borderRadius:'var(--radius-sm)', border: tab === s.id ? '1.5px solid var(--purple-border)' : '1.5px solid transparent', background: tab === s.id ? 'var(--purple-light)' : 'transparent', cursor:'pointer', transition:'all .15s' }}>
