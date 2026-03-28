@@ -12,6 +12,7 @@ const RAILWAY = 'https://worker-production-d575.up.railway.app'
 export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcctFilter, tipoFilter, onTipoFilter }) {
   const [etqFilter, setEtqFilter] = useState(null)
   const [reclamoSubTab, setReclamoSubTab] = useState('activos')  // etiqueta seleccionada para filtrar
+  const [postvtSubTab,  setPostvtSubTab]  = useState('pendientes')
   const [etqOpciones, setEtqOpciones] = useState([])
   const [showEtqFilter, setShowEtqFilter] = useState(false)
 
@@ -41,9 +42,15 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
     ? filteredBase.filter(i => reclamoSubTab === 'en_espera'
         ? i.estado === 'en_espera'
         : i.estado !== 'en_espera')
+    : tipoFilter === 'POST-VENTA'
+    ? filteredBase.filter(i => postvtSubTab === 'revisados'
+        ? i.estado === 'resuelto'
+        : i.estado === 'pendiente' || i.estado === 'en_progreso' || i.estado === 'IA_sugerida')
     : filteredBase
-  const countEspera  = byTipo('RECLAMO').filter(i => i.estado === 'en_espera').length
-  const countActivos = byTipo('RECLAMO').filter(i => i.estado !== 'en_espera').length
+  const countEspera     = byTipo('RECLAMO').filter(i => i.estado === 'en_espera').length
+  const countActivos    = byTipo('RECLAMO').filter(i => i.estado !== 'en_espera').length
+  const countPVPendiente = byTipo('POST-VENTA').filter(i => i.estado === 'pendiente' || i.estado === 'en_progreso').length
+  const countPVRevisados = byTipo('POST-VENTA').filter(i => i.estado === 'resuelto').length
 
   return (
     <div style={{ background:'var(--surface)', borderRight:'1.5px solid var(--border)',
@@ -111,6 +118,30 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
                   color: reclamoSubTab === st.id ? '#fff' : 'var(--text3)',
                   borderRadius: 99, fontSize: 10, fontWeight: 800, padding: '1px 6px',
                   border: '1px solid ' + (reclamoSubTab === st.id ? 'var(--red)' : 'var(--border)'),
+                }}>{st.count}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Sub-tabs Pendientes / Revisados — solo Post-venta */}
+      {tipoFilter === 'POST-VENTA' && (
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0, margin: '0 10px' }}>
+          {[{id:'pendientes',label:'Pendientes',count:countPVPendiente},{id:'revisados',label:'Revisados',count:countPVRevisados}].map(st => (
+            <button key={st.id} onClick={() => setPostvtSubTab(st.id)} style={{
+              flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
+              fontSize: 12, fontWeight: postvtSubTab === st.id ? 700 : 400,
+              color: postvtSubTab === st.id ? 'var(--amber)' : 'var(--text3)',
+              borderBottom: postvtSubTab === st.id ? '2px solid var(--amber)' : '2px solid transparent',
+              transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+            }}>
+              {st.label}
+              {st.count > 0 && (
+                <span style={{ background: postvtSubTab === st.id ? 'var(--amber)' : 'var(--surface2)',
+                  color: postvtSubTab === st.id ? '#fff' : 'var(--text3)',
+                  borderRadius: 99, fontSize: 10, fontWeight: 800, padding: '1px 6px',
+                  border: '1px solid ' + (postvtSubTab === st.id ? 'var(--amber)' : 'var(--border)'),
                 }}>{st.count}</span>
               )}
             </button>
