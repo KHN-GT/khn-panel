@@ -771,6 +771,53 @@ export default function Config({ onLogout }) {
           )}
 
           {/* ── ALERTAS TELEGRAM */}
+          {tab === 'sonidos' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+              <div style={{ fontSize:13, color:'var(--text3)', marginBottom:4 }}>
+                Configura las alertas sonoras del panel. Los sonidos se reproducen cuando llega un mensaje nuevo.
+              </div>
+              {SOUND_TIPOS.map(({ id, label, color, desc }) => (
+                <div key={id} style={{ background:'var(--surface2)', borderRadius:'var(--radius)', padding:'14px 16px',
+                  border:'1px solid var(--border)', display:'flex', flexDirection:'column', gap:10 }}>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                    <div>
+                      <div style={{ fontWeight:700, fontSize:14, color }}>{label}</div>
+                      <div style={{ fontSize:12, color:'var(--text3)', marginTop:2 }}>{desc}</div>
+                    </div>
+                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                      <button onClick={() => playAlert(id)} style={{
+                        fontSize:12, padding:'5px 12px', borderRadius:'var(--radius-sm)', cursor:'pointer',
+                        border:`1.5px solid ${color}`, background:'transparent', color, fontWeight:600,
+                      }}>Probar</button>
+                      <label style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer' }}>
+                        <input type="checkbox"
+                          checked={soundPrefs[id]?.enabled ?? true}
+                          onChange={e => updateSoundPref(id, 'enabled', e.target.checked)}
+                          style={{ width:16, height:16, cursor:'pointer', accentColor: color }}
+                        />
+                        <span style={{ fontSize:13, fontWeight:600, color:'var(--text2)' }}>
+                          {soundPrefs[id]?.enabled ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <span style={{ fontSize:12, color:'var(--text3)', minWidth:60 }}>Volumen</span>
+                    <input type="range" min="0" max="1" step="0.05"
+                      value={soundPrefs[id]?.volume ?? 0.7}
+                      onChange={e => updateSoundPref(id, 'volume', parseFloat(e.target.value))}
+                      disabled={!soundPrefs[id]?.enabled}
+                      style={{ flex:1, accentColor: color, opacity: soundPrefs[id]?.enabled ? 1 : 0.4 }}
+                    />
+                    <span style={{ fontSize:12, color:'var(--text3)', minWidth:32, textAlign:'right' }}>
+                      {Math.round((soundPrefs[id]?.volume ?? 0.7) * 100)}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {tab === 'alertas' && (
             <div style={{ display:'flex', flexDirection:'column', gap:20, maxWidth:540 }}>
               <div>
