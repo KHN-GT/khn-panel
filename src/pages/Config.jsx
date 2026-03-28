@@ -379,6 +379,38 @@ export default function Config({ onLogout }) {
                   </div>
                 )
               })}
+              {/* Plantilla envio de paquete */}
+              <div style={{ background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+                <div style={{ padding:'10px 16px', background:'var(--surface2)', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:10 }}>
+                  <span style={{ fontSize:13, fontWeight:700 }}>Mensaje de envio de paquete</span>
+                  <span style={{ fontSize:11, padding:'2px 8px', borderRadius:99, background:'var(--green-light)', color:'var(--green)', border:'1px solid var(--green-border)', fontWeight:600 }}>Automatico</span>
+                </div>
+                <div style={{ padding:'16px' }}>
+                  <div style={{ fontSize:12, color:'var(--text3)', marginBottom:10, lineHeight:1.6 }}>
+                    Se envia automaticamente cuando el paquete sale del almacen. Variables disponibles:
+                    <span style={{ fontFamily:'monospace', fontSize:11, background:'var(--surface2)', padding:'1px 6px', borderRadius:4, margin:'0 4px' }}>{'{nombre}'}</span>
+                    <span style={{ fontFamily:'monospace', fontSize:11, background:'var(--surface2)', padding:'1px 6px', borderRadius:4, margin:'0 4px' }}>{'{producto}'}</span>
+                    <span style={{ fontFamily:'monospace', fontSize:11, background:'var(--surface2)', padding:'1px 6px', borderRadius:4, margin:'0 4px' }}>{'{tracking}'}</span>
+                  </div>
+                  <textarea
+                    value={mensajes[cuentaTab]?.envio_paquete?.mensaje || ''}
+                    onChange={e => setMensajes(prev => ({
+                      ...prev,
+                      [cuentaTab]: {
+                        ...(prev[cuentaTab] || {}),
+                        envio_paquete: { ...(prev[cuentaTab]?.envio_paquete || {}), mensaje: e.target.value }
+                      }
+                    }))}
+                    rows={5}
+                    placeholder={`Ej: Hola {nombre}, tu pedido ({producto}) ya fue enviado. Puedes rastrearlo con: {tracking}`}
+                    style={{ width:'100%', fontSize:13, padding:'10px 12px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', fontFamily:'inherit', resize:'vertical', outline:'none', color:'var(--text)', lineHeight:1.6, boxSizing:'border-box' }}
+                  />
+                  <div style={{ fontSize:11, color:'var(--text3)', marginTop:6 }}>
+                    {(mensajes[cuentaTab]?.envio_paquete?.mensaje || '').length}/500 caracteres
+                  </div>
+                </div>
+              </div>
+
               <button onClick={() => saveMensajes(cuentaTab)} disabled={saving}
                 style={{ alignSelf:'flex-start', fontSize:13, fontWeight:700, padding:'10px 24px', borderRadius:'var(--radius-sm)', background:'var(--purple)', color:'#fff', border:'none', cursor:'pointer', opacity: saving ? .6 : 1 }}>
                 {saving ? 'Guardando...' : 'Guardar mensajes'}
