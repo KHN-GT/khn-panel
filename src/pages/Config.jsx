@@ -34,6 +34,18 @@ export default function Config({ onLogout }) {
   const [saving,     setSaving]     = useState(false)
   const [msg,        setMsg]        = useState('')
   const [alertas,    setAlertas]    = useState({})
+  const [soundPrefs, setSoundPrefsState] = useState(getSoundPrefs)
+  const { playAlert } = useSound()
+  const SOUND_TIPOS = [
+    { id: 'RECLAMO',      label: 'Reclamos',   color: 'var(--red)',    desc: 'Alerta cuando llega un reclamo nuevo' },
+    { id: 'POST-VENTA',   label: 'Post-venta', color: 'var(--amber)',  desc: 'Alerta cuando llega un mensaje de post-venta' },
+    { id: 'PRE-COMPRA',   label: 'Preguntas',  color: 'var(--purple)', desc: 'Alerta cuando llega una pregunta pre-compra' },
+  ]
+  const updateSoundPref = (tipo, key, value) => {
+    const newPrefs = { ...soundPrefs, [tipo]: { ...soundPrefs[tipo], [key]: value } }
+    setSoundPrefsState(newPrefs)
+    setSoundPrefs(newPrefs)
+  }
 
   // Templates state
   const [templates,     setTemplates]     = useState([])
