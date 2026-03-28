@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import ClaimTimer from './ClaimTimer'
 
 const ACCT = {
@@ -708,9 +708,47 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         {/* Mensajes del hilo principal */}
         {hilo.length > 0
           ? hilo.map((msg, i) => renderBubble(msg, i))
-          : item.mensaje_cliente
-            ? renderBubble({ r: 'b', t: item.mensaje_cliente }, 0)
-            : null
+          : isClaim
+            ? (
+              <div style={{ background:'var(--surface2)', border:'1px solid var(--red-border)', borderRadius:10, padding:'14px 16px', fontSize:13, lineHeight:1.8 }}>
+                <div style={{ fontWeight:700, color:'var(--red)', marginBottom:10, fontSize:14 }}>Informacion del reclamo</div>
+                {item.mensaje_cliente && (
+                  <div style={{ marginBottom:4 }}>
+                    <span style={{ color:'var(--text3)' }}>Motivo: </span>
+                    <b>{item.mensaje_cliente.replace('Reclamo — ','')}</b>
+                  </div>
+                )}
+                {item.orden_id && (
+                  <div style={{ marginBottom:4 }}>
+                    <span style={{ color:'var(--text3)' }}>Orden: </span>
+                    <span style={{ fontFamily:'monospace' }}>#{item.orden_id}</span>
+                  </div>
+                )}
+                {item.producto && (
+                  <div style={{ marginBottom:4 }}>
+                    <span style={{ color:'var(--text3)' }}>Producto: </span>
+                    {item.producto}
+                  </div>
+                )}
+                {item.sku && (
+                  <div style={{ marginBottom:4 }}>
+                    <span style={{ color:'var(--text3)' }}>SKU: </span>
+                    <code style={{ background:'var(--surface)', padding:'1px 6px', borderRadius:4, fontSize:12 }}>{item.sku}</code>
+                  </div>
+                )}
+                {item.urgencia && (
+                  <div>
+                    <span style={{ color:'var(--text3)' }}>Urgencia: </span>
+                    <b style={{ color: item.urgencia === 'CRITICO' ? 'var(--red)' : item.urgencia === 'URGENTE' ? '#e07b00' : 'var(--text2)' }}>
+                      {item.urgencia}
+                    </b>
+                  </div>
+                )}
+              </div>
+            )
+            : item.mensaje_cliente
+              ? renderBubble({ r: 'b', t: item.mensaje_cliente }, 0)
+              : null
         }
 
         {/* Respuesta final enviada */}
