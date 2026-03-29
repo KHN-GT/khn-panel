@@ -68,7 +68,21 @@ export default function Topbar({ onLogout, pendingCount = 0, claimsCount = 0, on
       )}
 
       {/* Nav buttons segun rol */}
-      {esSupervisorOAdmin && navBtn('/reputacion', '\u{1F6E1} Reputacion', 'Reputation Shield')}
+      {esSupervisorOAdmin && (() => {
+        const active = location.pathname === '/reputacion'
+        return (
+          <button onClick={() => navigate('/reputacion')} title="Reputation Shield"
+            style={{ fontSize:13, fontWeight:700,
+              background: active ? 'var(--purple-light)' : 'var(--surface2)',
+              border: active ? '1.5px solid var(--purple-border)' : '1.5px solid var(--border)',
+              color: active ? 'var(--purple)' : 'var(--text2)',
+              cursor:'pointer', padding:'5px 12px', borderRadius:6, lineHeight:1,
+              display:'flex', alignItems:'center', gap:5 }}>
+            <span style={{ fontSize:15 }}>{'\u{1F6E1}\uFE0F'}</span>
+            Reputacion
+          </button>
+        )
+      })()}
       {navBtn('/supervision', 'Supervision', 'Supervision IA')}
       {esSupervisorOAdmin && navBtn('/reportes', 'Reportes', 'Reportes')}
       {esSupervisorOAdmin && navBtn('/config', 'Config', 'Configuracion')}
