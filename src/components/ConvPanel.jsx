@@ -195,6 +195,8 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     'OTH9503': 'Demora en el envio',
     'FRD9500': 'Posible fraude reportado por el comprador',
     'CNT9500': 'Problemas de contacto con el vendedor',
+    'PDD9949': 'Producto no funciona correctamente',
+    'PDD9952': 'Producto no funciona correctamente',
   }
   const getClaimReason = (msg) => {
     if (!msg) return msg
@@ -743,7 +745,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 {item.mensaje_cliente && (
                   <div style={{ marginBottom:4 }}>
                     <span style={{ color:'var(--text3)' }}>Motivo: </span>
-                    <b>{getClaimReason(item.mensaje_cliente)}</b>
+                    <b>{getClaimReason(item.mensaje_cliente?.replace('Reclamo — ', '').replace('Motivo: ', ''))}</b>
                   </div>
                 )}
                 {item.orden_id && (
