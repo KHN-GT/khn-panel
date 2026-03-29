@@ -507,6 +507,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               {urgStyle.icon} RECLAMO — {urgStyle.label}
             </span>
           )}
+          {isClaim && item.estado === 'reactivado' && (
+            <div style={{ margin:'0 0 8px 0', padding:'8px 14px', borderRadius:8,
+              background:'#fff3e0', border:'1px solid #e07b00',
+              fontSize:13, fontWeight:600, color:'#e07b00',
+              display:'flex', alignItems:'center', gap:8 }}>
+              🔄 REACTIVADO — {item.reactivacion_motivo || 'Actividad detectada en ML'}
+            </div>
+          )}
           {isClaim && item.estado === 'en_espera' && (
             <span style={{
               background: '#fef3c7', color: '#b45309', border: '1px solid #f59e0b',
