@@ -54,6 +54,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [showMeta,     setShowMeta]     = useState(false)
   const [metaData,     setMetaData]     = useState(null)
   const [loadingMeta,  setLoadingMeta]  = useState(false)
+  const corrMode = false
   const threadRef = useRef(null)
 
   useEffect(() => {
