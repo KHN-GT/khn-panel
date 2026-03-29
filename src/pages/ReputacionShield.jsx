@@ -4,6 +4,29 @@ import Topbar from '../components/Topbar'
 const RAILWAY = 'https://worker-production-d575.up.railway.app'
 const TOKEN = () => localStorage.getItem('khn_token')
 
+const CLAIM_REASONS = {
+  'PNR9501': 'No recibido',
+  'PNR9502': 'No recibido (sin tracking)',
+  'PDD9500': 'Danado o defectuoso',
+  'PDD9501': 'Danado al recibirlo',
+  'PDD9502': 'Deja de funcionar',
+  'PDD9949': 'No funciona correctamente',
+  'PDD9952': 'No funciona correctamente',
+  'PDD9944': 'No funciona correctamente',
+  'PDD9939': 'No funciona correctamente',
+  'PNM9500': 'No coincide con descripcion',
+  'PNM9501': 'Producto diferente',
+  'PNM9502': 'Menor calidad',
+  'QTY9500': 'Cantidad incorrecta',
+  'WPI9500': 'Datos de pago incorrectos',
+  'OTH9500': 'Otro motivo',
+  'OTH9501': 'Arrepentimiento',
+  'OTH9502': 'Quiere cancelar',
+  'OTH9503': 'Demora en envio',
+  'FRD9500': 'Posible fraude',
+  'CNT9500': 'Problemas de contacto',
+}
+
 const CUENTAS = ['GTK', 'RBN', 'GDP']
 const CUENTA_COLORS = {
   GTK: { bg: 'var(--purple-light)', color: 'var(--purple)', border: 'var(--purple-border)' },
@@ -224,10 +247,10 @@ export default function ReputacionShield({ onLogout }) {
                       <tr key={r.id} style={{ background: r.afecta_reputacion && r.dias_restantes < 15 ? 'var(--red-light)' : 'transparent' }}>
                         <td style={tdStyle}>{badge(r.cuenta)}</td>
                         <td style={{ ...tdStyle, fontWeight: 600, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {r.nombre_comprador || <span style={{ color: 'var(--text3)', fontWeight: 400 }}>#{r.claim_id}</span>}
+                          {r.nombre_comprador || <span style={{ color: 'var(--text3)', fontWeight: 400, fontStyle: 'italic' }}>Comprador pendiente</span>}
                         </td>
                         <td style={{ ...tdStyle, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>
-                          {r.producto || <span style={{ color: 'var(--text3)' }}>{r.reason_id || '-'}</span>}
+                          {r.producto || <span style={{ color: 'var(--text3)' }}>{CLAIM_REASONS[r.reason_id] || r.reason_id || '-'}</span>}
                         </td>
                         <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: 12 }}>{r.sku || <span style={{ color: 'var(--text3)' }}>-</span>}</td>
                         <td style={{ ...tdStyle, fontSize: 12, whiteSpace: 'nowrap' }}>{r.creado_en ? new Date(r.creado_en).toLocaleDateString('es-AR') : '-'}</td>
