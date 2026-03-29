@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import MessageCard from './MessageCard'
 
 const TABS = [
@@ -15,8 +15,25 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
   const [postvtSubTab,  setPostvtSubTab]  = useState('pendientes')
   const [reclamoReactivadoVisible, setReclamoReactivadoVisible] = useState(false)
   const [precompSubTab, setPrecompSubTab] = useState('pendientes')
+  const [precompRespondidas, setPrecompRespondidas] = useState([])
   const [etqOpciones, setEtqOpciones] = useState([])
   const [showEtqFilter, setShowEtqFilter] = useState(false)
+
+  const fetchRespondidas = useCallback(async () => {
+    const token = localStorage.getItem('khn_token')
+    const cuentaParam = acctFilter !== 'Todas' ? `&cuenta=${acctFilter}` : ''
+    try {
+      const r = await fetch(
+        `${RAILWAY}/api/inbox?tipo=PRE-COMPRA&estado=resuelto,enviada,fuera_horario${cuentaParam}`,
+        { headers: { 'Authorization': `Bearer ${token}` } })
+      const d = await r.json()
+      setPrecompRespondidas(d.items || [])
+    } catch { setPrecompRespondidas([]) }
+  }, [acctFilter])
+
+  useEffect(() => {
+    if (tipoFilter === 'PRE-COMPRA' && precompSubTab === 'respondidas') fetchRespondidas()
+  }, [tipoFilter, precompSubTab, fetchRespondidas])
 
   const loadEtqOpciones = async () => {
     if (etqOpciones.length > 0) { setShowEtqFilter(!showEtqFilter); return }
@@ -51,12 +68,12 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
         ? i.estado === 'resuelto'
         : i.estado === 'pendiente' || i.estado === 'en_progreso' || i.estado === 'IA_sugerida')
     : tipoFilter === 'PRE-COMPRA'
-    ? filteredBase.filter(i => precompSubTab === 'respondidas'
-        ? i.estado === 'resuelto' || i.estado === 'enviada'
-        : i.estado === 'pendiente' || i.estado === 'en_progreso' || i.estado === 'IA_sugerida')
+    ? (precompSubTab === 'respondidas'
+        ? precompRespondidas.filter(i => acctFilter === 'Todas' || i.cuenta === acctFilter)
+        : filteredBase.filter(i => i.estado === 'pendiente' || i.estado === 'en_progreso' || i.estado === 'IA_sugerida'))
     : filteredBase
   const countPCPendiente = byTipo('PRE-COMPRA').filter(i => i.estado === 'pendiente' || i.estado === 'en_progreso' || i.estado === 'IA_sugerida').length
-  const countPCRespondidas = byTipo('PRE-COMPRA').filter(i => i.estado === 'resuelto' || i.estado === 'enviada').length
+  const countPCRespondidas = precompRespondidas.filter(i => acctFilter === 'Todas' || i.cuenta === acctFilter).length
   const countEspera     = byTipo('RECLAMO').filter(i => i.estado === 'en_espera').length
   const countReactivados = byTipo('RECLAMO').filter(i => i.estado === 'reactivado').length
   const countActivos    = byTipo('RECLAMO').filter(i => i.estado !== 'en_espera' && i.estado !== 'reactivado').length
