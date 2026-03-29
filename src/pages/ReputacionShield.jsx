@@ -79,7 +79,7 @@ export default function ReputacionShield({ onLogout }) {
   useEffect(() => {
     const headers = { Authorization: `Bearer ${TOKEN()}` }
     Promise.all([
-      fetch(`${RAILWAY}/api/reputacion/reclamos`,  { headers }).then(r => r.json()),
+      fetch(`${RAILWAY}/api/reputacion/reclamos?solo_activos=true`,  { headers }).then(r => r.json()),
       fetch(`${RAILWAY}/api/reputacion/sku_risk`,   { headers }).then(r => r.json()),
       fetch(`${RAILWAY}/api/reputacion/limites`,    { headers }).then(r => r.json()),
     ]).then(([recl, sku, lim]) => {
@@ -223,9 +223,13 @@ export default function ReputacionShield({ onLogout }) {
                     ) : reclamosFiltrados.map(r => (
                       <tr key={r.id} style={{ background: r.afecta_reputacion && r.dias_restantes < 15 ? 'var(--red-light)' : 'transparent' }}>
                         <td style={tdStyle}>{badge(r.cuenta)}</td>
-                        <td style={{ ...tdStyle, fontWeight: 600, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.nombre_comprador || '-'}</td>
-                        <td style={{ ...tdStyle, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>{r.producto || '-'}</td>
-                        <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: 12 }}>{r.sku || '-'}</td>
+                        <td style={{ ...tdStyle, fontWeight: 600, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {r.nombre_comprador || <span style={{ color: 'var(--text3)', fontWeight: 400 }}>#{r.claim_id}</span>}
+                        </td>
+                        <td style={{ ...tdStyle, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>
+                          {r.producto || <span style={{ color: 'var(--text3)' }}>{r.reason_id || '-'}</span>}
+                        </td>
+                        <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: 12 }}>{r.sku || <span style={{ color: 'var(--text3)' }}>-</span>}</td>
                         <td style={{ ...tdStyle, fontSize: 12, whiteSpace: 'nowrap' }}>{r.creado_en ? new Date(r.creado_en).toLocaleDateString('es-AR') : '-'}</td>
                         <td style={{ ...tdStyle, fontWeight: 700, textAlign: 'center' }}>{r.dias_transcurridos}</td>
                         <td style={tdStyle}>{progressBar(r.dias_restantes)}</td>
