@@ -74,6 +74,7 @@ export default function ReputacionShield({ onLogout }) {
   const [limites, setLimites]     = useState(null)
   const [loading, setLoading]     = useState(true)
   const [filtro, setFiltro]       = useState('Todas')
+  const [soloAfectando, setSoloAfectando] = useState(false)
 
   useEffect(() => {
     const headers = { Authorization: `Bearer ${TOKEN()}` }
@@ -102,7 +103,24 @@ export default function ReputacionShield({ onLogout }) {
     return { color: 'var(--green)', bg: 'var(--green-light)', label: 'OK' }
   }
 
-  const reclamosFiltrados = filtro === 'Todas' ? reclamos : reclamos.filter(r => r.cuenta === filtro)
+  const reclamosFiltrados = reclamos.filter(r => {
+    if (filtro !== 'Todas' && r.cuenta !== filtro) return false
+    if (soloAfectando && (r.estado === 'descartado' || r.dias_restantes <= 0)) return false
+    return true
+  })
+
+  // Resumen client-side: contar solo no-descartados
+  const resumenLocal = {}
+  for (const c of CUENTAS) {
+    const cuentaRecs = reclamos.filter(r => r.cuenta === c && r.estado !== 'descartado')
+    const afectando = cuentaRecs.filter(r => r.dias_restantes > 0)
+    const sumDias = afectando.reduce((s, r) => s + r.dias_restantes, 0)
+    resumenLocal[c] = {
+      total_activos: cuentaRecs.length,
+      total_afectando: afectando.length,
+      promedio_dias_restantes: afectando.length ? Math.round(sumDias / afectando.length * 10) / 10 : 0,
+    }
+  }
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg)' }}>
@@ -130,7 +148,7 @@ export default function ReputacionShield({ onLogout }) {
             {/* RESUMEN POR CUENTA */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 28 }}>
               {CUENTAS.map(c => {
-                const r = resumen[c] || { total_activos: 0, total_afectando: 0, promedio_dias_restantes: 0 }
+                const r = resumenLocal[c] || { total_activos: 0, total_afectando: 0, promedio_dias_restantes: 0 }
                 const sem = semaforo(c)
                 const cc = CUENTA_COLORS[c]
                 return (
@@ -169,6 +187,12 @@ export default function ReputacionShield({ onLogout }) {
                 borderBottom: '1.5px solid var(--border)' }}>
                 <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)' }}>Reclamos activos</span>
                 <div style={{ flex: 1 }} />
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: soloAfectando ? 'var(--purple)' : 'var(--text3)', cursor: 'pointer', userSelect: 'none' }}>
+                  <input type="checkbox" checked={soloAfectando} onChange={e => setSoloAfectando(e.target.checked)}
+                    style={{ accentColor: 'var(--purple)' }} />
+                  Solo afectando reputacion
+                </label>
+                <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
                 {['Todas', ...CUENTAS].map(f => (
                   <button key={f} onClick={() => setFiltro(f)}
                     style={{ fontSize: 12, fontWeight: filtro === f ? 700 : 500, padding: '4px 12px', borderRadius: 99,
