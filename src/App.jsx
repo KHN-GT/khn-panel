@@ -6,6 +6,7 @@ import Config from './pages/Config'
 import Reportes from './pages/Reportes'
 import Supervision from './pages/Supervision'
 import Usuarios from './pages/Usuarios'
+import ReputacionShield from './pages/ReputacionShield'
 
 function getUserRol() {
   try { return JSON.parse(localStorage.getItem('khn_user') || '{}').rol || 'operador' } catch { return 'operador' }
@@ -61,6 +62,9 @@ export default function App() {
         } />
         <Route path="/usuarios" element={
           <AdminRoute><Usuarios onLogout={handleLogout} /></AdminRoute>
+        } />
+        <Route path="/reputacion" element={
+          <SupervisorRoute><ReputacionShield onLogout={handleLogout} /></SupervisorRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

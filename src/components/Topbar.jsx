@@ -68,6 +68,7 @@ export default function Topbar({ onLogout, pendingCount = 0, claimsCount = 0, on
       )}
 
       {/* Nav buttons segun rol */}
+      {esSupervisorOAdmin && navBtn('/reputacion', '\u{1F6E1} Reputacion', 'Reputation Shield')}
       {navBtn('/supervision', 'Supervision', 'Supervision IA')}
       {esSupervisorOAdmin && navBtn('/reportes', 'Reportes', 'Reportes')}
       {esSupervisorOAdmin && navBtn('/config', 'Config', 'Configuracion')}
