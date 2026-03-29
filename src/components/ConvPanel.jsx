@@ -197,6 +197,8 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     'CNT9500': 'Problemas de contacto con el vendedor',
     'PDD9949': 'Producto no funciona correctamente',
     'PDD9952': 'Producto no funciona correctamente',
+    'PDD9944': 'Producto no funciona correctamente',
+    'PDD9939': 'Producto no funciona correctamente',
   }
   const getClaimReason = (msg) => {
     if (!msg) return msg
