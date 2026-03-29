@@ -201,7 +201,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const getClaimReason = (msg) => {
     if (!msg) return msg
     // Extraer codigo del mensaje "Reclamo — Motivo: PNR9501 | Stage: claim"
-    const match = msg.match(/Motivo:\s*([A-Z0-9]+)/)
+    const match = msg.match(/Motivo:\s*([A-Z0-9]+)/) || msg.match(/^([A-Z0-9]+)/)
     if (!match) return msg.replace('Reclamo — ', '')
     const code = match[1]
     const desc = CLAIM_REASONS[code]
