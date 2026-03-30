@@ -524,7 +524,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               borderRadius: 99, fontSize: 11, fontWeight: 700, padding: '2px 10px',
               display: 'inline-flex', alignItems: 'center', gap: 4, flexWrap: 'wrap',
             }}>
-              ⏸ EN ESPERA{item.motivo_espera ? ` — ${item.motivo_espera}` : ''}
+              ⏸ EN ESPERA{item.motivo_espera ? ` | Esperando a: ${item.motivo_espera}` : ''}
               {item.notas_espera && (
                 <span style={{ fontSize: 10, fontWeight: 400, color: '#92400e', width: '100%' }}>{item.notas_espera}</span>
               )}
@@ -1231,13 +1231,13 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-md)',
                   padding: '12px', minWidth: 240,
                 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#b45309', marginBottom: 8 }}>Motivo de espera</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#b45309', marginBottom: 8 }}>Esperando a:</div>
                   {[
-                    'Esperando devolucion del paquete',
-                    'Esperando respuesta del comprador',
-                    'Esperando resolucion de paqueteria',
-                    'Esperando autorizacion interna',
-                    'Otro motivo',
+                    'Devolución del paquete',
+                    'Respuesta del comprador',
+                    'Resolución de paquetería',
+                    'Autorización interna',
+                    'Otro',
                   ].map(op => (
                     <div key={op} onClick={() => setMotivoEspera(op)} style={{
                       padding: '7px 10px', borderRadius: 6, marginBottom: 4, cursor: 'pointer',

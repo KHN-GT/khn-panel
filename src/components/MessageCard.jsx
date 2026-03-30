@@ -183,7 +183,7 @@ export default function MessageCard({ item, selected, onClick }) {
       {item.estado === 'en_espera' && item.motivo_espera && (
         <div style={{ fontSize:11, color:'#9ca3af', marginTop:3,
           whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
-          ⏸ Motivo: {item.motivo_espera}
+          ⏸ Esperando a: {item.motivo_espera}
         </div>
       )}
       {item.estado === 'en_espera' && item.notas_espera && (
