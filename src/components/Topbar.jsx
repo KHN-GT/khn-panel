@@ -83,6 +83,7 @@ export default function Topbar({ onLogout, pendingCount = 0, claimsCount = 0, on
           </button>
         )
       })()}
+      {esSupervisorOAdmin && navBtn('/whatsapp', 'WhatsApp', 'WhatsApp')}
       {navBtn('/supervision', 'Historial Preguntas', 'Historial de Preguntas')}
       {esSupervisorOAdmin && navBtn('/reportes', 'Reportes', 'Reportes')}
       {esSupervisorOAdmin && navBtn('/config', 'Config', 'Configuracion')}

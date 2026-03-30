@@ -7,6 +7,7 @@ import Reportes from './pages/Reportes'
 import Supervision from './pages/Supervision'
 import Usuarios from './pages/Usuarios'
 import ReputacionShield from './pages/ReputacionShield'
+import WhatsApp from './pages/WhatsApp'
 
 function getUserRol() {
   try { return JSON.parse(localStorage.getItem('khn_user') || '{}').rol || 'operador' } catch { return 'operador' }
@@ -65,6 +66,9 @@ export default function App() {
         } />
         <Route path="/reputacion" element={
           <SupervisorRoute><ReputacionShield onLogout={handleLogout} /></SupervisorRoute>
+        } />
+        <Route path="/whatsapp" element={
+          <SupervisorRoute><WhatsApp onLogout={handleLogout} /></SupervisorRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
