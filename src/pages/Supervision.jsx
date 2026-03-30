@@ -19,6 +19,7 @@ export default function Supervision({ onLogout }) {
   const [filtDesde, setFiltDesde]       = useState('')
   const [filtHasta, setFiltHasta]       = useState('')
   const [filtRespondido, setFiltRespondido] = useState('')
+  const [busqueda, setBusqueda]             = useState('')
   const [offset, setOffset]         = useState(0)
   const [corrModal, setCorrModal]   = useState(null)  // {id, mensaje, respuesta_ia}
   const [corrTexto, setCorrTexto]   = useState('')
@@ -136,7 +137,9 @@ export default function Supervision({ onLogout }) {
           <span style={{ fontSize:12, color:'var(--text3)' }}>Hasta</span>
           <input type='date' value={filtHasta} onChange={e => setFiltHasta(e.target.value)}
             style={{ fontSize:13, padding:'6px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text)' }} />
-          <button onClick={() => { setFiltCuenta(''); setFiltError(''); setFiltDesde(''); setFiltHasta(''); setFiltRespondido('') }}
+          <input type='text' value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder='Buscar en pregunta o respuesta...'
+            style={{ fontSize:13, padding:'6px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text)', minWidth:220 }} />
+          <button onClick={() => { setFiltCuenta(''); setFiltError(''); setFiltDesde(''); setFiltHasta(''); setFiltRespondido(''); setBusqueda('') }}
             style={{ fontSize:13, padding:'6px 12px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', background:'transparent', color:'var(--text3)', cursor:'pointer' }}>
             Limpiar
           </button>
@@ -151,7 +154,12 @@ export default function Supervision({ onLogout }) {
           <div style={{ textAlign:'center', padding:40, fontSize:14, color:'var(--text3)' }}>Sin registros</div>
         ) : (
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-            {items.map(item => {
+            {items.filter(item => {
+              if (!busqueda.trim()) return true
+              const q = busqueda.toLowerCase()
+              return (item.mensaje_cliente || '').toLowerCase().includes(q) ||
+                     (item.respuesta_final || item.respuesta_ia || '').toLowerCase().includes(q)
+            }).map(item => {
               const acInfo = ACCION_LABELS[item.accion] || { label: item.accion, color:'var(--text3)', bg:'var(--surface2)' }
               return (
                 <div key={item.id} style={{
@@ -169,11 +177,11 @@ export default function Supervision({ onLogout }) {
                     </span>
                     {item.respondido_por === 'humano' ? (
                       <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:'#ecfdf5', color:'#059669', border:'1px solid #a7f3d0' }}>
-                        {item.usuario_respuesta || 'Humano'}
+                        👤 {item.usuario_respuesta || 'Humano'}
                       </span>
                     ) : (
                       <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:'#eef2ff', color:'#6366f1', border:'1px solid #c7d2fe' }}>
-                        IA Automatica
+                        IA Automática
                       </span>
                     )}
                     <span style={{ fontSize:12, color:'var(--text3)' }}>Agente: {item.agente}</span>
