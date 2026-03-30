@@ -24,7 +24,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
     const cuentaParam = acctFilter !== 'Todas' ? `&cuenta=${acctFilter}` : ''
     try {
       const r = await fetch(
-        `${RAILWAY}/api/inbox?tipo=PRE-COMPRA&estado=resuelto,enviada,fuera_horario${cuentaParam}`,
+        `${RAILWAY}/api/inbox?tipo=PRE-COMPRA&estado=resuelto,enviada,fuera_horario&archivado=false${cuentaParam}`,
         { headers: { 'Authorization': `Bearer ${token}` } })
       const d = await r.json()
       setPrecompRespondidas(d.items || [])
@@ -34,6 +34,27 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
   useEffect(() => {
     if (tipoFilter === 'PRE-COMPRA' && precompSubTab === 'respondidas') fetchRespondidas()
   }, [tipoFilter, precompSubTab, fetchRespondidas])
+
+  const archivarUno = async (id) => {
+    const token = localStorage.getItem('khn_token')
+    try {
+      await fetch(`${RAILWAY}/api/inbox/${id}/archivar`, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${token}` } })
+      setPrecompRespondidas(prev => prev.filter(i => i.id !== id))
+    } catch {}
+  }
+
+  const archivarTodo = async () => {
+    const token = localStorage.getItem('khn_token')
+    const body = acctFilter !== 'Todas' ? JSON.stringify({ cuenta: acctFilter }) : '{}'
+    try {
+      await fetch(`${RAILWAY}/api/inbox/archivar-todo`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body })
+      fetchRespondidas()
+    } catch {}
+  }
 
   const loadEtqOpciones = async () => {
     if (etqOpciones.length > 0) { setShowEtqFilter(!showEtqFilter); return }
@@ -179,7 +200,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
 
       {/* Sub-tabs Pendientes / Respondidas — solo Pre-compra */}
       {tipoFilter === 'PRE-COMPRA' && (
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0, margin: '0 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--border)', flexShrink: 0, margin: '0 10px' }}>
           {[{id:'pendientes',label:'Pendientes',count:countPCPendiente},{id:'respondidas',label:'Respondidas IA',count:countPCRespondidas}].map(st => (
             <button key={st.id} onClick={() => setPrecompSubTab(st.id)} style={{
               flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
@@ -198,6 +219,14 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
               )}
             </button>
           ))}
+          {precompSubTab === 'respondidas' && countPCRespondidas > 0 && (
+            <button onClick={archivarTodo} title="Archivar todo"
+              style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6,
+                background: 'var(--surface2)', border: '1px solid var(--border)',
+                color: 'var(--text3)', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              Archivar todo
+            </button>
+          )}
         </div>
       )}
 
@@ -242,7 +271,20 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
           </div>
         ) : (
           filtered.map(i => (
-            <MessageCard key={i.id} item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
+            <div key={i.id} style={{ position: 'relative' }}>
+              <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
+              {tipoFilter === 'PRE-COMPRA' && precompSubTab === 'respondidas' && (
+                <button onClick={(e) => { e.stopPropagation(); archivarUno(i.id) }} title="Archivar"
+                  style={{ position: 'absolute', top: 6, right: 6, fontSize: 14,
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 6, cursor: 'pointer', padding: '2px 5px', lineHeight: 1,
+                    opacity: 0.6, zIndex: 2 }}
+                  onMouseEnter={ev => ev.currentTarget.style.opacity='1'}
+                  onMouseLeave={ev => ev.currentTarget.style.opacity='0.6'}>
+                  {'\uD83D\uDDD1\uFE0F'}
+                </button>
+              )}
+            </div>
           ))
         )}
       </div>
