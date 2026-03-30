@@ -14,9 +14,10 @@ export default function Supervision({ onLogout }) {
   const [items, setItems]           = useState([])
   const [total, setTotal]           = useState(0)
   const [loading, setLoading]       = useState(false)
-  const [filtCuenta, setFiltCuenta] = useState('')
-  const [filtError, setFiltError]   = useState('')
-  const [filtDesde, setFiltDesde]   = useState('')
+  const [filtCuenta, setFiltCuenta]     = useState('')
+  const [filtError, setFiltError]       = useState('')
+  const [filtDesde, setFiltDesde]       = useState('')
+  const [filtRespondido, setFiltRespondido] = useState('')
   const [offset, setOffset]         = useState(0)
   const [corrModal, setCorrModal]   = useState(null)  // {id, mensaje, respuesta_ia}
   const [corrTexto, setCorrTexto]   = useState('')
@@ -28,9 +29,10 @@ export default function Supervision({ onLogout }) {
     setLoading(true)
     const tok = localStorage.getItem('khn_token')
     let url = `${RAILWAY}/api/feedback?limit=${LIMIT}&offset=${off}&excluir_accion=corregido_post_envio`
-    if (filtCuenta) url += `&cuenta=${filtCuenta}`
-    if (filtError)  url += `&es_error=${filtError}`
-    if (filtDesde)  url += `&desde=${filtDesde}`
+    if (filtCuenta)     url += `&cuenta=${filtCuenta}`
+    if (filtError)      url += `&es_error=${filtError}`
+    if (filtDesde)      url += `&desde=${filtDesde}`
+    if (filtRespondido) url += `&respondido_por=${filtRespondido}`
     try {
       const r = await fetch(url, { headers: { Authorization: `Bearer ${tok}` } })
       const d = await r.json()
@@ -41,7 +43,7 @@ export default function Supervision({ onLogout }) {
     finally { setLoading(false) }
   }
 
-  useEffect(() => { load(0) }, [filtCuenta, filtError, filtDesde])
+  useEffect(() => { load(0) }, [filtCuenta, filtError, filtDesde, filtRespondido])
 
   const handleCorregir = async () => {
     if (!corrTexto.trim()) return
@@ -82,9 +84,28 @@ export default function Supervision({ onLogout }) {
               border:'1px solid var(--border)', background:'transparent', color:'var(--text3)', cursor:'pointer' }}>
             ← Volver
           </button>
-          <span style={{ fontSize:18, fontWeight:700, color:'var(--text)' }}>Supervisión de Respuestas IA</span>
+          <span style={{ fontSize:18, fontWeight:700, color:'var(--text)' }}>Historial de Preguntas</span>
           <span style={{ fontSize:13, color:'var(--text3)' }}>{total} registros</span>
-          {success && <span style={{ fontSize:13, fontWeight:600, color:'var(--green)', marginLeft:'auto' }}>{success}</span>}
+          {success && <span style={{ fontSize:13, fontWeight:600, color:'var(--green)' }}>{success}</span>}
+          <div style={{ marginLeft:'auto' }}>
+            <button onClick={() => {
+              const rows = [['Fecha','Cuenta','Pregunta','Respuesta','Respondido por','Usuario','Confianza']]
+              items.forEach(i => rows.push([
+                i.creado_en || '', i.cuenta || '', `"${(i.mensaje_cliente||'').replace(/"/g,'""')}"`,
+                `"${(i.respuesta_final||i.respuesta_ia||'').replace(/"/g,'""')}"`,
+                i.respondido_por || 'IA', i.usuario_respuesta || '', i.confianza_ia || ''
+              ]))
+              const csv = rows.map(r => r.join(',')).join('\n')
+              const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' })
+              const a = document.createElement('a'); a.href = URL.createObjectURL(blob)
+              a.download = `historial_preguntas_${new Date().toISOString().slice(0,10)}.csv`
+              a.click()
+            }}
+              style={{ fontSize:12, fontWeight:600, padding:'6px 14px', borderRadius:'var(--radius-sm)',
+                border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text2)', cursor:'pointer' }}>
+              Exportar CSV
+            </button>
+          </div>
         </div>
         {/* Filtros */}
         <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
@@ -101,9 +122,15 @@ export default function Supervision({ onLogout }) {
             <option value='false'>Sin errores</option>
             <option value='true'>Marcados como error</option>
           </select>
+          <select value={filtRespondido} onChange={e => setFiltRespondido(e.target.value)}
+            style={{ fontSize:13, padding:'6px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text)', cursor:'pointer' }}>
+            <option value=''>Respondido por: Todos</option>
+            <option value='IA'>IA</option>
+            <option value='humano'>Humano</option>
+          </select>
           <input type='date' value={filtDesde} onChange={e => setFiltDesde(e.target.value)}
             style={{ fontSize:13, padding:'6px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text)' }} />
-          <button onClick={() => { setFiltCuenta(''); setFiltError(''); setFiltDesde('') }}
+          <button onClick={() => { setFiltCuenta(''); setFiltError(''); setFiltDesde(''); setFiltRespondido('') }}
             style={{ fontSize:13, padding:'6px 12px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', background:'transparent', color:'var(--text3)', cursor:'pointer' }}>
             Limpiar
           </button>
@@ -134,6 +161,15 @@ export default function Supervision({ onLogout }) {
                     <span style={{ fontSize:12, fontWeight:700, padding:'2px 8px', borderRadius:5, background:'var(--surface2)', color:'var(--text2)', border:'1px solid var(--border)' }}>
                       {item.cuenta}
                     </span>
+                    {item.respondido_por === 'humano' ? (
+                      <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:'#ecfdf5', color:'#059669', border:'1px solid #a7f3d0' }}>
+                        {item.usuario_respuesta || 'Humano'}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:'#eef2ff', color:'#6366f1', border:'1px solid #c7d2fe' }}>
+                        IA Automatica
+                      </span>
+                    )}
                     <span style={{ fontSize:12, color:'var(--text3)' }}>Agente: {item.agente}</span>
                     <span style={{ fontSize:12, color:'var(--text3)' }}>Confianza: {item.confianza_ia}</span>
                     <span style={{ fontSize:12, color:'var(--text3)', marginLeft:'auto' }}>{fmtFecha(item.creado_en)}</span>
