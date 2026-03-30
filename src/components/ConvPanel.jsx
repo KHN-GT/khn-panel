@@ -29,6 +29,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [showEspera, setShowEspera] = useState(false)
   const [motivoEspera, setMotivoEspera] = useState('')
   const [sendingEspera, setSendingEspera] = useState(false)
+  const [notasEspera, setNotasEspera] = useState('')
   const [success,   setSuccess]   = useState('')
   const [copied,    setCopied]    = useState(false)
   const [contexto,    setContexto]    = useState([])
@@ -420,12 +421,13 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/espera`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ motivo: motivoEspera })
+        body: JSON.stringify({ motivo: motivoEspera, notas_espera: notasEspera })
       })
       const d = await r.json()
       if (d.ok) {
         setShowEspera(false)
         setMotivoEspera('')
+        setNotasEspera('')
         // Disparar refresh sin llamar /discard
         window.dispatchEvent(new CustomEvent('inbox-refresh'))
       }
@@ -520,8 +522,13 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             <span style={{
               background: '#fef3c7', color: '#b45309', border: '1px solid #f59e0b',
               borderRadius: 99, fontSize: 11, fontWeight: 700, padding: '2px 10px',
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-            }}>⏸ EN ESPERA{item.motivo_espera ? ` — ${item.motivo_espera}` : ''}</span>
+              display: 'inline-flex', alignItems: 'center', gap: 4, flexWrap: 'wrap',
+            }}>
+              ⏸ EN ESPERA{item.motivo_espera ? ` — ${item.motivo_espera}` : ''}
+              {item.notas_espera && (
+                <span style={{ fontSize: 10, fontWeight: 400, color: '#92400e', width: '100%' }}>{item.notas_espera}</span>
+              )}
+            </span>
           )}
 
           {item.tipo === 'PRE-COMPRA' && item.pedido_hecho && (
@@ -1240,6 +1247,17 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                       fontWeight: motivoEspera === op ? 600 : 400,
                     }}>{op}</div>
                   ))}
+                  <textarea
+                    rows={3}
+                    placeholder="Notas adicionales (opcional)"
+                    value={notasEspera}
+                    onChange={e => setNotasEspera(e.target.value)}
+                    style={{
+                      width: '100%', marginTop: 8, padding: '7px 10px', borderRadius: 6,
+                      border: '1.5px solid var(--border)', background: 'var(--surface2)',
+                      color: 'var(--text)', fontSize: 13, fontFamily: 'inherit', resize: 'vertical',
+                    }}
+                  />
                   <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                     <button onClick={handleEspera} disabled={!motivoEspera || sendingEspera} style={{
                       flex: 1, padding: '7px 0', borderRadius: 6, border: 'none',
@@ -1247,7 +1265,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                       color: '#fff', fontWeight: 700, fontSize: 13,
                       cursor: motivoEspera ? 'pointer' : 'not-allowed',
                     }}>{sendingEspera ? 'Guardando...' : 'Confirmar'}</button>
-                    <button onClick={() => { setShowEspera(false); setMotivoEspera('') }} style={{
+                    <button onClick={() => { setShowEspera(false); setMotivoEspera(''); setNotasEspera('') }} style={{
                       padding: '7px 12px', borderRadius: 6, border: '1.5px solid var(--border)',
                       background: 'var(--surface2)', color: 'var(--text2)', fontSize: 13, cursor: 'pointer',
                     }}>Cancelar</button>
