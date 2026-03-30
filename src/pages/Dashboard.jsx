@@ -6,7 +6,7 @@ import { useInbox } from '../hooks/useInbox'
 
 export default function Dashboard({ onLogout }) {
   const [acctFilter, setAcctFilter] = useState('Todas')
-  const [tipoFilter, setTipoFilter] = useState('RECLAMO')
+  const [tipoFilter, setTipoFilter] = useState('PRE-COMPRA')
   const [selectedItem, setSelected] = useState(null)
   const [mobileTab, setMobileTab]   = useState('queue')
   const [isMobile, setIsMobile]     = useState(window.innerWidth < 768)
