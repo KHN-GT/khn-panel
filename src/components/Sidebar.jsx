@@ -24,7 +24,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
     const cuentaParam = acctFilter !== 'Todas' ? `&cuenta=${acctFilter}` : ''
     try {
       const r = await fetch(
-        `${RAILWAY}/api/inbox?tipo=PRE-COMPRA&estado=resuelto,enviada,fuera_horario&archivado=false${cuentaParam}`,
+        `${RAILWAY}/api/inbox?tipo=PRE-COMPRA&estado=resuelto,enviada,fuera_horario&archivado=false&atendido_por=auto,auto_simple,auto_fuera_horario${cuentaParam}`,
         { headers: { 'Authorization': `Bearer ${token}` } })
       const d = await r.json()
       setPrecompRespondidas(d.items || [])
