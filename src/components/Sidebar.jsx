@@ -180,7 +180,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
       {/* Sub-tabs Pendientes / Respondidas — solo Pre-compra */}
       {tipoFilter === 'PRE-COMPRA' && (
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0, margin: '0 10px' }}>
-          {[{id:'pendientes',label:'Pendientes',count:countPCPendiente},{id:'respondidas',label:'Respondidas',count:countPCRespondidas}].map(st => (
+          {[{id:'pendientes',label:'Pendientes',count:countPCPendiente},{id:'respondidas',label:'Respondidas IA',count:countPCRespondidas}].map(st => (
             <button key={st.id} onClick={() => setPrecompSubTab(st.id)} style={{
               flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
               fontSize: 12, fontWeight: precompSubTab === st.id ? 700 : 400,
