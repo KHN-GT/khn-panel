@@ -494,16 +494,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
       {/* ── Header */}
       <div style={{ padding:'14px 18px', borderBottom:'1.5px solid var(--border)', background:'var(--surface)', flexShrink:0, boxShadow:'var(--shadow)' }}>
-        <div style={{ display:'flex', alignItems:'stretch', gap:12 }}>
-          {item.imagen_thumbnail && (
-            <img
-              src={item.imagen_thumbnail}
-              alt=""
-              style={{ height:80, width:80, objectFit:'cover', borderRadius:6, flexShrink:0 }}
-              onError={e => { e.target.style.display='none' }}
-            />
-          )}
-          <div style={{ flex:1 }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
           <div style={{ display:'flex', flexDirection:'column', gap:1 }}>
             <span style={{ fontSize:17, fontWeight:700, color:'var(--text)' }}>{item.comprador_nombre || item.comprador || 'Comprador'}</span>
@@ -720,8 +710,6 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             ))}
           </div>
         )}
-          </div>
-        </div>
       </div>
 
       {/* ── Contenido principal: hilo + sidebar orden */}
