@@ -794,7 +794,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               </div>
             )
             : item.mensaje_cliente
-              ? renderBubble({ r: 'b', t: item.mensaje_cliente }, 0)
+              ? renderBubble({ r: 'b', t: item.mensaje_cliente, ts: item.tipo === 'PRE-COMPRA' && item.creado_en ? new Date(item.creado_en).toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' }) : undefined }, 0)
               : null
         }
 
@@ -804,8 +804,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             <div style={{ maxWidth:'80%', padding:'10px 14px', borderRadius:12, background:'var(--green-light)', border:'1px solid var(--green-border)', fontSize:13, lineHeight:1.55, color:'var(--text)' }}>
               {item.respuesta_final}
             </div>
-            <div style={{ fontSize:12, color:'var(--text3)', marginTop:3, textAlign:'right', paddingRight:4 }}>
-              {item.atendido_por || 'Sistema'}
+            <div style={{ fontSize:12, color:'var(--text3)', marginTop:3, textAlign:'right', paddingRight:4, display:'flex', justifyContent:'flex-end', gap:6 }}>
+              <span>{item.atendido_por || 'Sistema'}</span>
+              {item.atendido_en && <span style={{ opacity:.7 }}>· {new Date(item.atendido_en).toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' })}</span>}
             </div>
           </div>
         )}

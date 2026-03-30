@@ -274,12 +274,6 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
             <div key={i.id} style={{ position: 'relative' }}>
               <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
               {tipoFilter === 'PRE-COMPRA' && precompSubTab === 'respondidas' && (
-                <div style={{ padding: '0 10px 6px', fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
-                  {i.creado_en && <div>Pregunta: {new Date(i.creado_en).toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' })}</div>}
-                  {i.atendido_en && <div>Respuesta: {new Date(i.atendido_en).toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' })}</div>}
-                </div>
-              )}
-              {tipoFilter === 'PRE-COMPRA' && precompSubTab === 'respondidas' && (
                 <button onClick={(e) => { e.stopPropagation(); archivarUno(i.id) }} title="Archivar"
                   style={{ position: 'absolute', top: 6, right: 6, fontSize: 14,
                     background: 'var(--surface)', border: '1px solid var(--border)',
