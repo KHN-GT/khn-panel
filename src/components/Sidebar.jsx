@@ -95,6 +95,12 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
     : filteredBase
   const countPCPendiente = byTipo('PRE-COMPRA').filter(i => i.estado === 'pendiente' || i.estado === 'en_progreso' || i.estado === 'IA_sugerida').length
   const countPCRespondidas = precompRespondidas.filter(i => acctFilter === 'Todas' || i.cuenta === acctFilter).length
+
+  useEffect(() => {
+    if (tipoFilter === 'PRE-COMPRA' && precompSubTab === 'pendientes' && countPCPendiente === 0) {
+      setPrecompSubTab('respondidas')
+    }
+  }, [tipoFilter, precompSubTab, countPCPendiente])
   const countEspera     = byTipo('RECLAMO').filter(i => i.estado === 'en_espera').length
   const countReactivados = byTipo('RECLAMO').filter(i => i.estado === 'reactivado').length
   const countActivos    = byTipo('RECLAMO').filter(i => i.estado !== 'en_espera' && i.estado !== 'reactivado').length
