@@ -17,6 +17,7 @@ export default function Supervision({ onLogout }) {
   const [filtCuenta, setFiltCuenta]     = useState('')
   const [filtError, setFiltError]       = useState('')
   const [filtDesde, setFiltDesde]       = useState('')
+  const [filtHasta, setFiltHasta]       = useState('')
   const [filtRespondido, setFiltRespondido] = useState('')
   const [offset, setOffset]         = useState(0)
   const [corrModal, setCorrModal]   = useState(null)  // {id, mensaje, respuesta_ia}
@@ -31,7 +32,8 @@ export default function Supervision({ onLogout }) {
     let url = `${RAILWAY}/api/feedback?limit=${LIMIT}&offset=${off}&excluir_accion=corregido_post_envio`
     if (filtCuenta)     url += `&cuenta=${filtCuenta}`
     if (filtError)      url += `&es_error=${filtError}`
-    if (filtDesde)      url += `&desde=${filtDesde}`
+    if (filtDesde)      url += `&fecha_desde=${filtDesde}`
+    if (filtHasta)      url += `&fecha_hasta=${filtHasta}`
     if (filtRespondido) url += `&respondido_por=${filtRespondido}`
     try {
       const r = await fetch(url, { headers: { Authorization: `Bearer ${tok}` } })
@@ -43,7 +45,7 @@ export default function Supervision({ onLogout }) {
     finally { setLoading(false) }
   }
 
-  useEffect(() => { load(0) }, [filtCuenta, filtError, filtDesde, filtRespondido])
+  useEffect(() => { load(0) }, [filtCuenta, filtError, filtDesde, filtHasta, filtRespondido])
 
   const handleCorregir = async () => {
     if (!corrTexto.trim()) return
@@ -128,9 +130,13 @@ export default function Supervision({ onLogout }) {
             <option value='IA'>IA</option>
             <option value='humano'>Humano</option>
           </select>
+          <span style={{ fontSize:12, color:'var(--text3)' }}>Desde</span>
           <input type='date' value={filtDesde} onChange={e => setFiltDesde(e.target.value)}
             style={{ fontSize:13, padding:'6px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text)' }} />
-          <button onClick={() => { setFiltCuenta(''); setFiltError(''); setFiltDesde(''); setFiltRespondido('') }}
+          <span style={{ fontSize:12, color:'var(--text3)' }}>Hasta</span>
+          <input type='date' value={filtHasta} onChange={e => setFiltHasta(e.target.value)}
+            style={{ fontSize:13, padding:'6px 10px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text)' }} />
+          <button onClick={() => { setFiltCuenta(''); setFiltError(''); setFiltDesde(''); setFiltHasta(''); setFiltRespondido('') }}
             style={{ fontSize:13, padding:'6px 12px', borderRadius:'var(--radius-sm)', border:'1px solid var(--border)', background:'transparent', color:'var(--text3)', cursor:'pointer' }}>
             Limpiar
           </button>
