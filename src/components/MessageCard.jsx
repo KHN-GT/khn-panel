@@ -179,6 +179,20 @@ export default function MessageCard({ item, selected, onClick }) {
         {item.mensaje_cliente?.slice(0, 70) || '—'}
       </div>
 
+      {/* Motivo y notas de espera */}
+      {item.estado === 'en_espera' && item.motivo_espera && (
+        <div style={{ fontSize:11, color:'#9ca3af', marginTop:3,
+          whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+          ⏸ Motivo: {item.motivo_espera}
+        </div>
+      )}
+      {item.estado === 'en_espera' && item.notas_espera && (
+        <div style={{ fontSize:10, color:'#b0b7c3', marginTop:2,
+          whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+          Nota: {item.notas_espera}
+        </div>
+      )}
+
       {/* Timer reclamo — solo CRITICO y URGENTE */}
       {isClaim && item.timer_segundos != null && urg && urg.pulse && (
         <ClaimTimer timerSegundos={item.timer_segundos} style={{ marginTop:6 }} />
