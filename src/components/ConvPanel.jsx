@@ -794,7 +794,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               </div>
             )
             : item.mensaje_cliente
-              ? renderBubble({ r: 'b', t: item.mensaje_cliente, ts: item.creado_en ? new Date(item.creado_en).toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' }) : undefined }, 0)
+              ? renderBubble({ r: 'b', t: item.mensaje_cliente, ts: item.creado_en || undefined }, 0)
               : null
         }
 
