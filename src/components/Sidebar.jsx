@@ -31,6 +31,8 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
     } catch { setPrecompRespondidas([]) }
   }, [acctFilter])
 
+  useEffect(() => { fetchRespondidas() }, [fetchRespondidas])
+
   useEffect(() => {
     if (tipoFilter === 'PRE-COMPRA' && precompSubTab === 'respondidas') fetchRespondidas()
   }, [tipoFilter, precompSubTab, fetchRespondidas])
@@ -127,14 +129,24 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
                 color: active ? tab.color : 'var(--text3)' }}>
                 {tab.label}
               </span>
-              {counts[tab.id] > 0 && (
-                <span style={{ fontSize: 10, fontWeight: 800, padding: '1px 7px',
-                  borderRadius: 99, background: active ? tab.color : 'var(--surface2)',
-                  color: active ? '#fff' : 'var(--text3)',
-                  border: `1px solid ${active ? tab.color : 'var(--border)'}` }}>
-                  {counts[tab.id]}
-                </span>
-              )}
+              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                {counts[tab.id] > 0 && (
+                  <span style={{ fontSize: 10, fontWeight: 800, padding: '1px 7px',
+                    borderRadius: 99, background: active ? tab.color : 'var(--surface2)',
+                    color: active ? '#fff' : 'var(--text3)',
+                    border: `1px solid ${active ? tab.color : 'var(--border)'}` }}>
+                    {counts[tab.id]}
+                  </span>
+                )}
+                {tab.id === 'PRE-COMPRA' && countPCRespondidas > 0 && (
+                  <span style={{ fontSize: 10, fontWeight: 800, padding: '1px 7px',
+                    borderRadius: 99, background: active ? '#6366f1' : '#eef2ff',
+                    color: active ? '#fff' : '#6366f1',
+                    border: '1px solid #c7d2fe' }}>
+                    {countPCRespondidas} IA
+                  </span>
+                )}
+              </div>
             </button>
           )
         })}
