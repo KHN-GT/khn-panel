@@ -665,6 +665,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span>
             </div>
           )}
+          {item.tipo === 'PRE-COMPRA' && (item.creado_en || item.atendido_en) && (
+            <div style={{ display:'flex', gap:12, fontSize:11, color:'var(--text3)' }}>
+              {item.creado_en && <span>Pregunta: {new Date(item.creado_en).toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' })}</span>}
+              {item.atendido_en && <span>Respuesta: {new Date(item.atendido_en).toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' })}</span>}
+            </div>
+          )}
           {item.claim_id && urgStyle && (
             <div style={{ fontSize:13, fontWeight:600, padding:'2px 8px', borderRadius:5,
               color: urgStyle.color, background: urgStyle.bg, border:`1px solid ${urgStyle.border}` }}>
