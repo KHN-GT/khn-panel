@@ -499,8 +499,8 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       <div style={{ padding:'14px 18px', borderBottom:'1.5px solid var(--border)', background:'var(--surface)', flexShrink:0, boxShadow:'var(--shadow)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
           <div style={{ display:'flex', flexDirection:'column', gap:1 }}>
-            <span style={{ fontSize:17, fontWeight:700, color:'var(--text)' }}>{item.comprador_nombre || item.comprador || 'Comprador'}</span>
-            {item.comprador_nombre && item.comprador && (
+            <span style={{ fontSize:17, fontWeight:700, color:'var(--text)' }}>{item.nombre_comprador || item.comprador_nombre || item.comprador || 'Comprador'}</span>
+            {(item.nombre_comprador || item.comprador_nombre) && item.comprador && (
               <span style={{ fontSize:12, color:'var(--text3)', fontWeight:400 }}>{item.comprador}</span>
             )}
           </div>
