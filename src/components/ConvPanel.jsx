@@ -706,11 +706,10 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               {item.atendido_en && <span>Respuesta: {new Date(item.atendido_en).toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' })}</span>}
             </div>
           )}
-          {item.claim_id && urgStyle && (
-            <div style={{ fontSize:13, fontWeight:600, padding:'2px 8px', borderRadius:5,
-              color: urgStyle.color, background: urgStyle.bg, border:`1px solid ${urgStyle.border}` }}>
+          {item.claim_id && (
+            <span style={{ fontSize:11, color:'var(--text3)' }}>
               Reclamo #{item.claim_id}
-            </div>
+            </span>
           )}
         </div>
         {isClaim && item.timer_segundos != null && urgStyle && (
@@ -801,9 +800,26 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   </div>
                 )}
                 {item.orden_id && (
-                  <div style={{ marginBottom:4 }}>
+                  <div style={{ marginBottom:4, display:'flex', alignItems:'center', gap:6 }}>
                     <span style={{ color:'var(--text3)' }}>Orden: </span>
-                    <span style={{ fontFamily:'monospace' }}>#{item.orden_id}</span>
+                    <div
+                      onClick={() => { navigator.clipboard.writeText(item.orden_id).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
+                      title="Clic para copiar número de orden"
+                      style={{ fontSize:12, color: copiedOrden ? '#22c55e' : 'var(--text2)',
+                        background: copiedOrden ? 'rgba(34,197,94,0.1)' : 'var(--surface)',
+                        border: copiedOrden ? '1px solid #22c55e' : '1px solid var(--border)', borderRadius:5, padding:'2px 8px',
+                        cursor:'pointer', display:'inline-flex', alignItems:'center', gap:4, transition:'all 0.2s' }}
+                      onMouseEnter={e => { if (!copiedOrden) e.currentTarget.style.background='var(--blue-light)' }}
+                      onMouseLeave={e => { if (!copiedOrden) e.currentTarget.style.background='var(--surface)' }}
+                    >
+                      {copiedOrden ? '✓ Copiado' : <><code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
+                      <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span></>}
+                    </div>
+                  </div>
+                )}
+                {item.claim_id && (
+                  <div style={{ marginBottom:4 }}>
+                    <span style={{ fontSize:11, color:'var(--text3)' }}>Reclamo #{item.claim_id}</span>
                   </div>
                 )}
                 {item.producto && (
