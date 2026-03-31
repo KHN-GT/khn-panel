@@ -57,7 +57,8 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [showMeta,     setShowMeta]     = useState(false)
   const [metaData,     setMetaData]     = useState(null)
   const [loadingMeta,  setLoadingMeta]  = useState(false)
-  const corrMode = false
+  const [corrMode, setCorrMode] = useState(false)
+  const [corrText, setCorrText] = useState('')
   const threadRef = useRef(null)
 
   useEffect(() => {
@@ -67,6 +68,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setSuccess(''); setCopied(false); setContexto([])
     setShowMeta(false); setMetaData(null)
     setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([])
+    setCorrMode(false); setCorrText('')
 
     const token = localStorage.getItem('khn_token')
     setOrdenData(null)
@@ -337,9 +339,15 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const handleCorrect = async () => {
     if (!corrText.trim()) return
     setSending(true)
-    try { await onCorrect(item.id, corrText); setSuccess('📚 Corrección guardada'); setCorrMode(false); setCorrText('') }
-    catch { setSuccess('❌ Error') }
-    finally { setSending(false) }
+    try {
+      const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/correct`, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('khn_token')}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correccion: corrText })
+      })
+      if (r.ok) { setSuccess('Corrección enviada'); setCorrMode(false); setCorrText('') }
+      else { setSuccess('Error al enviar') }
+    } catch { setSuccess('Error de conexión') }
+    finally { setSending(false); setTimeout(() => setSuccess(''), 2000) }
   }
 
   // ── hilo_json: cada mensaje tiene { r: 'b'|'s', t: '...' }
@@ -1160,24 +1168,33 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         </div>
       )}
 
-      {/* ── Corrección post-envío */}
-      {isResolved && item.estado === 'resuelto' && corrMode && (
-        <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--amber-border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
-          <div style={{ padding:'8px 14px', background:'var(--amber-light)', borderBottom:'1px solid var(--amber-border)', fontSize:13, fontWeight:700, color:'var(--amber)' }}>
-            CORREGIR PARA ENTRENAMIENTO
-          </div>
-          <textarea value={corrText} onChange={e => setCorrText(e.target.value)} rows={3} placeholder="Escribe la respuesta correcta..."
-            style={{ width:'100%', border:'none', padding:'10px 14px', fontSize:13, fontFamily:'inherit', resize:'none', outline:'none', color:'var(--text)' }} />
-          <div style={{ display:'flex', gap:8, padding:'8px 14px', borderTop:'1px solid var(--border)', background:'var(--surface2)' }}>
-            <button onClick={handleCorrect} disabled={sending || !corrText.trim()}
-              style={{ fontSize:12, fontWeight:700, padding:'7px 16px', borderRadius:'var(--radius-sm)', background:'var(--amber)', color:'#fff', border:'none', cursor:'pointer', opacity: sending || !corrText.trim() ? .6 : 1 }}>
-              Guardar
+      {/* ── Corrección post-envío — solo PRE-COMPRA resuelto */}
+      {isResolved && item.tipo === 'PRE-COMPRA' && (
+        <div style={{ margin:'0 14px 12px' }}>
+          {!corrMode ? (
+            <button onClick={() => { setCorrMode(true); setCorrText(item.respuesta_final || item.respuesta_ia || '') }}
+              style={{ fontSize:12, fontWeight:600, padding:'6px 14px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--amber-border)', background:'var(--amber-light)', color:'var(--amber)', cursor:'pointer' }}>
+              Corregir respuesta
             </button>
-            <button onClick={() => setCorrMode(false)}
-              style={{ fontSize:12, fontWeight:600, padding:'7px 12px', borderRadius:'var(--radius-sm)', background:'transparent', color:'var(--text2)', border:'1px solid var(--border)', cursor:'pointer' }}>
-              Cancelar
-            </button>
-          </div>
+          ) : (
+            <div style={{ background:'var(--surface)', border:'1.5px solid var(--amber-border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+              <div style={{ padding:'8px 14px', background:'var(--amber-light)', borderBottom:'1px solid var(--amber-border)', fontSize:13, fontWeight:700, color:'var(--amber)' }}>
+                CORREGIR PARA ENTRENAMIENTO
+              </div>
+              <textarea value={corrText} onChange={e => setCorrText(e.target.value)} rows={4} placeholder="Escribe la respuesta correcta..."
+                style={{ width:'100%', border:'none', padding:'10px 14px', fontSize:13, fontFamily:'inherit', resize:'vertical', outline:'none', color:'var(--text)' }} />
+              <div style={{ display:'flex', gap:8, padding:'8px 14px', borderTop:'1px solid var(--border)', background:'var(--surface2)' }}>
+                <button onClick={handleCorrect} disabled={sending || !corrText.trim()}
+                  style={{ fontSize:12, fontWeight:700, padding:'7px 16px', borderRadius:'var(--radius-sm)', background:'var(--amber)', color:'#fff', border:'none', cursor:'pointer', opacity: sending || !corrText.trim() ? .6 : 1 }}>
+                  {sending ? 'Enviando...' : 'Enviar corrección'}
+                </button>
+                <button onClick={() => { setCorrMode(false); setCorrText('') }}
+                  style={{ fontSize:12, fontWeight:600, padding:'7px 12px', borderRadius:'var(--radius-sm)', background:'transparent', color:'var(--text2)', border:'1px solid var(--border)', cursor:'pointer' }}>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
