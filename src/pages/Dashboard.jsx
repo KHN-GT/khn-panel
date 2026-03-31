@@ -182,7 +182,7 @@ export default function Dashboard({ onLogout }) {
           )}
         </div>
       ) : (
-        <div style={{ flex:1, display:'grid', gridTemplateColumns:'310px 1fr', overflow:'hidden' }}>
+        <div style={{ flex:1, display:'grid', gridTemplateColumns:'320px 1fr', overflow:'hidden' }}>
           {loading ? (
             <div style={{ display:'flex', alignItems:'center', justifyContent:'center',
               background:'var(--surface)', borderRight:'1.5px solid var(--border)' }}>

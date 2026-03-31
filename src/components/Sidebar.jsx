@@ -174,10 +174,10 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
       {/* Sub-tabs Activos / En espera — solo Reclamos */}
       {tipoFilter === 'RECLAMO' && (
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0, margin: '0 4px' }}>
-          {[{id:'activos',label:'Activos',count:countActivos,color:'var(--red)'},{id:'en_espera',label:'Espera',count:countEspera,color:'var(--red)'},{id:'devolucion',label:'Devolución',count:countDevolucion,color:'#dc2626'},{id:'reactivados',label:'Reactivados',count:countReactivados,color:'#e07b00'}].map(st => (
+          {[{id:'activos',label:'Activos',count:countActivos,color:'var(--red)'},{id:'en_espera',label:'En espera',count:countEspera,color:'var(--red)'},{id:'devolucion',label:'Devolución',count:countDevolucion,color:'#dc2626'},{id:'reactivados',label:'Reactivados',count:countReactivados,color:'#e07b00'}].map(st => (
             <button key={st.id} onClick={() => setReclamoSubTab(st.id)} style={{
-              flex: 1, padding: '6px 0', border: 'none', background: 'none', cursor: 'pointer',
-              fontSize: 11, fontWeight: reclamoSubTab === st.id ? 700 : 400,
+              flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
+              fontSize: 12, fontWeight: reclamoSubTab === st.id ? 700 : 400,
               color: reclamoSubTab === st.id ? st.color : 'var(--text3)',
               borderBottom: reclamoSubTab === st.id ? `2px solid ${st.color}` : '2px solid transparent',
               transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
