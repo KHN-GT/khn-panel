@@ -61,8 +61,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const threadRef = useRef(null)
 
   useEffect(() => {
-    setEditMode(false)
-    setEditText(item?.respuesta_ia || '')
+    const sinIA = !item?.respuesta_ia && (item?.estado === 'pendiente' || item?.estado === 'IA_sugerida')
+    setEditMode(sinIA)
+    setEditText(sinIA ? '' : (item?.respuesta_ia || ''))
     setSuccess(''); setCopied(false); setContexto([])
     setShowMeta(false); setMetaData(null)
     setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([])
@@ -1043,18 +1044,24 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       )}
 
       {/* ── Bloque IA */}
-      {!isResolved && !isClaim && item.respuesta_ia && (
-        <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:'1.5px solid var(--purple-border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow-md)', overflow:'hidden' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', background:'var(--purple-light)', borderBottom:'1px solid var(--purple-border)' }}>
-            <span style={{ fontSize:13, fontWeight:700, color:'var(--purple)', letterSpacing:'.05em', textTransform:'uppercase' }}>Respuesta IA</span>
-            <span style={{ fontSize:12, fontWeight:700, padding:'2px 8px', borderRadius:99, background:cf.bg, color:cf.color, border:`1px solid ${cf.br}` }}>{cf.label}</span>
+      {!isResolved && !isClaim && (item.respuesta_ia || item.estado === 'pendiente' || item.estado === 'IA_sugerida') && (
+        <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:`1.5px solid ${item.respuesta_ia ? 'var(--purple-border)' : 'var(--border)'}`, borderRadius:'var(--radius)', boxShadow:'var(--shadow-md)', overflow:'hidden' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', background: item.respuesta_ia ? 'var(--purple-light)' : 'var(--surface2)', borderBottom:`1px solid ${item.respuesta_ia ? 'var(--purple-border)' : 'var(--border)'}` }}>
+            {item.respuesta_ia ? (<>
+              <span style={{ fontSize:13, fontWeight:700, color:'var(--purple)', letterSpacing:'.05em', textTransform:'uppercase' }}>Respuesta IA</span>
+              <span style={{ fontSize:12, fontWeight:700, padding:'2px 8px', borderRadius:99, background:cf.bg, color:cf.color, border:`1px solid ${cf.br}` }}>{cf.label}</span>
+            </>) : (
+              <span style={{ fontSize:13, fontWeight:700, color:'var(--text3)', letterSpacing:'.05em', textTransform:'uppercase' }}>Respuesta manual</span>
+            )}
             {item.agente && <span style={{ fontSize:13, color:'var(--text3)', marginLeft:'auto' }}>Agente: {item.agente}</span>}
-            <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
-              style={{ marginLeft: item.agente ? 0 : 'auto', fontSize:13, fontWeight:600, padding:'3px 10px', borderRadius:5, border:'1px solid var(--purple-border)', background: editMode ? 'var(--purple)' : 'transparent', color: editMode ? '#fff' : 'var(--purple)', cursor:'pointer' }}>
-              {editMode ? 'Cancelar' : '✏️ Editar'}
-            </button>
+            {item.respuesta_ia && (
+              <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
+                style={{ marginLeft: item.agente ? 0 : 'auto', fontSize:13, fontWeight:600, padding:'3px 10px', borderRadius:5, border:'1px solid var(--purple-border)', background: editMode ? 'var(--purple)' : 'transparent', color: editMode ? '#fff' : 'var(--purple)', cursor:'pointer' }}>
+                {editMode ? 'Cancelar' : '✏️ Editar'}
+              </button>
+            )}
           </div>
-          {editMode
+          {editMode || !item.respuesta_ia
             ? <div style={{ position: 'relative' }}>
                 <textarea
                   ref={textareaRef}
@@ -1122,7 +1129,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             : <div onClick={() => { setEditMode(true); setEditText(item.respuesta_ia.replace(/\n+/g, ' ').trim()) }} style={{ padding:'14px 16px', fontSize:14, color:'var(--text)', lineHeight:1.6, cursor:'text' }}>{item.respuesta_ia}</div>
           }
           {/* Botones inline — solo Copiar */}
-          {!editMode && (
+          {!editMode && item.respuesta_ia && (
             <div style={{ display:'flex', gap:6, padding:'6px 14px 10px', borderTop:'1px solid var(--border)', background:'var(--surface2)' }}>
               <button onClick={() => {
                 navigator.clipboard.writeText(item.respuesta_ia)
@@ -1303,18 +1310,20 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           </>
         )}
 
-        {!isClaim && !isResolved && item.respuesta_ia && (
+        {!isClaim && !isResolved && (item.respuesta_ia || item.estado === 'pendiente' || item.estado === 'IA_sugerida') && (
           <>
-            <button onClick={handleApprove} disabled={sending}
+            <button onClick={handleApprove} disabled={sending || (!item.respuesta_ia && !editText.trim())}
               style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--green-border)', background:'var(--green)', color:'#fff', cursor:'pointer', opacity: sending ? .6 : 1 }}>
               {sending ? 'Enviando...' : 'Aprobar y enviar'}
             </button>
-            <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
-              style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--purple-border)', background:'var(--purple-light)', color:'var(--purple)', cursor:'pointer' }}>
-              {editMode ? 'Cancelar edición' : '✏️ Editar'}
-            </button>
+            {item.respuesta_ia && (
+              <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
+                style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--purple-border)', background:'var(--purple-light)', color:'var(--purple)', cursor:'pointer' }}>
+                {editMode ? 'Cancelar edición' : '✏️ Editar'}
+              </button>
+            )}
 
-            {editMode && (
+            {(editMode || !item.respuesta_ia) && editText.trim() && (
               <button onClick={handleApprove} disabled={sending || !editText.trim()}
                 style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--green-border)', background:'var(--green)', color:'#fff', cursor:'pointer', opacity: sending ? .6 : 1 }}>
                 Enviar editado
