@@ -679,10 +679,15 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           </div>
         )}
         <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop: (item.imagen_thumbnail || item.producto) ? 6 : 0 }}>
-          {item.orden_id && (
+          {(item.orden_id || (isPostVenta && item.pack_id)) && (
             <div
-              onClick={() => { navigator.clipboard.writeText(item.orden_id).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
-              title="Clic para copiar número de orden"
+              onClick={() => {
+                const url = isPostVenta && item.pack_id
+                  ? `https://www.mercadolibre.com.mx/ventas/nueva/mensajeria/${item.pack_id}?source=ml&callbackWording=Ventas&callbackUrl=https%3A%2F%2Fwww.mercadolibre.com.mx%2Fventas%2Fomni%2Flistado`
+                  : `https://www.mercadolibre.com.mx/ventas/${item.orden_id}`
+                navigator.clipboard.writeText(url).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) })
+              }}
+              title="Clic para copiar enlace directo"
               style={{ fontSize:12, color: copiedOrden ? '#22c55e' : 'var(--text2)',
                 background: copiedOrden ? 'rgba(34,197,94,0.1)' : 'var(--surface2)',
                 border: copiedOrden ? '1px solid #22c55e' : '1px solid var(--border)', borderRadius:5, padding:'3px 10px',
@@ -690,7 +695,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               onMouseEnter={e => { if (!copiedOrden) e.currentTarget.style.background='var(--blue-light)' }}
               onMouseLeave={e => { if (!copiedOrden) e.currentTarget.style.background='var(--surface2)' }}
             >
-              {copiedOrden ? '✓ Copiado' : <>Orden <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
+              {copiedOrden ? '✓ Copiado' : <>Orden <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id || item.pack_id}</code>
               <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span></>}
             </div>
           )}
@@ -812,8 +817,8 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   <div style={{ marginBottom:4, display:'flex', alignItems:'center', gap:6 }}>
                     <span style={{ color:'var(--text3)' }}>Orden: </span>
                     <div
-                      onClick={() => { navigator.clipboard.writeText(item.orden_id).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
-                      title="Clic para copiar número de orden"
+                      onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/${item.orden_id}`).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
+                      title="Clic para copiar enlace directo"
                       style={{ fontSize:12, color: copiedOrden ? '#22c55e' : 'var(--text2)',
                         background: copiedOrden ? 'rgba(34,197,94,0.1)' : 'var(--surface)',
                         border: copiedOrden ? '1px solid #22c55e' : '1px solid var(--border)', borderRadius:5, padding:'2px 8px',
@@ -911,11 +916,16 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               {/* Estado orden + envío */}
               <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
                 <div style={{ fontSize:12, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Estado</div>
-                {item.orden_id && (
+                {(item.orden_id || item.pack_id) && (
                   <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:8 }}>
                     <div
-                      onClick={() => { navigator.clipboard.writeText(item.orden_id).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
-                      title="Clic para copiar número de orden"
+                      onClick={() => {
+                        const url = item.pack_id
+                          ? `https://www.mercadolibre.com.mx/ventas/nueva/mensajeria/${item.pack_id}?source=ml&callbackWording=Ventas&callbackUrl=https%3A%2F%2Fwww.mercadolibre.com.mx%2Fventas%2Fomni%2Flistado`
+                          : `https://www.mercadolibre.com.mx/ventas/${item.orden_id}`
+                        navigator.clipboard.writeText(url).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) })
+                      }}
+                      title="Clic para copiar enlace directo"
                       style={{ fontSize:11, color: copiedOrden ? '#22c55e' : 'var(--text2)',
                         background: copiedOrden ? 'rgba(34,197,94,0.1)' : 'var(--surface2)',
                         border: copiedOrden ? '1px solid #22c55e' : '1px solid var(--border)', borderRadius:5, padding:'2px 8px',
@@ -923,15 +933,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                       onMouseEnter={e => { if (!copiedOrden) e.currentTarget.style.background='var(--blue-light)' }}
                       onMouseLeave={e => { if (!copiedOrden) e.currentTarget.style.background='var(--surface2)' }}
                     >
-                      {copiedOrden ? '✓ Copiado' : <>Orden <code style={{ fontSize:11, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
+                      {copiedOrden ? '✓ Copiado' : <>Orden <code style={{ fontSize:11, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id || item.pack_id}</code>
                       <span style={{ fontSize:10, color:'var(--text3)', opacity:.6 }}>⎘</span></>}
                     </div>
-                    <a href={`https://www.mercadolibre.com.mx/ventas/${item.orden_id}`} target="_blank" rel="noreferrer"
-                      onClick={e => e.stopPropagation()}
-                      title="Ver en Mercado Libre"
-                      style={{ fontSize:13, textDecoration:'none', color:'var(--blue)', cursor:'pointer', lineHeight:1 }}>
-                      🔗
-                    </a>
                   </div>
                 )}
                 {(() => {
