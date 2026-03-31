@@ -57,6 +57,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [showMeta,     setShowMeta]     = useState(false)
   const [metaData,     setMetaData]     = useState(null)
   const [loadingMeta,  setLoadingMeta]  = useState(false)
+  const [iaMinimized, setIaMinimized] = useState(false)
   const [corrMode, setCorrMode] = useState(false)
   const [corrText, setCorrText] = useState('')
   const threadRef = useRef(null)
@@ -68,7 +69,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setSuccess(''); setCopied(false); setContexto([])
     setShowMeta(false); setMetaData(null)
     setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([])
-    setCorrMode(false); setCorrText('')
+    setCorrMode(false); setCorrText(''); setIaMinimized(false)
 
     const token = localStorage.getItem('khn_token')
     setOrdenData(null)
@@ -1078,14 +1079,18 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               <span style={{ fontSize:13, fontWeight:700, color:'var(--text3)', letterSpacing:'.05em', textTransform:'uppercase' }}>Respuesta manual</span>
             )}
             {item.agente && <span style={{ fontSize:13, color:'var(--text3)', marginLeft:'auto' }}>Agente: {item.agente}</span>}
-            {item.respuesta_ia && (
+            {item.respuesta_ia && !iaMinimized && (
               <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
                 style={{ marginLeft: item.agente ? 0 : 'auto', fontSize:13, fontWeight:600, padding:'3px 10px', borderRadius:5, border:'1px solid var(--purple-border)', background: editMode ? 'var(--purple)' : 'transparent', color: editMode ? '#fff' : 'var(--purple)', cursor:'pointer' }}>
                 {editMode ? 'Cancelar' : '✏️ Editar'}
               </button>
             )}
+            <button onClick={() => setIaMinimized(v => !v)}
+              style={{ marginLeft: (!item.respuesta_ia && !item.agente) || iaMinimized ? 'auto' : 0, fontSize:11, fontWeight:600, padding:'3px 8px', borderRadius:5, border:'1px solid var(--border)', background:'transparent', color:'var(--text3)', cursor:'pointer' }}>
+              {iaMinimized ? '▼ Ver respuesta' : '▲ Minimizar'}
+            </button>
           </div>
-          {editMode || !item.respuesta_ia
+          {!iaMinimized && (<>{editMode || !item.respuesta_ia
             ? <div style={{ position: 'relative' }}>
                 <textarea
                   ref={textareaRef}
@@ -1165,6 +1170,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               </button>
             </div>
           )}
+          </>)}
         </div>
       )}
 
