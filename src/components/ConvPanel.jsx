@@ -291,8 +291,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   }
 
   const handleCopyNumero = () => {
-    if (!numeroCopia) return
-    navigator.clipboard.writeText(numeroCopia).then(() => {
+    const url = item.claim_id
+      ? `https://www.mercadolibre.com.mx/ventas/reclamos/${item.claim_id}`
+      : numeroCopia ? `https://www.mercadolibre.com.mx/ventas/${numeroCopia}/detalle` : null
+    if (!url) return
+    window.open(url, '_blank')
+    navigator.clipboard.writeText(url).then(() => {
       setCopied(true); setTimeout(() => setCopied(false), 2500)
     })
   }
