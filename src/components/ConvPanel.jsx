@@ -1071,7 +1071,10 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       {/* ── Bloque IA */}
       {!isResolved && !isClaim && (item.respuesta_ia || item.estado === 'pendiente' || item.estado === 'IA_sugerida') && (
         <div style={{ margin:'0 14px 12px', background:'var(--surface)', border:`1.5px solid ${item.respuesta_ia ? 'var(--purple-border)' : 'var(--border)'}`, borderRadius:'var(--radius)', boxShadow:'var(--shadow-md)', overflow:'hidden' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', background: item.respuesta_ia ? 'var(--purple-light)' : 'var(--surface2)', borderBottom:`1px solid ${item.respuesta_ia ? 'var(--purple-border)' : 'var(--border)'}` }}>
+          <div onClick={() => setIaMinimized(v => !v)}
+            onMouseEnter={e => e.currentTarget.style.filter='brightness(0.95)'}
+            onMouseLeave={e => e.currentTarget.style.filter='none'}
+            style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', cursor:'pointer', transition:'filter .15s', background: item.respuesta_ia ? 'var(--purple-light)' : 'var(--surface2)', borderBottom:`1px solid ${item.respuesta_ia ? 'var(--purple-border)' : 'var(--border)'}` }}>
             {item.respuesta_ia ? (<>
               <span style={{ fontSize:13, fontWeight:700, color:'var(--purple)', letterSpacing:'.05em', textTransform:'uppercase' }}>Respuesta IA</span>
               <span style={{ fontSize:12, fontWeight:700, padding:'2px 8px', borderRadius:99, background:cf.bg, color:cf.color, border:`1px solid ${cf.br}` }}>{cf.label}</span>
@@ -1080,15 +1083,14 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             )}
             {item.agente && <span style={{ fontSize:13, color:'var(--text3)', marginLeft:'auto' }}>Agente: {item.agente}</span>}
             {item.respuesta_ia && !iaMinimized && (
-              <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
+              <button onClick={e => { e.stopPropagation(); setEditMode(!editMode); setEditText(item.respuesta_ia) }}
                 style={{ marginLeft: item.agente ? 0 : 'auto', fontSize:13, fontWeight:600, padding:'3px 10px', borderRadius:5, border:'1px solid var(--purple-border)', background: editMode ? 'var(--purple)' : 'transparent', color: editMode ? '#fff' : 'var(--purple)', cursor:'pointer' }}>
                 {editMode ? 'Cancelar' : '✏️ Editar'}
               </button>
             )}
-            <button onClick={() => setIaMinimized(v => !v)}
-              style={{ marginLeft: (!item.respuesta_ia && !item.agente) || iaMinimized ? 'auto' : 0, fontSize:11, fontWeight:600, padding:'3px 8px', borderRadius:5, border:'1px solid var(--border)', background:'transparent', color:'var(--text3)', cursor:'pointer' }}>
-              {iaMinimized ? '▼ Ver respuesta' : '▲ Minimizar'}
-            </button>
+            <span style={{ marginLeft: (!item.respuesta_ia && !item.agente) || iaMinimized ? 'auto' : 0, fontSize:14, color:'var(--text3)', lineHeight:1 }}>
+              {iaMinimized ? '▼' : '—'}
+            </span>
           </div>
           {!iaMinimized && (<>{editMode || !item.respuesta_ia
             ? <div style={{ position: 'relative' }}>
