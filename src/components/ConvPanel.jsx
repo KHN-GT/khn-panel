@@ -514,10 +514,33 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           )}
           {isClaim && item.estado === 'reactivado' && (
             <div style={{ margin:'0 0 8px 0', padding:'8px 14px', borderRadius:8,
-              background:'#fff3e0', border:'1px solid #e07b00',
-              fontSize:13, fontWeight:600, color:'#e07b00',
+              background: item.retorno_llegada ? '#fef2f2' : '#fff3e0',
+              border: item.retorno_llegada ? '1px solid #dc2626' : '1px solid #e07b00',
+              fontSize:13, fontWeight:600,
+              color: item.retorno_llegada ? '#dc2626' : '#e07b00',
+              display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+              {item.retorno_llegada ? <>
+                🚨 RETORNO RECIBIDO — Inspecciona el paquete y actúa en las próximas 72 horas
+                {(() => {
+                  const deadline = new Date(new Date(item.retorno_llegada).getTime() + 72*60*60*1000)
+                  const now = new Date()
+                  const diffH = Math.max(0, Math.round((deadline - now) / (1000*60*60)))
+                  return <span style={{ marginLeft:8, fontSize:12, fontWeight:700,
+                    color: diffH <= 12 ? '#991b1b' : '#dc2626',
+                    background: diffH <= 12 ? '#fee2e2' : '#fef2f2',
+                    borderRadius:99, padding:'2px 8px' }}>
+                    {diffH > 0 ? `${diffH}h restantes` : 'Plazo vencido'}
+                  </span>
+                })()}
+              </> : <>🔄 REACTIVADO — {item.reactivacion_motivo || 'Actividad detectada en ML'}</>}
+            </div>
+          )}
+          {isClaim && item.estado === 'devolucion_en_camino' && (
+            <div style={{ margin:'0 0 8px 0', padding:'8px 14px', borderRadius:8,
+              background:'#fef2f2', border:'1px solid #dc2626',
+              fontSize:13, fontWeight:600, color:'#dc2626',
               display:'flex', alignItems:'center', gap:8 }}>
-              🔄 REACTIVADO — {item.reactivacion_motivo || 'Actividad detectada en ML'}
+              📦 DEVOLUCIÓN EN CAMINO — Se ha iniciado el proceso de retorno del paquete
             </div>
           )}
           {isClaim && item.estado === 'en_espera' && (

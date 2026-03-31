@@ -83,9 +83,11 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
   const filtered = tipoFilter === 'RECLAMO'
     ? filteredBase.filter(i => reclamoSubTab === 'en_espera'
         ? i.estado === 'en_espera'
+        : reclamoSubTab === 'devolucion'
+        ? i.estado === 'devolucion_en_camino'
         : reclamoSubTab === 'reactivados'
         ? i.estado === 'reactivado'
-        : i.estado !== 'en_espera' && i.estado !== 'reactivado')
+        : i.estado !== 'en_espera' && i.estado !== 'reactivado' && i.estado !== 'devolucion_en_camino')
     : tipoFilter === 'POST-VENTA'
     ? filteredBase.filter(i => postvtSubTab === 'revisados'
         ? i.estado === 'resuelto'
@@ -103,9 +105,10 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
       setPrecompSubTab('respondidas')
     }
   }, [tipoFilter, precompSubTab, countPCPendiente])
-  const countEspera     = byTipo('RECLAMO').filter(i => i.estado === 'en_espera').length
+  const countEspera      = byTipo('RECLAMO').filter(i => i.estado === 'en_espera').length
+  const countDevolucion  = byTipo('RECLAMO').filter(i => i.estado === 'devolucion_en_camino').length
   const countReactivados = byTipo('RECLAMO').filter(i => i.estado === 'reactivado').length
-  const countActivos    = byTipo('RECLAMO').filter(i => i.estado !== 'en_espera' && i.estado !== 'reactivado').length
+  const countActivos     = byTipo('RECLAMO').filter(i => i.estado !== 'en_espera' && i.estado !== 'reactivado' && i.estado !== 'devolucion_en_camino').length
   const countPVPendiente = byTipo('POST-VENTA').filter(i => i.estado === 'pendiente' || i.estado === 'en_progreso').length
   const countPVRevisados = byTipo('POST-VENTA').filter(i => i.estado === 'resuelto').length
 
@@ -171,20 +174,20 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
       {/* Sub-tabs Activos / En espera — solo Reclamos */}
       {tipoFilter === 'RECLAMO' && (
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0, margin: '0 10px' }}>
-          {[{id:'activos',label:'Activos',count:countActivos},{id:'en_espera',label:'En espera',count:countEspera},{id:'reactivados',label:'Reactivados',count:countReactivados}].map(st => (
+          {[{id:'activos',label:'Activos',count:countActivos,color:'var(--red)'},{id:'en_espera',label:'En espera',count:countEspera,color:'var(--red)'},{id:'devolucion',label:'Devolución',count:countDevolucion,color:'#dc2626'},{id:'reactivados',label:'Reactivados',count:countReactivados,color:'#e07b00'}].map(st => (
             <button key={st.id} onClick={() => setReclamoSubTab(st.id)} style={{
               flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
               fontSize: 12, fontWeight: reclamoSubTab === st.id ? 700 : 400,
-              color: reclamoSubTab === st.id ? (st.id === 'reactivados' ? '#e07b00' : 'var(--red)') : 'var(--text3)',
-              borderBottom: reclamoSubTab === st.id ? `2px solid ${st.id === 'reactivados' ? '#e07b00' : 'var(--red)'}` : '2px solid transparent',
+              color: reclamoSubTab === st.id ? st.color : 'var(--text3)',
+              borderBottom: reclamoSubTab === st.id ? `2px solid ${st.color}` : '2px solid transparent',
               transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
             }}>
               {st.label}
               {st.count > 0 && (
-                <span style={{ background: reclamoSubTab === st.id ? (st.id === 'reactivados' ? '#e07b00' : 'var(--red)') : 'var(--surface2)',
+                <span style={{ background: reclamoSubTab === st.id ? st.color : 'var(--surface2)',
                   color: reclamoSubTab === st.id ? '#fff' : 'var(--text3)',
                   borderRadius: 99, fontSize: 10, fontWeight: 800, padding: '1px 6px',
-                  border: '1px solid ' + (reclamoSubTab === st.id ? (st.id === 'reactivados' ? '#e07b00' : 'var(--red)') : 'var(--border)'),
+                  border: '1px solid ' + (reclamoSubTab === st.id ? st.color : 'var(--border)'),
                 }}>{st.count}</span>
               )}
             </button>
