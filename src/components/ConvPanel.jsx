@@ -684,7 +684,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               onClick={() => {
                 const url = isPostVenta && item.pack_id
                   ? `https://www.mercadolibre.com.mx/ventas/nueva/mensajeria/${item.pack_id}?source=ml&callbackWording=Ventas&callbackUrl=https%3A%2F%2Fwww.mercadolibre.com.mx%2Fventas%2Fomni%2Flistado`
-                  : `https://www.mercadolibre.com.mx/ventas/${item.orden_id}`
+                  : `https://www.mercadolibre.com.mx/ventas/${item.orden_id}/detalle`
                 navigator.clipboard.writeText(url).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) })
               }}
               title="Clic para copiar enlace directo"
@@ -721,7 +721,11 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
             </div>
           )}
           {item.claim_id && (
-            <span style={{ fontSize:11, color:'var(--text3)' }}>
+            <span onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/reclamos/${item.claim_id}`).then(() => { setSuccess('✓ Enlace copiado'); setTimeout(() => setSuccess(''), 1500) }) }}
+              title="Clic para copiar enlace al reclamo"
+              style={{ fontSize:11, color:'var(--text3)', cursor:'pointer', transition:'color .15s' }}
+              onMouseEnter={e => e.currentTarget.style.color='var(--blue)'}
+              onMouseLeave={e => e.currentTarget.style.color='var(--text3)'}>
               Reclamo #{item.claim_id}
             </span>
           )}
@@ -817,7 +821,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   <div style={{ marginBottom:4, display:'flex', alignItems:'center', gap:6 }}>
                     <span style={{ color:'var(--text3)' }}>Orden: </span>
                     <div
-                      onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/${item.orden_id}`).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
+                      onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/${item.orden_id}/detalle`).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
                       title="Clic para copiar enlace directo"
                       style={{ fontSize:12, color: copiedOrden ? '#22c55e' : 'var(--text2)',
                         background: copiedOrden ? 'rgba(34,197,94,0.1)' : 'var(--surface)',
@@ -833,7 +837,13 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 )}
                 {item.claim_id && (
                   <div style={{ marginBottom:4 }}>
-                    <span style={{ fontSize:11, color:'var(--text3)' }}>Reclamo #{item.claim_id}</span>
+                    <span onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/reclamos/${item.claim_id}`).then(() => { setSuccess('✓ Enlace copiado'); setTimeout(() => setSuccess(''), 1500) }) }}
+                      title="Clic para copiar enlace al reclamo"
+                      style={{ fontSize:11, color:'var(--text3)', cursor:'pointer', transition:'color .15s' }}
+                      onMouseEnter={e => e.currentTarget.style.color='var(--blue)'}
+                      onMouseLeave={e => e.currentTarget.style.color='var(--text3)'}>
+                      Reclamo #{item.claim_id}
+                    </span>
                   </div>
                 )}
                 {item.producto && (
@@ -922,7 +932,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                       onClick={() => {
                         const url = item.pack_id
                           ? `https://www.mercadolibre.com.mx/ventas/nueva/mensajeria/${item.pack_id}?source=ml&callbackWording=Ventas&callbackUrl=https%3A%2F%2Fwww.mercadolibre.com.mx%2Fventas%2Fomni%2Flistado`
-                          : `https://www.mercadolibre.com.mx/ventas/${item.orden_id}`
+                          : `https://www.mercadolibre.com.mx/ventas/${item.orden_id}/detalle`
                         navigator.clipboard.writeText(url).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) })
                       }}
                       title="Clic para copiar enlace directo"
