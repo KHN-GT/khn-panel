@@ -911,6 +911,29 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               {/* Estado orden + envío */}
               <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--border)' }}>
                 <div style={{ fontSize:12, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>Estado</div>
+                {item.orden_id && (
+                  <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:8 }}>
+                    <div
+                      onClick={() => { navigator.clipboard.writeText(item.orden_id).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
+                      title="Clic para copiar número de orden"
+                      style={{ fontSize:11, color: copiedOrden ? '#22c55e' : 'var(--text2)',
+                        background: copiedOrden ? 'rgba(34,197,94,0.1)' : 'var(--surface2)',
+                        border: copiedOrden ? '1px solid #22c55e' : '1px solid var(--border)', borderRadius:5, padding:'2px 8px',
+                        cursor:'pointer', display:'inline-flex', alignItems:'center', gap:3, transition:'all 0.2s' }}
+                      onMouseEnter={e => { if (!copiedOrden) e.currentTarget.style.background='var(--blue-light)' }}
+                      onMouseLeave={e => { if (!copiedOrden) e.currentTarget.style.background='var(--surface2)' }}
+                    >
+                      {copiedOrden ? '✓ Copiado' : <>Orden <code style={{ fontSize:11, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
+                      <span style={{ fontSize:10, color:'var(--text3)', opacity:.6 }}>⎘</span></>}
+                    </div>
+                    <a href={`https://www.mercadolibre.com.mx/ventas/${item.orden_id}`} target="_blank" rel="noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      title="Ver en Mercado Libre"
+                      style={{ fontSize:13, textDecoration:'none', color:'var(--blue)', cursor:'pointer', lineHeight:1 }}>
+                      🔗
+                    </a>
+                  </div>
+                )}
                 {(() => {
                   const eo = ESTADO_ORDEN[ordenData.estado_orden] || { label: ordenData.estado_orden, color:'var(--text2)', bg:'var(--surface2)' }
                   const ee = ESTADO_ENVIO[ordenData.envio_estado]  || { label: ordenData.envio_estado,  color:'var(--text2)', bg:'var(--surface2)' }
