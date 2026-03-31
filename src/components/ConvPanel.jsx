@@ -1089,7 +1089,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               </button>
             )}
             <span style={{ marginLeft: (!item.respuesta_ia && !item.agente) || iaMinimized ? 'auto' : 0, fontSize:14, color:'var(--text3)', lineHeight:1 }}>
-              {iaMinimized ? '▼' : '—'}
+              {iaMinimized ? '▲' : '—'}
             </span>
           </div>
           {!iaMinimized && (<>{editMode || !item.respuesta_ia
