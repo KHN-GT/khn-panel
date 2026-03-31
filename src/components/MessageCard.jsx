@@ -21,10 +21,13 @@ const URGENCIA = {
 
 // Formatea segundos transcurridos en texto legible
 function fmtElapsed(segundos) {
-  if (segundos < 60)  return `${segundos}s`
-  if (segundos < 3600) return `${Math.floor(segundos/60)}min`
-  if (segundos < 86400) return `${Math.floor(segundos/3600)}h`
-  return `${Math.floor(segundos/86400)}d`
+  const d = Math.floor(segundos / 86400)
+  const h = Math.floor((segundos % 86400) / 3600)
+  const m = Math.floor((segundos % 3600) / 60)
+  if (d > 0) return `${d}d ${h}h ${m}m`
+  if (h > 0) return `${h}h ${m}m`
+  if (segundos < 60) return `${segundos}s`
+  return `${m}m`
 }
 
 // Color del timer según urgencia del tiempo
