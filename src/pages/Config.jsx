@@ -28,6 +28,7 @@ export default function Config({ onLogout }) {
   const [tab,        setTab]        = useState('modos')
   const [cuentaTab,  setCuentaTab]  = useState('GTK')
   const [modos,      setModos]      = useState({})
+  const [pendingModos, setPendingModos] = useState(null)
   const [horarios,   setHorarios]   = useState({})
   const [mensajes,   setMensajes]   = useState({})
   const [loading,    setLoading]    = useState(true)
@@ -204,18 +205,42 @@ export default function Config({ onLogout }) {
   }
 
   // ── Modos ─────────────────────────────────────────────────────
-  const saveModo = async (cuenta, canal, campo, valor) => {
+  const editModo = (cuenta, canal, campo, valor) => {
+    setPendingModos(prev => {
+      const base = prev || JSON.parse(JSON.stringify(modos))
+      return { ...base, [cuenta]: { ...(base[cuenta]||{}), [canal]: { ...(base[cuenta]?.[canal]||{}), [campo]: valor } } }
+    })
+  }
+  const hasPendingModos = (() => {
+    if (!pendingModos) return false
+    return JSON.stringify(pendingModos) !== JSON.stringify(modos)
+  })()
+  const savePendingModos = async () => {
+    if (!pendingModos) return
     setSaving(true)
-    const body = { ...((modos[cuenta]?.[canal]) || {}), [campo]: valor }
     try {
-      const r = await fetch(`${RAILWAY}/api/config/modos/${cuenta}/${canal}`, { method:'PUT', headers: authHeaders(), body: JSON.stringify(body) })
-      if (r.ok) {
-        setModos(prev => ({ ...prev, [cuenta]: { ...(prev[cuenta]||{}), [canal]: { ...(prev[cuenta]?.[canal]||{}), [campo]: valor } } }))
+      const promises = []
+      for (const cuenta of CUENTAS) {
+        for (const canal of CANALES) {
+          const prev = modos[cuenta]?.[canal] || {}
+          const next = pendingModos[cuenta]?.[canal] || {}
+          if (JSON.stringify(prev) !== JSON.stringify(next)) {
+            promises.push(
+              fetch(`${RAILWAY}/api/config/modos/${cuenta}/${canal}`, { method:'PUT', headers: authHeaders(), body: JSON.stringify(next) })
+            )
+          }
+        }
+      }
+      const results = await Promise.all(promises)
+      if (results.every(r => r.ok)) {
+        setModos(JSON.parse(JSON.stringify(pendingModos)))
+        setPendingModos(null)
         flash('Guardado')
       } else { flash('Error al guardar') }
     } catch { flash('Error de conexion') }
     setSaving(false)
   }
+  const cancelPendingModos = () => setPendingModos(null)
 
   // ── Horarios ──────────────────────────────────────────────────
   const saveHorarios = async (cuenta) => {
@@ -302,12 +327,21 @@ export default function Config({ onLogout }) {
           {/* ── MODOS IA */}
           {tab === 'modos' && (
             <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-              <div style={{ fontSize:13, color:'var(--text3)', marginBottom:4 }}>
-                Configura cómo responde la IA en cada canal para la cuenta <strong style={{ color: ac.color }}>{cuentaTab}</strong>
+              <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
+                <div style={{ fontSize:13, color:'var(--text3)', flex:1 }}>
+                  Configura cómo responde la IA en cada canal para la cuenta <strong style={{ color: ac.color }}>{cuentaTab}</strong>
+                </div>
+                {hasPendingModos && (
+                  <span style={{ fontSize:11, fontWeight:700, color:'var(--amber)', display:'flex', alignItems:'center', gap:4 }}>
+                    <span style={{ width:6, height:6, borderRadius:99, background:'var(--amber)', display:'inline-block' }} />
+                    Cambios sin guardar
+                  </span>
+                )}
               </div>
               {CANALES.map(canal => {
-                const actual  = modos[cuentaTab]?.[canal]?.modo || 'revision'
-                const umbral  = modos[cuentaTab]?.[canal]?.umbral ?? 85
+                const src     = pendingModos || modos
+                const actual  = src[cuentaTab]?.[canal]?.modo || 'revision'
+                const umbral  = src[cuentaTab]?.[canal]?.umbral ?? 85
                 return (
                   <div key={canal} style={{ background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
                     <div style={{ padding:'12px 16px', background:'var(--surface2)', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:8 }}>
@@ -322,7 +356,7 @@ export default function Config({ onLogout }) {
                     <div style={{ padding:'16px' }}>
                       <div style={{ display:'flex', gap:8, marginBottom:16 }}>
                         {MODOS.map(m => (
-                          <button key={m} onClick={() => saveModo(cuentaTab, canal, 'modo', m)}
+                          <button key={m} onClick={() => editModo(cuentaTab, canal, 'modo', m)}
                             style={{ flex:1, padding:'10px 8px', borderRadius:'var(--radius-sm)', cursor:'pointer', transition:'all .15s',
                               border: actual===m ? `2px solid ${m==='automatico'?'var(--green)':m==='semi_auto'?'var(--amber)':'var(--purple)'}` : '1.5px solid var(--border)',
                               background: actual===m ? (m==='automatico'?'var(--green-light)':m==='semi_auto'?'var(--amber-light)':'var(--purple-light)') : 'transparent',
@@ -336,8 +370,7 @@ export default function Config({ onLogout }) {
                         <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                           <span style={{ fontSize:12, color:'var(--text2)', whiteSpace:'nowrap' }}>Umbral de confianza:</span>
                           <input type="range" min={50} max={100} value={umbral}
-                            onChange={e => setModos(prev => ({ ...prev, [cuentaTab]: { ...(prev[cuentaTab]||{}), [canal]: { ...(prev[cuentaTab]?.[canal]||{}), umbral: +e.target.value } } }))}
-                            onMouseUp={e => saveModo(cuentaTab, canal, 'umbral', +e.target.value)}
+                            onChange={e => editModo(cuentaTab, canal, 'umbral', +e.target.value)}
                             style={{ flex:1 }} />
                           <span style={{ fontSize:13, fontWeight:700, color:'var(--purple)', minWidth:36 }}>{umbral}%</span>
                         </div>
@@ -346,6 +379,18 @@ export default function Config({ onLogout }) {
                   </div>
                 )
               })}
+              {hasPendingModos && (
+                <div style={{ display:'flex', gap:8, justifyContent:'flex-end', paddingTop:4 }}>
+                  <button onClick={cancelPendingModos}
+                    style={{ fontSize:13, fontWeight:600, padding:'8px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', background:'var(--surface)', color:'var(--text2)', cursor:'pointer' }}>
+                    Cancelar
+                  </button>
+                  <button onClick={savePendingModos} disabled={saving}
+                    style={{ fontSize:13, fontWeight:700, padding:'8px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--green-border)', background:'var(--green)', color:'#fff', cursor:'pointer', opacity: saving ? .6 : 1 }}>
+                    {saving ? 'Guardando...' : 'Guardar cambios'}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
