@@ -32,6 +32,8 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [notasEspera, setNotasEspera] = useState('')
   const [success,   setSuccess]   = useState('')
   const [copied,    setCopied]    = useState(false)
+  const [copiedOrden, setCopiedOrden] = useState(false)
+  const [copiedSku,   setCopiedSku]   = useState(false)
   const [contexto,    setContexto]    = useState([])
   const [loadingCtx,  setLoadingCtx]  = useState(false)
   const [ordenData,     setOrdenData]     = useState(null)
@@ -610,12 +612,12 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               )}
               {item.sku && (
                 <div
-                  onClick={() => { navigator.clipboard.writeText(item.sku); }}
+                  onClick={() => { navigator.clipboard.writeText(item.sku).then(() => { setCopiedSku(true); setTimeout(() => setCopiedSku(false), 1500) }); }}
                   title="Clic para copiar SKU"
-                  style={{ fontSize:12, color:'var(--text3)', marginTop:3, cursor:'pointer',
-                    display:'inline-flex', alignItems:'center', gap:4 }}>
-                  SKU: <code style={{ color:'var(--blue)', fontSize:12, fontWeight:600 }}>{item.sku}</code>
-                  <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span>
+                  style={{ fontSize:12, color: copiedSku ? '#22c55e' : 'var(--text3)', marginTop:3, cursor:'pointer',
+                    display:'inline-flex', alignItems:'center', gap:4, transition:'color 0.2s' }}>
+                  {copiedSku ? '✓ Copiado' : <>SKU: <code style={{ color: copiedSku ? '#22c55e' : 'var(--blue)', fontSize:12, fontWeight:600 }}>{item.sku}</code>
+                  <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span></>}
                 </div>
               )}
                 {/* Tabs Posventa/Preventa inline */}
@@ -646,30 +648,32 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop: (item.imagen_thumbnail || item.producto) ? 6 : 0 }}>
           {item.orden_id && (
             <div
-              onClick={() => { navigator.clipboard.writeText(item.orden_id); }}
+              onClick={() => { navigator.clipboard.writeText(item.orden_id).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
               title="Clic para copiar número de orden"
-              style={{ fontSize:12, color:'var(--text2)', background:'var(--surface2)',
-                border:'1px solid var(--border)', borderRadius:5, padding:'3px 10px',
-                cursor:'pointer', display:'inline-flex', alignItems:'center', gap:4 }}
-              onMouseEnter={e => e.currentTarget.style.background='var(--blue-light)'}
-              onMouseLeave={e => e.currentTarget.style.background='var(--surface2)'}
+              style={{ fontSize:12, color: copiedOrden ? '#22c55e' : 'var(--text2)',
+                background: copiedOrden ? 'rgba(34,197,94,0.1)' : 'var(--surface2)',
+                border: copiedOrden ? '1px solid #22c55e' : '1px solid var(--border)', borderRadius:5, padding:'3px 10px',
+                cursor:'pointer', display:'inline-flex', alignItems:'center', gap:4, transition:'all 0.2s' }}
+              onMouseEnter={e => { if (!copiedOrden) e.currentTarget.style.background='var(--blue-light)' }}
+              onMouseLeave={e => { if (!copiedOrden) e.currentTarget.style.background='var(--surface2)' }}
             >
-              Orden <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
-              <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span>
+              {copiedOrden ? '✓ Copiado' : <>Orden <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
+              <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span></>}
             </div>
           )}
           {!item.producto && item.sku && (
             <div
-              onClick={() => { navigator.clipboard.writeText(item.sku); }}
+              onClick={() => { navigator.clipboard.writeText(item.sku).then(() => { setCopiedSku(true); setTimeout(() => setCopiedSku(false), 1500) }); }}
               title="Clic para copiar SKU"
-              style={{ fontSize:12, color:'var(--text2)', background:'var(--surface2)',
-                border:'1px solid var(--border)', borderRadius:5, padding:'3px 10px',
-                cursor:'pointer', display:'inline-flex', alignItems:'center', gap:4 }}
-              onMouseEnter={e => e.currentTarget.style.background='var(--blue-light)'}
-              onMouseLeave={e => e.currentTarget.style.background='var(--surface2)'}
+              style={{ fontSize:12, color: copiedSku ? '#22c55e' : 'var(--text2)',
+                background: copiedSku ? 'rgba(34,197,94,0.1)' : 'var(--surface2)',
+                border: copiedSku ? '1px solid #22c55e' : '1px solid var(--border)', borderRadius:5, padding:'3px 10px',
+                cursor:'pointer', display:'inline-flex', alignItems:'center', gap:4, transition:'all 0.2s' }}
+              onMouseEnter={e => { if (!copiedSku) e.currentTarget.style.background='var(--blue-light)' }}
+              onMouseLeave={e => { if (!copiedSku) e.currentTarget.style.background='var(--surface2)' }}
             >
-              SKU <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>{item.sku}</code>
-              <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span>
+              {copiedSku ? '✓ Copiado' : <>SKU <code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>{item.sku}</code>
+              <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span></>}
             </div>
           )}
           {item.tipo === 'PRE-COMPRA' && (item.creado_en || item.atendido_en) && (
