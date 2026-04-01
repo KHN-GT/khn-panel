@@ -358,7 +358,13 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
   // ── hilo_json: cada mensaje tiene { r: 'b'|'s', t: '...' }
   // r='b' → buyer (comprador) | r='s' → seller (vendedor/nosotros)
-  const hilo = Array.isArray(item.hilo_json) ? item.hilo_json : []
+  const hilo = (Array.isArray(item.hilo_json) ? item.hilo_json : [])
+    .slice().sort((a, b) => {
+      if (!a.ts && !b.ts) return 0
+      if (!a.ts) return 1
+      if (!b.ts) return -1
+      return new Date(a.ts) - new Date(b.ts)
+    })
 
   const fmtTs = (ts) => {
     if (!ts) return null
