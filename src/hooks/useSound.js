@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useEffect } from 'react'
 
 const SOUND_PREFS_KEY = 'khn_sound_prefs'
 
@@ -37,30 +37,31 @@ function playTone(ctx, frequency, duration, volume, type = 'sine') {
 // Sonidos diferenciados por tipo
 const SOUNDS = {
   'RECLAMO': (ctx, volume) => {
-    // Dos pulsos urgentes - tono grave
     playTone(ctx, 440, 0.15, volume, 'square')
     setTimeout(() => playTone(ctx, 380, 0.2, volume, 'square'), 200)
   },
   'POST-VENTA': (ctx, volume) => {
-    // Tono doble ascendente - amigable
     playTone(ctx, 520, 0.12, volume, 'sine')
     setTimeout(() => playTone(ctx, 660, 0.15, volume, 'sine'), 150)
   },
   'PRE-COMPRA': (ctx, volume) => {
-    // Tono simple suave - info
     playTone(ctx, 600, 0.18, volume * 0.7, 'sine')
   },
 }
 
+// Alerta pendiente — se reproduce al desbloquear el AudioContext
+let _pendingAlert = null
+export function getPendingAlert() { return _pendingAlert }
+export function clearPendingAlert() { _pendingAlert = null }
+export function setPendingAlert(tipo) { _pendingAlert = tipo }
+
 export function useSound() {
   const ctxRef = useRef(null)
+  const unlockedRef = useRef(false)
 
   const getCtx = useCallback(() => {
     if (!ctxRef.current || ctxRef.current.state === 'closed') {
       ctxRef.current = new (window.AudioContext || window.webkitAudioContext)()
-    }
-    if (ctxRef.current.state === 'suspended') {
-      ctxRef.current.resume()
     }
     return ctxRef.current
   }, [])
@@ -71,12 +72,51 @@ export function useSound() {
     if (!pref?.enabled) return
     try {
       const ctx = getCtx()
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          const soundFn = SOUNDS[tipo]
+          if (soundFn) soundFn(ctx, pref.volume)
+        }).catch(() => {
+          _pendingAlert = tipo
+        })
+        return
+      }
       const soundFn = SOUNDS[tipo]
       if (soundFn) soundFn(ctx, pref.volume)
     } catch (e) {
       console.warn('[useSound] Error reproduciendo alerta:', e)
+      _pendingAlert = tipo
     }
   }, [getCtx])
+
+  // Listener global: desbloquear AudioContext al primer gesto del usuario
+  useEffect(() => {
+    const unlock = () => {
+      if (unlockedRef.current) return
+      const ctx = getCtx()
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          unlockedRef.current = true
+          // Reproducir alerta pendiente si hay una
+          if (_pendingAlert) {
+            const tipo = _pendingAlert
+            _pendingAlert = null
+            playAlert(tipo)
+          }
+        }).catch(() => {})
+      } else {
+        unlockedRef.current = true
+        if (_pendingAlert) {
+          const tipo = _pendingAlert
+          _pendingAlert = null
+          playAlert(tipo)
+        }
+      }
+    }
+    const events = ['click', 'keydown', 'touchstart']
+    events.forEach(e => window.addEventListener(e, unlock, { once: false, passive: true }))
+    return () => events.forEach(e => window.removeEventListener(e, unlock))
+  }, [getCtx, playAlert])
 
   return { playAlert }
 }
