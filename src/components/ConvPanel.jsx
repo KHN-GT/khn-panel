@@ -463,7 +463,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       })
       const d = await r.json()
       setHashResults(d.publicaciones || [])
-      if ((d.publicaciones || []).length > 0 && textareaRef.current) {
+      if ((d.publicaciones || []).length > 0 && (textareaRef.current || corrTextareaRef.current)) {
         const rect = textareaRef.current.getBoundingClientRect()
         setHashPos({ bottom: window.innerHeight - rect.top + 4, left: rect.left, right: window.innerWidth - rect.right })
         setHashVisible(true)
