@@ -66,6 +66,11 @@ export default function Config({ onLogout }) {
   const [importando,     setImportando]     = useState(false)
   const [importResult,   setImportResult]   = useState(null)
 
+  // Mensajes proactivos state
+  const [proactivos,       setProactivos]       = useState({})
+  const [loadingProact,    setLoadingProact]    = useState(false)
+  const [savingProact,     setSavingProact]     = useState('')
+
   useEffect(() => {
     Promise.all([
       fetch(`${RAILWAY}/api/config/modos`,    { headers: authHeaders() }).then(r=>r.json()),
@@ -79,9 +84,50 @@ export default function Config({ onLogout }) {
   useEffect(() => {
     if (tab === 'templates') loadTemplates()
     if (tab === 'compatibilidades') loadCompats()
+    if (tab === 'proactivos') loadProactivos()
   }, [tab])
 
   const flash = (text) => { setMsg(text); setTimeout(() => setMsg(''), 3000) }
+
+  // ── Mensajes proactivos ───────────────────────────────────────
+  const loadProactivos = async () => {
+    setLoadingProact(true)
+    try {
+      const r = await fetch(`${RAILWAY}/api/mensajes-proactivos`, { headers: authHeaders() })
+      const rows = await r.json()
+      const map = {}
+      for (const row of rows) {
+        const key = `${row.cuenta}_${row.evento}`
+        map[key] = { activo: row.activo, modo: row.modo || 'proactivo', mensaje: row.mensaje || '' }
+      }
+      setProactivos(map)
+    } catch { flash('Error cargando mensajes proactivos') }
+    setLoadingProact(false)
+  }
+
+  const getProact = (cuenta, evento) => {
+    return proactivos[`${cuenta}_${evento}`] || { activo: false, modo: 'proactivo', mensaje: '' }
+  }
+
+  const updateProact = (cuenta, evento, field, value) => {
+    const key = `${cuenta}_${evento}`
+    setProactivos(prev => ({ ...prev, [key]: { ...getProact(cuenta, evento), [field]: value } }))
+  }
+
+  const saveProactivo = async (cuenta, evento) => {
+    const key = `${cuenta}_${evento}`
+    setSavingProact(key)
+    const cfg = getProact(cuenta, evento)
+    try {
+      const r = await fetch(`${RAILWAY}/api/mensajes-proactivos`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ cuenta, evento, modo: cfg.modo, activo: cfg.activo, mensaje: cfg.mensaje })
+      })
+      if (r.ok) flash(`Guardado ${cuenta} → ${evento}`)
+      else flash('Error al guardar')
+    } catch { flash('Error de conexión') }
+    setSavingProact('')
+  }
 
   // ── Templates ─────────────────────────────────────────────────
   const loadTemplates = async () => {
@@ -297,6 +343,7 @@ export default function Config({ onLogout }) {
             { id:'compatibilidades', label:'Compatibilidades', desc:'SKU y modelos compat.'  },
             { id:'alertas',          label:'Alertas',          desc:'Horario notif. Telegram' },
             { id:'sonidos',          label:'Sonidos',          desc:'Alertas sonoras panel'  },
+            { id:'proactivos',       label:'Msg Proactivos',   desc:'Enviado / Entregado'    },
           ].map(s => (
             <button key={s.id} onClick={() => setTab(s.id)}
               style={{ textAlign:'left', padding:'10px 12px', borderRadius:'var(--radius-sm)', border: tab === s.id ? '1.5px solid var(--purple-border)' : '1.5px solid transparent', background: tab === s.id ? 'var(--purple-light)' : 'transparent', cursor:'pointer', transition:'all .15s' }}>
@@ -930,6 +977,94 @@ export default function Config({ onLogout }) {
 
               <div style={{ fontSize:12, color:'var(--text3)', padding:'12px 14px', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, lineHeight:1.6 }}>
                 Los mensajes de inicio del worker, errores criticos del sistema y callbacks de Telegram seguiran funcionando siempre, independiente de este horario.
+              </div>
+            </div>
+          )}
+
+          {tab === 'proactivos' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:24, maxWidth:600 }}>
+              <div>
+                <div style={{ fontSize:15, fontWeight:700, color:'var(--text)' }}>Mensajes Proactivos</div>
+                <div style={{ fontSize:13, color:'var(--text3)', marginTop:4 }}>
+                  Envia mensajes automaticos al comprador cuando su pedido cambia de estado (enviado o entregado).
+                </div>
+              </div>
+
+              {loadingProact ? (
+                <div style={{ fontSize:13, color:'var(--text3)', padding:20, textAlign:'center' }}>Cargando...</div>
+              ) : CUENTAS.map(cuenta => {
+                const ac = ACCT_COLOR[cuenta]
+                return (
+                  <div key={cuenta} style={{ background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+                    <div style={{ padding:'12px 16px', background: ac.bg, borderBottom:`1.5px solid ${ac.br}` }}>
+                      <span style={{ fontSize:14, fontWeight:700, color: ac.color }}>{cuenta}</span>
+                    </div>
+
+                    {['ENVIADO', 'ENTREGADO'].map(evento => {
+                      const cfg = getProact(cuenta, evento)
+                      const key = `${cuenta}_${evento}`
+                      const isSaving = savingProact === key
+                      return (
+                        <div key={evento} style={{ padding:'16px', borderBottom:'1px solid var(--border)' }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
+                            <span style={{ fontSize:13, fontWeight:700, color:'var(--text)', flex:1 }}>
+                              {evento === 'ENVIADO' ? '📦 Pedido Enviado' : '✅ Pedido Entregado'}
+                            </span>
+                            <label style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer' }}>
+                              <input type="checkbox" checked={cfg.activo}
+                                onChange={e => updateProact(cuenta, evento, 'activo', e.target.checked)}
+                                style={{ width:16, height:16 }} />
+                              <span style={{ fontSize:12, color: cfg.activo ? 'var(--green)' : 'var(--text3)', fontWeight:600 }}>
+                                {cfg.activo ? 'Activo' : 'Inactivo'}
+                              </span>
+                            </label>
+                          </div>
+
+                          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+                            <span style={{ fontSize:12, color:'var(--text3)' }}>Modo:</span>
+                            {['proactivo', 'reactivo'].map(m => (
+                              <button key={m} onClick={() => updateProact(cuenta, evento, 'modo', m)}
+                                style={{
+                                  fontSize:12, fontWeight:600, padding:'4px 12px', borderRadius:6, cursor:'pointer',
+                                  border: cfg.modo === m ? '1.5px solid var(--purple-border)' : '1.5px solid var(--border)',
+                                  background: cfg.modo === m ? 'var(--purple-light)' : 'transparent',
+                                  color: cfg.modo === m ? 'var(--purple)' : 'var(--text3)',
+                                }}>
+                                {m === 'proactivo' ? 'Proactivo' : 'Reactivo'}
+                              </button>
+                            ))}
+                          </div>
+
+                          <div style={{ position:'relative' }}>
+                            <textarea value={cfg.mensaje} onChange={e => {
+                                if (e.target.value.length <= 350) updateProact(cuenta, evento, 'mensaje', e.target.value)
+                              }}
+                              rows={3} placeholder={`Mensaje que se envia cuando el pedido es ${evento.toLowerCase()}...`}
+                              style={{ width:'100%', fontSize:13, padding:'10px 12px', borderRadius:6, border:'1px solid var(--border)',
+                                fontFamily:'inherit', resize:'vertical', outline:'none', color:'var(--text)', background:'var(--bg)' }} />
+                            <span style={{ position:'absolute', bottom:8, right:10, fontSize:11, color: cfg.mensaje.length > 330 ? 'var(--red)' : 'var(--text3)' }}>
+                              {cfg.mensaje.length}/350
+                            </span>
+                          </div>
+
+                          <div style={{ marginTop:10 }}>
+                            <button onClick={() => saveProactivo(cuenta, evento)} disabled={isSaving}
+                              style={{ fontSize:12, fontWeight:700, padding:'7px 18px', borderRadius:6,
+                                background:'var(--purple)', color:'#fff', border:'none', cursor:'pointer',
+                                opacity: isSaving ? 0.6 : 1 }}>
+                              {isSaving ? 'Guardando...' : 'Guardar'}
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })}
+
+              <div style={{ fontSize:12, color:'var(--text3)', padding:'12px 14px', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, lineHeight:1.6 }}>
+                <b>Proactivo:</b> el worker envia el mensaje automaticamente al detectar el cambio de estado en ML.<br/>
+                <b>Reactivo:</b> el mensaje se guarda como template pero no se envia automaticamente (proximamente).
               </div>
             </div>
           )}
