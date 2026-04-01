@@ -357,7 +357,7 @@ export default function Config({ onLogout }) {
         <div style={{ flex:1, overflowY:'auto', padding:'24px' }}>
 
           {/* Tabs de cuenta — no aplica a templates ni compatibilidades */}
-          {tab !== 'templates' && tab !== 'compatibilidades' && tab !== 'alertas' && (
+          {tab !== 'templates' && tab !== 'compatibilidades' && tab !== 'alertas' && tab !== 'proactivos' && (
             <div style={{ display:'flex', gap:8, marginBottom:20 }}>
               {CUENTAS.map(c => {
                 const a = ACCT_COLOR[c]; const active = cuentaTab === c
