@@ -349,7 +349,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('khn_token')}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ correccion: corrText })
       })
-      if (r.ok) { setSuccess('Corrección enviada'); setCorrMode(false); setCorrText('') }
+      if (r.ok) { item.corregido = true; setSuccess('Corrección enviada'); setCorrMode(false); setCorrText('') }
       else { setSuccess('Error al enviar') }
     } catch { setSuccess('Error de conexión') }
     finally { setSending(false); setTimeout(() => setSuccess(''), 2000) }
