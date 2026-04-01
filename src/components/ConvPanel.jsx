@@ -1398,7 +1398,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--green-border)', background:'var(--green)', color:'#fff', cursor:'pointer', opacity: sending ? .6 : 1 }}>
               {sending ? 'Enviando...' : 'Aprobar y enviar'}
             </button>
-            {item.respuesta_ia && (
+            {item.respuesta_ia && item.tipo !== 'POST-VENTA' && (
               <button onClick={() => { setEditMode(!editMode); setEditText(item.respuesta_ia) }}
                 style={{ fontSize:12, fontWeight:700, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--purple-border)', background:'var(--purple-light)', color:'var(--purple)', cursor:'pointer' }}>
                 {editMode ? 'Cancelar edición' : '✏️ Editar'}
@@ -1419,11 +1419,13 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               style={{ fontSize:12, fontWeight:600, padding:'9px 18px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', background:'var(--surface)', color:'var(--text2)', cursor:'pointer' }}>
               Descartar
             </button>
-            <button onClick={handleDeleteQuestion} disabled={sending}
-              title="Eliminar esta pregunta directamente en Mercado Libre"
-              style={{ fontSize:13, fontWeight:600, padding:'9px 13px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)', background:'var(--red-light)', color:'var(--red)', cursor:'pointer', opacity: sending ? .6 : 1 }}>
-              🗑 Eliminar en ML
-            </button>
+            {item.tipo !== 'POST-VENTA' && (
+              <button onClick={handleDeleteQuestion} disabled={sending}
+                title="Eliminar esta pregunta directamente en Mercado Libre"
+                style={{ fontSize:13, fontWeight:600, padding:'9px 13px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)', background:'var(--red-light)', color:'var(--red)', cursor:'pointer', opacity: sending ? .6 : 1 }}>
+                🗑 Eliminar en ML
+              </button>
+            )}
           </>
         )}
 
