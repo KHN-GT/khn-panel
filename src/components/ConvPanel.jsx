@@ -60,6 +60,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [iaMinimized, setIaMinimized] = useState(false)
   const [corrMode, setCorrMode] = useState(false)
   const [corrText, setCorrText] = useState('')
+  const corrTextareaRef = useRef(null)
   const threadRef = useRef(null)
 
   useEffect(() => {
@@ -503,6 +504,39 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setHashResults([])
     // Devolver foco al textarea
     setTimeout(() => textareaRef.current?.focus(), 50)
+  }
+
+  const handleCorrTextareaChange = (e) => {
+    const val = e.target.value
+    setCorrText(val)
+    const cursor = e.target.selectionStart
+    const textBefore = val.slice(0, cursor)
+    const hashMatch = textBefore.match(/#([\w\s-]{1,40})$/)
+    if (hashMatch) {
+      setHashQuery(hashMatch[1])
+      buscarPublicaciones(hashMatch[1])
+      if (corrTextareaRef.current) {
+        const rect = corrTextareaRef.current.getBoundingClientRect()
+        setHashPos({ bottom: window.innerHeight - rect.top + 4, left: rect.left, right: window.innerWidth - rect.right })
+      }
+    } else {
+      setHashQuery('')
+      setHashVisible(false)
+    }
+  }
+
+  const insertarEnlaceCorr = (pub) => {
+    const cursor = corrTextareaRef.current?.selectionStart || corrText.length
+    const textBefore = corrText.slice(0, cursor)
+    const textAfter = corrText.slice(cursor)
+    const enlace = pub.permalink || pub.url || ''
+    const textoInsertar = enlace ? `ver producto: ${enlace}` : (pub.titulo || pub.sku)
+    const newBefore = textBefore.replace(/#([\w\s-]{1,40})$/, textoInsertar)
+    setCorrText(newBefore + textAfter)
+    setHashVisible(false)
+    setHashQuery('')
+    setHashResults([])
+    setTimeout(() => corrTextareaRef.current?.focus(), 50)
   }
 
   return (
@@ -1234,8 +1268,60 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               <div style={{ padding:'8px 14px', background:'var(--amber-light)', borderBottom:'1px solid var(--amber-border)', fontSize:13, fontWeight:700, color:'var(--amber)' }}>
                 CORREGIR PARA ENTRENAMIENTO
               </div>
-              <textarea value={corrText} onChange={e => setCorrText(e.target.value)} rows={4} placeholder="Escribe la respuesta correcta..."
-                style={{ width:'100%', border:'none', padding:'10px 14px', fontSize:13, fontFamily:'inherit', resize:'vertical', outline:'none', color:'var(--text)' }} />
+              <div style={{ position: 'relative' }}>
+                <textarea ref={corrTextareaRef} value={corrText} onChange={handleCorrTextareaChange}
+                  onKeyDown={e => { if (e.key === 'Escape') setHashVisible(false) }}
+                  rows={4} placeholder="Escribe la respuesta correcta... (usa # para buscar publicaciones)"
+                  style={{ width:'100%', border:'none', padding:'10px 14px', fontSize:13, fontFamily:'inherit', resize:'vertical', outline:'none', color:'var(--text)' }} />
+                {hashVisible && corrMode && (
+                  <div style={{
+                    position: 'fixed',
+                    bottom: hashPos.bottom, left: hashPos.left, right: hashPos.right,
+                    zIndex: 9999,
+                    background: 'var(--surface)', border: '1.5px solid var(--amber)',
+                    borderRadius: 8, boxShadow: '0 -4px 24px rgba(0,0,0,.18)',
+                    maxHeight: 280, overflowY: 'auto',
+                  }}>
+                    <div style={{ padding: '7px 12px', fontSize: 11, color: 'var(--text3)',
+                      borderBottom: '1px solid var(--border)', fontWeight: 700,
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      background: 'var(--surface2)', borderRadius: '8px 8px 0 0' }}>
+                      🔗 <span>Publicaciones</span>
+                      <span style={{ color: 'var(--amber)', fontWeight: 800 }}>#{hashQuery}</span>
+                      {hashLoading && <span style={{ marginLeft: 'auto', opacity: .6 }}>buscando...</span>}
+                    </div>
+                    {hashResults.length === 0 && !hashLoading && (
+                      <div style={{ padding: '14px', fontSize: 13, color: 'var(--text3)', textAlign: 'center' }}>
+                        Sin resultados para <b>#{hashQuery}</b>
+                      </div>
+                    )}
+                    {hashResults.map(pub => (
+                      <div key={pub.id || pub.sku} onClick={() => insertarEnlaceCorr(pub)}
+                        style={{ display:'flex', alignItems:'center', gap:10,
+                          padding:'9px 12px', cursor:'pointer',
+                          borderBottom:'1px solid var(--border)', transition:'background .1s' }}
+                        onMouseEnter={e => e.currentTarget.style.background='var(--amber-light)'}
+                        onMouseLeave={e => e.currentTarget.style.background='transparent'}
+                      >
+                        {pub.thumbnail
+                          ? <img src={pub.thumbnail} alt='' style={{ width:38, height:38, objectFit:'contain', borderRadius:6, flexShrink:0, border:'1px solid var(--border)', background:'#fff' }} />
+                          : <div style={{ width:38, height:38, borderRadius:6, background:'var(--surface2)', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18 }}>📦</div>
+                        }
+                        <div style={{ minWidth:0, flex:1 }}>
+                          <div style={{ fontWeight:600, color:'var(--text)', fontSize:13,
+                            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                            {pub.titulo || pub.title || pub.sku}
+                          </div>
+                          <div style={{ fontSize:11, color:'var(--text3)', marginTop:2, display:'flex', gap:8 }}>
+                            {pub.sku && <span style={{ background:'var(--surface2)', padding:'1px 6px', borderRadius:99 }}>SKU: {pub.sku}</span>}
+                          </div>
+                        </div>
+                        <span style={{ fontSize:11, color:'var(--amber)', flexShrink:0 }}>insertar →</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div style={{ display:'flex', gap:8, padding:'8px 14px', borderTop:'1px solid var(--border)', background:'var(--surface2)' }}>
                 <button onClick={handleCorrect} disabled={sending || !corrText.trim()}
                   style={{ fontSize:12, fontWeight:700, padding:'7px 16px', borderRadius:'var(--radius-sm)', background:'var(--amber)', color:'#fff', border:'none', cursor:'pointer', opacity: sending || !corrText.trim() ? .6 : 1 }}>
