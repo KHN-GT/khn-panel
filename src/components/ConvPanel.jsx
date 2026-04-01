@@ -515,6 +515,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     if (hashMatch) {
       setHashQuery(hashMatch[1])
       buscarPublicaciones(hashMatch[1])
+      setHashVisible(true)
       if (corrTextareaRef.current) {
         const rect = corrTextareaRef.current.getBoundingClientRect()
         setHashPos({ bottom: window.innerHeight - rect.top + 4, left: rect.left, right: window.innerWidth - rect.right })
