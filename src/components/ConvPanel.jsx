@@ -1220,7 +1220,11 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       {/* ── Corrección post-envío — solo PRE-COMPRA resuelto */}
       {isResolved && item.tipo === 'PRE-COMPRA' && (
         <div style={{ margin:'0 14px 12px' }}>
-          {!corrMode ? (
+          {item.corregido ? (
+            <span style={{ fontSize:12, fontWeight:600, color:'var(--green)', display:'inline-flex', alignItems:'center', gap:4 }}>
+              Respuesta ya corregida
+            </span>
+          ) : !corrMode ? (
             <button onClick={() => { setCorrMode(true); setCorrText(item.respuesta_final || item.respuesta_ia || '') }}
               style={{ fontSize:12, fontWeight:600, padding:'6px 14px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--amber-border)', background:'var(--amber-light)', color:'var(--amber)', cursor:'pointer' }}>
               Corregir respuesta

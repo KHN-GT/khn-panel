@@ -208,7 +208,11 @@ export default function Supervision({ onLogout }) {
                     </div>
                   )}
                   {/* Botón corregir */}
-                  {!item.es_error && (
+                  {item.es_error ? (
+                    <span style={{ fontSize:12, fontWeight:600, color:'var(--green)', display:'inline-flex', alignItems:'center', gap:4 }}>
+                      Ya corregida
+                    </span>
+                  ) : (
                     <button
                       onClick={() => { setCorrModal(item); setCorrTexto('') }}
                       style={{ fontSize:12, fontWeight:600, padding:'5px 14px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)', background:'var(--red-light)', color:'var(--red)', cursor:'pointer' }}>
