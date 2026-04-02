@@ -68,7 +68,8 @@ function calcReqs(m) {
   const c=(m.cancellations_rate||0)<0.005
   const d=(m.delayed_rate||0)<0.08
   const met=[a,b,c,d].filter(Boolean).length
-  const needed=a?0:Math.max(0,Math.ceil((m.claims_value||0)/0.015-(m.transactions_total||0)))
+  const periodTotal = m.claims_period_total || m.transactions_total || 1
+  const needed=a?0:Math.max(0,Math.ceil((m.claims_value||0)/0.015-periodTotal))
   return {met,needed,items:[
     {ok:a,text:a?'Sin reclamos excesivos':'Reducir reclamos bajo 1%'},
     {ok:b,text:'Ventas concretadas'},
