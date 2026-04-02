@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import Topbar from '../components/Topbar'
 
 const RAILWAY = 'https://worker-production-d575.up.railway.app'
 
@@ -239,6 +240,30 @@ function AccountCard({ cuenta, m }) {
   )
 }
 
+function CopyChip({ ordenId }) {
+  const [copied, setCopied] = useState(false)
+  const url = `https://www.mercadolibre.com.mx/ventas/${ordenId}/detalle`
+  const handleCopy = () => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
+  }
+  return (
+    <span onClick={handleCopy} style={{
+      display:'inline-flex', alignItems:'center', gap:4,
+      fontSize:11, fontWeight:600, cursor:'pointer',
+      padding:'3px 9px', borderRadius:6,
+      background: copied ? '#f0fdf4' : '#eff6ff',
+      color: copied ? '#16a34a' : '#2563eb',
+      border: `1px solid ${copied ? '#bbf7d0' : '#bfdbfe'}`,
+      userSelect:'none', transition:'all 0.15s'
+    }}>
+      {copied ? '✓ Copiado' : '⎘ Orden'}
+    </span>
+  )
+}
+
 function ClaimsTable({ reclamos, filtro, setFiltro }) {
   const urgStyle = u => ({
     CRITICO:    { bg:'#fef2f2', color:'#dc2626' },
@@ -298,8 +323,13 @@ function ClaimsTable({ reclamos, filtro, setFiltro }) {
                       }
                       <div style={{minWidth:0}}>
                         <div style={{fontSize:11, color:C.txt, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontWeight:500}}>
-                          {r.nombre_comprador||r.comprador||'—'}
+                          {r.producto||r.nombre_comprador||r.comprador||'—'}
                         </div>
+                        {r.sku && (
+                          <span style={{fontSize:9, fontWeight:600, background:'#f3f4f6', border:'1px solid #e5e7eb', borderRadius:3, padding:'1px 5px', color:'#6b7280', fontFamily:'monospace', marginRight:4}}>
+                            {r.sku}
+                          </span>
+                        )}
                         <div style={{fontSize:10, color:C.txtSoft, marginTop:1}}>
                           Abierto {getOpenedStr(r.creado_en)} · expira {getExpiryStr(r.creado_en)}
                         </div>
@@ -322,7 +352,7 @@ function ClaimsTable({ reclamos, filtro, setFiltro }) {
                     <span style={{fontSize:10, fontWeight:600, background:us.bg, color:us.color, padding:'2px 7px', borderRadius:4}}>{r.urgencia||'—'}</span>
                   </td>
                   <td style={{padding:'9px 12px'}}>
-                    <a href={`https://www.mercadolibre.com.mx/ventas/reclamos/${r.claim_id||r.orden_id}`} target="_blank" rel="noreferrer" style={{fontSize:11, color:C.blue, textDecoration:'none', fontWeight:500}}>Ver →</a>
+                    <CopyChip ordenId={r.orden_id} />
                   </td>
                 </tr>
               )
@@ -477,7 +507,7 @@ function BottomSection({ reclamos }) {
   )
 }
 
-export default function ReputacionShield() {
+export default function ReputacionShield({ onLogout }) {
   const [metricas,    setMetricas]    = useState({})
   const [reclamos,    setReclamos]    = useState([])
   const [loading,     setLoading]     = useState(true)
@@ -523,6 +553,7 @@ export default function ReputacionShield() {
 
   return (
     <div style={{height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden'}}>
+    <Topbar onLogout={onLogout} />
     <div style={{flex:1, overflowY:'auto'}}>
     <div style={{padding:'1.25rem 2rem', maxWidth:1140, margin:'0 auto', fontFamily:'system-ui, -apple-system, sans-serif'}}>
       <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'1.5rem', flexWrap:'wrap', gap:10}}>
