@@ -61,6 +61,11 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [claimTab, setClaimTab] = useState('comprador')
   const [claimMsgs, setClaimMsgs] = useState([])
   const [loadingClaimMsgs, setLoadingClaimMsgs] = useState(false)
+  const [claimStage, setClaimStage] = useState('')
+  const [claimFiles, setClaimFiles] = useState([])
+  const [claimReplyText, setClaimReplyText] = useState('')
+  const [sendingClaimReply, setSendingClaimReply] = useState('')
+  const claimFileRef = useRef(null)
   const [corrMode, setCorrMode] = useState(false)
   const [corrText, setCorrText] = useState('')
   const corrTextareaRef = useRef(null)
@@ -74,7 +79,8 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setShowMeta(false); setMetaData(null)
     setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([])
     setCorrMode(false); setCorrText(''); setIaMinimized(false)
-    setClaimTab('comprador'); setClaimMsgs([])
+    setClaimTab('comprador'); setClaimMsgs([]); setClaimStage('')
+    setClaimFiles([]); setClaimReplyText(''); setSendingClaimReply('')
 
     const token = localStorage.getItem('khn_token')
     setOrdenData(null)
@@ -162,9 +168,39 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const d = await r.json()
-      setClaimMsgs(Array.isArray(d) ? d : [])
+      setClaimMsgs(Array.isArray(d.messages) ? d.messages : [])
+      if (d.claim_stage) setClaimStage(d.claim_stage)
     } catch { setClaimMsgs([]) }
     setLoadingClaimMsgs(false)
+  }
+
+  const sendClaimReply = async () => {
+    if (!item?.id || !claimReplyText.trim()) return
+    setSendingClaimReply('sending')
+    const token = localStorage.getItem('khn_token')
+    const fd = new FormData()
+    fd.append('mensaje', claimReplyText.trim())
+    claimFiles.forEach(f => fd.append('archivos', f))
+    try {
+      const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/claim-reply`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd,
+      })
+      const d = await r.json()
+      if (d.ok) {
+        setSendingClaimReply('ok')
+        setClaimReplyText(''); setClaimFiles([])
+        setTimeout(() => setSendingClaimReply(''), 2000)
+        loadClaimMessages()
+      } else {
+        setSendingClaimReply('error')
+        setTimeout(() => setSendingClaimReply(''), 3000)
+      }
+    } catch {
+      setSendingClaimReply('error')
+      setTimeout(() => setSendingClaimReply(''), 3000)
+    }
   }
 
   const insertTemplate = (texto) => {
@@ -870,7 +906,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
 
         {/* Tabs para reclamos: Mensajes comprador / Mensajes con ML */}
         {isClaim && (
-          <div style={{ display:'flex', gap:0, borderBottom:'2px solid var(--border)', marginBottom:8 }}>
+          <div style={{ display:'flex', gap:0, borderBottom:'2px solid var(--border)', marginBottom:8, position:'sticky', top:0, zIndex:10, background:'var(--bg)' }}>
             {[
               { key:'comprador', label:'Mensajes comprador' },
               { key:'ml',        label:'Mensajes con ML' },
@@ -947,6 +983,55 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 </div>
               )
             })}
+
+            {/* Reply area o aviso de cierre */}
+            {['closed','fulfilled'].includes(claimStage) ? (
+              <div style={{ textAlign:'center', fontSize:13, color:'var(--text3)', padding:'12px', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:8, marginTop:8 }}>
+                Mediacion cerrada por ML
+              </div>
+            ) : !loadingClaimMsgs && (
+              <div style={{ marginTop:12, borderTop:'1px solid var(--border)', paddingTop:10, display:'flex', flexDirection:'column', gap:8 }}>
+                <textarea
+                  value={claimReplyText}
+                  onChange={e => setClaimReplyText(e.target.value)}
+                  placeholder="Responder en la mediacion..."
+                  rows={3}
+                  style={{
+                    width:'100%', padding:'10px 12px', borderRadius:8, border:'1.5px solid var(--border)',
+                    background:'var(--surface)', color:'var(--text)', fontSize:13, fontFamily:'inherit',
+                    resize:'vertical', lineHeight:1.5,
+                  }}
+                />
+                {claimFiles.length > 0 && (
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                    {claimFiles.map((f, i) => (
+                      <span key={i} style={{ fontSize:12, background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:6, padding:'3px 8px', display:'inline-flex', alignItems:'center', gap:4 }}>
+                        {f.name}
+                        <span onClick={() => setClaimFiles(prev => prev.filter((_, j) => j !== i))}
+                          style={{ cursor:'pointer', color:'var(--red)', fontWeight:700, fontSize:14, lineHeight:1 }}>x</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                  <input ref={claimFileRef} type="file" multiple accept="image/*,application/pdf"
+                    style={{ display:'none' }}
+                    onChange={e => { setClaimFiles(prev => [...prev, ...Array.from(e.target.files)]); e.target.value = '' }} />
+                  <button onClick={() => claimFileRef.current?.click()}
+                    style={{ fontSize:18, padding:'6px 10px', borderRadius:6, border:'1.5px solid var(--border)', background:'var(--surface)', cursor:'pointer' }}
+                    title="Adjuntar archivo">📎</button>
+                  <button onClick={sendClaimReply}
+                    disabled={sendingClaimReply === 'sending' || !claimReplyText.trim()}
+                    style={{
+                      flex:1, padding:'8px 0', borderRadius:6, border:'none', fontWeight:700, fontSize:13, cursor:'pointer',
+                      background: sendingClaimReply === 'ok' ? 'var(--green)' : sendingClaimReply === 'error' ? 'var(--red)' : 'var(--blue)',
+                      color:'#fff', opacity: (sendingClaimReply === 'sending' || !claimReplyText.trim()) ? .5 : 1,
+                    }}>
+                    {sendingClaimReply === 'sending' ? 'Enviando...' : sendingClaimReply === 'ok' ? 'Enviado' : sendingClaimReply === 'error' ? 'Error al enviar' : 'Enviar a ML'}
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         )}
 
