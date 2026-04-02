@@ -538,53 +538,49 @@ export default function ReputacionShield({ onLogout }) {
   const [recoveryTab, setRecoveryTab] = useState('GTK')
   const [filtro,      setFiltro]      = useState('Todas')
 
-  const CACHE_TTL = 5 * 60 * 1000 // 5 minutos
+  const CACHE_TTL = 5 * 60 * 1000
 
-  const fetchData = useCallback(async (force = false) => {
+  const fetchData = useCallback((force = false) => {
     const tok = localStorage.getItem('khn_token')
     const h = { Authorization: `Bearer ${tok}` }
 
-    // Cargar metricas desde cache local si no han expirado
-    if (!force) {
-      try {
-        const cached = localStorage.getItem('khn_metricas_cache')
-        if (cached) {
-          const { data, ts } = JSON.parse(cached)
-          if (Date.now() - ts < CACHE_TTL) {
-            setMetricas(data)
-          }
-        }
-      } catch(e) {}
-    }
-
-    // Reclamos siempre frescos (son pocos datos y cambian seguido)
-    fetch(`${RAILWAY}/api/reputacion/reclamos`, {headers:h})
-      .then(r=>r.json())
-      .then(raw=>{
-        setReclamos(Array.isArray(raw) ? raw : (raw?.reclamos||[]))
-      })
-      .catch(()=>{})
-      .finally(()=>{ setLoading(false); setRefreshing(false) })
-
-    // Metricas en background (lentas, cacheadas)
-    const metUrl = force
-      ? `${RAILWAY}/api/reputacion/metricas-reales?force=1`
-      : `${RAILWAY}/api/reputacion/metricas-reales`
-
+    // Metricas en background
+    const metUrl = `${RAILWAY}/api/reputacion/metricas-reales${force ? '?force=1' : ''}`
     fetch(metUrl, {headers:h})
       .then(r=>r.json())
       .then(data=>{
         setMetricas(data||{})
         setLastUpdate(new Date())
-        try {
-          localStorage.setItem('khn_metricas_cache', JSON.stringify({ data, ts: Date.now() }))
-        } catch(e) {}
-      })
-      .catch(()=>{})
+        try { localStorage.setItem('khn_met_cache', JSON.stringify({data, ts:Date.now()})) } catch(e){}
+      }).catch(()=>{})
+
+    // Reclamos en background
+    fetch(`${RAILWAY}/api/reputacion/reclamos`, {headers:h})
+      .then(r=>r.json())
+      .then(raw=>{
+        const arr = Array.isArray(raw) ? raw : (raw?.reclamos||[])
+        setReclamos(arr)
+        try { localStorage.setItem('khn_rec_cache', JSON.stringify({data:arr, ts:Date.now()})) } catch(e){}
+      }).catch(()=>{})
+      .finally(()=>{ setLoading(false); setRefreshing(false) })
 
   }, [])
 
-  useEffect(()=>{ fetchData() }, [fetchData])
+  useEffect(()=>{
+    // Carga cache instantánea al montar
+    try {
+      const cm = localStorage.getItem('khn_met_cache')
+      if (cm) { const {data,ts}=JSON.parse(cm); if(Date.now()-ts<CACHE_TTL) setMetricas(data) }
+    } catch(e){}
+    try {
+      const cr = localStorage.getItem('khn_rec_cache')
+      if (cr) { const {data,ts}=JSON.parse(cr); if(Date.now()-ts<CACHE_TTL) setReclamos(data) }
+    } catch(e){}
+    // Luego refresca en background sin bloquear
+    fetchData()
+  }, [])
+
+  useEffect(()=>{}, [fetchData])
 
   const reclamosFiltrados = reclamos
     .filter(r=>filtro==='Todas'||r.cuenta===filtro)
