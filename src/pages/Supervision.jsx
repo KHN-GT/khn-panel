@@ -25,12 +25,13 @@ export default function Supervision({ onLogout }) {
   const [corrTexto, setCorrTexto]   = useState('')
   const [saving, setSaving]         = useState(false)
   const [success, setSuccess]       = useState('')
+  const [canalTab, setCanalTab]     = useState('pre_compra')
   const LIMIT = 30
 
   const load = async (off = 0) => {
     setLoading(true)
     const tok = localStorage.getItem('khn_token')
-    let url = `${RAILWAY}/api/feedback?limit=${LIMIT}&offset=${off}&excluir_accion=corregido_post_envio`
+    let url = `${RAILWAY}/api/feedback?limit=${LIMIT}&offset=${off}&excluir_accion=corregido_post_envio&canal=${canalTab}`
     if (filtCuenta)     url += `&cuenta=${filtCuenta}`
     if (filtError)      url += `&es_error=${filtError}`
     if (filtDesde)      url += `&fecha_desde=${filtDesde}`
@@ -46,7 +47,7 @@ export default function Supervision({ onLogout }) {
     finally { setLoading(false) }
   }
 
-  useEffect(() => { load(0) }, [filtCuenta, filtError, filtDesde, filtHasta, filtRespondido])
+  useEffect(() => { load(0) }, [filtCuenta, filtError, filtDesde, filtHasta, filtRespondido, canalTab])
 
   const handleCorregir = async () => {
     if (!corrTexto.trim()) return
@@ -109,6 +110,22 @@ export default function Supervision({ onLogout }) {
               Exportar CSV
             </button>
           </div>
+        </div>
+        {/* Tabs canal */}
+        <div style={{ display:'flex', gap:0, marginBottom:10, borderBottom:'2px solid var(--border)' }}>
+          {[
+            { key:'pre_compra', label:'Pre-compra' },
+            { key:'post_venta', label:'Post-venta' },
+          ].map(tab => (
+            <button key={tab.key} onClick={() => setCanalTab(tab.key)}
+              style={{
+                padding:'7px 20px', fontSize:13, fontWeight:600, cursor:'pointer',
+                background:'none', border:'none',
+                color: canalTab === tab.key ? 'var(--purple)' : 'var(--text3)',
+                borderBottom: canalTab === tab.key ? '2px solid var(--purple)' : '2px solid transparent',
+                marginBottom:-2, transition:'all .15s',
+              }}>{tab.label}</button>
+          ))}
         </div>
         {/* Filtros */}
         <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
@@ -208,7 +225,11 @@ export default function Supervision({ onLogout }) {
                     </div>
                   )}
                   {/* Botón corregir */}
-                  {item.es_error ? (
+                  {item.accion === 'corregido_post_envio' ? (
+                    <span style={{ fontSize:12, fontWeight:700, color:'var(--green)', padding:'3px 10px', borderRadius:99, background:'var(--green-light)', border:'1px solid var(--green-border)', display:'inline-flex', alignItems:'center', gap:4 }}>
+                      ✓ Ya corregida
+                    </span>
+                  ) : item.es_error ? (
                     <span style={{ fontSize:12, fontWeight:600, color:'var(--green)', display:'inline-flex', alignItems:'center', gap:4 }}>
                       Ya corregida
                     </span>
@@ -216,7 +237,7 @@ export default function Supervision({ onLogout }) {
                     <button
                       onClick={() => { setCorrModal(item); setCorrTexto('') }}
                       style={{ fontSize:12, fontWeight:600, padding:'5px 14px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)', background:'var(--red-light)', color:'var(--red)', cursor:'pointer' }}>
-                      ⚠ Marcar como error
+                      Marcar como error
                     </button>
                   )}
                 </div>
