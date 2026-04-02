@@ -240,10 +240,12 @@ function AccountCard({ cuenta, m }) {
   )
 }
 
-function CopyChip({ ordenId }) {
+function CopyChip({ r }) {
   const [copied, setCopied] = useState(false)
-  const url = `https://www.mercadolibre.com.mx/ventas/${ordenId}/detalle`
+  const id = r.orden_id || r.order_id || r.pack_id || r.claim_id || r.id || ''
+  const url = id ? `https://www.mercadolibre.com.mx/ventas/${id}/detalle` : null
   const handleCopy = () => {
+    if (!url) return
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
@@ -252,14 +254,14 @@ function CopyChip({ ordenId }) {
   return (
     <span onClick={handleCopy} style={{
       display:'inline-flex', alignItems:'center', gap:4,
-      fontSize:11, fontWeight:600, cursor:'pointer',
+      fontSize:11, fontWeight:600, cursor: url ? 'pointer' : 'not-allowed',
       padding:'3px 9px', borderRadius:6,
-      background: copied ? '#f0fdf4' : '#eff6ff',
-      color: copied ? '#16a34a' : '#2563eb',
-      border: `1px solid ${copied ? '#bbf7d0' : '#bfdbfe'}`,
+      background: copied ? '#f0fdf4' : url ? '#eff6ff' : '#f3f4f6',
+      color: copied ? '#16a34a' : url ? '#2563eb' : '#9ca3af',
+      border: `1px solid ${copied ? '#bbf7d0' : url ? '#bfdbfe' : '#e5e7eb'}`,
       userSelect:'none', transition:'all 0.15s'
     }}>
-      {copied ? '✓ Copiado' : '⎘ Orden'}
+      {copied ? '✓ Copiado' : url ? '⎘ Orden' : 'Sin ID'}
     </span>
   )
 }
@@ -325,11 +327,20 @@ function ClaimsTable({ reclamos, filtro, setFiltro }) {
                         <div style={{fontSize:11, color:C.txt, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontWeight:500}}>
                           {r.producto||r.nombre_comprador||r.comprador||'—'}
                         </div>
-                        {r.sku && (
-                          <span style={{fontSize:9, fontWeight:600, background:'#f3f4f6', border:'1px solid #e5e7eb', borderRadius:3, padding:'1px 5px', color:'#6b7280', fontFamily:'monospace', marginRight:4}}>
-                            {r.sku}
-                          </span>
-                        )}
+                        <div style={{display:'flex', alignItems:'center', gap:4, marginTop:2, flexWrap:'wrap'}}>
+                          {r.sku && (
+                            <span style={{fontSize:9, fontWeight:600, background:'#f3f4f6',
+                              border:'1px solid #e5e7eb', borderRadius:3, padding:'1px 5px',
+                              color:'#6b7280', fontFamily:'monospace'}}>
+                              {r.sku}
+                            </span>
+                          )}
+                          {(r.nombre_comprador||r.comprador) && (
+                            <span style={{fontSize:9, color:'#6b7280', fontWeight:500}}>
+                              {r.nombre_comprador||r.comprador}
+                            </span>
+                          )}
+                        </div>
                         <div style={{fontSize:10, color:C.txtSoft, marginTop:1}}>
                           Abierto {getOpenedStr(r.creado_en)} · expira {getExpiryStr(r.creado_en)}
                         </div>
@@ -352,7 +363,7 @@ function ClaimsTable({ reclamos, filtro, setFiltro }) {
                     <span style={{fontSize:10, fontWeight:600, background:us.bg, color:us.color, padding:'2px 7px', borderRadius:4}}>{r.urgencia||'—'}</span>
                   </td>
                   <td style={{padding:'9px 12px'}}>
-                    <CopyChip ordenId={r.orden_id} />
+                    <CopyChip r={r} />
                   </td>
                 </tr>
               )
