@@ -538,22 +538,34 @@ export default function ReputacionShield({ onLogout }) {
   const [recoveryTab, setRecoveryTab] = useState('GTK')
   const [filtro,      setFiltro]      = useState('Todas')
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (force = false) => {
     try {
       setRefreshing(true)
       const tok = localStorage.getItem('khn_token')
       const h = { Authorization: `Bearer ${tok}` }
-      const [metRes, recRes] = await Promise.all([
-        fetch(`${RAILWAY}/api/reputacion/metricas-reales`, {headers:h}).then(r=>r.json()).catch(()=>({})),
-        fetch(`${RAILWAY}/api/reputacion/reclamos`,        {headers:h}).then(r=>r.json()).catch(()=>([])),
-      ])
-      setMetricas(metRes||{})
-      const raw = recRes
-      setReclamos(Array.isArray(raw) ? raw : (raw?.reclamos||[]))
-      setLastUpdate(new Date())
+      const metUrl = force
+        ? `${RAILWAY}/api/reputacion/metricas-reales?force=1`
+        : `${RAILWAY}/api/reputacion/metricas-reales`
+
+      fetch(`${RAILWAY}/api/reputacion/reclamos`, {headers:h})
+        .then(r=>r.json())
+        .then(raw=>{
+          setReclamos(Array.isArray(raw) ? raw : (raw?.reclamos||[]))
+          setLoading(false)
+        })
+        .catch(()=>setLoading(false))
+
+      fetch(metUrl, {headers:h})
+        .then(r=>r.json())
+        .then(data=>{
+          setMetricas(data||{})
+          setLastUpdate(new Date())
+          setRefreshing(false)
+        })
+        .catch(()=>setRefreshing(false))
+
     } catch(e) {
       console.error('[ReputacionShield]', e)
-    } finally {
       setLoading(false)
       setRefreshing(false)
     }
@@ -587,7 +599,7 @@ export default function ReputacionShield({ onLogout }) {
           </div>
         </div>
         <div style={{textAlign:'right'}}>
-          <button onClick={fetchData} disabled={refreshing} style={{fontSize:13, color:C.txtMd, background:C.bgSoft, border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 14px', cursor:refreshing?'default':'pointer', opacity:refreshing?0.6:1, fontWeight:500}}>
+          <button onClick={()=>fetchData(true)} disabled={refreshing} style={{fontSize:13, color:C.txtMd, background:C.bgSoft, border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 14px', cursor:refreshing?'default':'pointer', opacity:refreshing?0.6:1, fontWeight:500}}>
             {refreshing ? 'Actualizando...' : '↻ Actualizar desde ML'}
           </button>
           {lastUpdate && (
