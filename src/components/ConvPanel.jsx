@@ -955,6 +955,11 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                   ? renderBubble({ r: 'b', t: item.mensaje_cliente, ts: item.creado_en || undefined }, 0)
                   : null
             }
+            {isClaim && claimStage === 'dispute' && (
+              <div style={{ textAlign:'center', fontSize:12, color:'var(--text3)', padding:'12px 0', marginTop:8 }}>
+                La mensajeria directa esta desactivada por ML mientras el reclamo este abierto
+              </div>
+            )}
           </>
         )}
 
@@ -1002,12 +1007,16 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               )
             })}
 
-            {/* Reply area o aviso de cierre */}
-            {['closed','fulfilled'].includes(claimStage) ? (
+            {/* Reply area, aviso de cierre, o prompt para cargar */}
+            {!claimStage && !loadingClaimMsgs && claimMsgs.length === 0 ? (
+              <div style={{ textAlign:'center', fontSize:12, color:'var(--text3)', padding:'16px 0' }}>
+                Carga los mensajes para ver el estado de la mediacion
+              </div>
+            ) : claimStage && claimStage !== 'dispute' ? (
               <div style={{ textAlign:'center', fontSize:13, color:'var(--text3)', padding:'12px', background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:8, marginTop:8 }}>
                 Mediacion cerrada por ML
               </div>
-            ) : !loadingClaimMsgs && (
+            ) : claimStage === 'dispute' && !loadingClaimMsgs && (
               <div style={{ marginTop:12, borderTop:'1px solid var(--border)', paddingTop:10, display:'flex', flexDirection:'column', gap:8 }}>
                 <textarea
                   value={claimReplyText}
