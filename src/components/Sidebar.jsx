@@ -340,7 +340,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
                 {expanded ? (
                   <>
                     <div style={{ position:'relative' }}
-                      onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: false }))}>
+                      onClick={() => { setExpandedGroups(p => ({ ...p, [g.key]: false })); onSelect(newest) }}>
                       <MessageCard item={newest} selected={newest.id === selectedId} onClick={() => {}} />
                     </div>
                     <div style={{
@@ -359,7 +359,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
                   </>
                 ) : (
                   <div style={{ position:'relative' }}
-                    onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: true }))}>
+                    onClick={() => { setExpandedGroups(p => ({ ...p, [g.key]: true })); onSelect(newest) }}>
                     {Array.from({ length: peekCount }).map((_, pi) => (
                       <div key={`peek-${g.key}-${pi}`}
                         style={{
