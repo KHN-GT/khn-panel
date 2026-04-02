@@ -58,6 +58,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [metaData,     setMetaData]     = useState(null)
   const [loadingMeta,  setLoadingMeta]  = useState(false)
   const [iaMinimized, setIaMinimized] = useState(false)
+  const [claimTab, setClaimTab] = useState('comprador')
+  const [claimMsgs, setClaimMsgs] = useState([])
+  const [loadingClaimMsgs, setLoadingClaimMsgs] = useState(false)
   const [corrMode, setCorrMode] = useState(false)
   const [corrText, setCorrText] = useState('')
   const corrTextareaRef = useRef(null)
@@ -71,6 +74,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setShowMeta(false); setMetaData(null)
     setShowEtiquetas(false); setEtqInput(''); setEtqSugeridas([])
     setCorrMode(false); setCorrText(''); setIaMinimized(false)
+    setClaimTab('comprador'); setClaimMsgs([])
 
     const token = localStorage.getItem('khn_token')
     setOrdenData(null)
@@ -147,6 +151,20 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     } catch {}
     setLoadingTpl(false)
     setShowTemplates(true)
+  }
+
+  const loadClaimMessages = async () => {
+    if (!item?.id) return
+    setLoadingClaimMsgs(true)
+    const token = localStorage.getItem('khn_token')
+    try {
+      const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/claim-messages`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const d = await r.json()
+      setClaimMsgs(Array.isArray(d) ? d : [])
+    } catch { setClaimMsgs([]) }
+    setLoadingClaimMsgs(false)
   }
 
   const insertTemplate = (texto) => {
@@ -817,17 +835,17 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         )}
 
         {/* Contexto reclamos: post-venta previos del mismo orden */}
-        {isClaim && contexto.length > 0 && (
+        {isClaim && contexto.length > 0 && claimTab === 'comprador' && (
           <>
             <div style={{ textAlign:'center', fontSize:13, fontWeight:600, color:'var(--text3)', padding:'4px 0', borderBottom:'1px dashed var(--border)', marginBottom:4 }}>
-              📋 Mensajes previos de post-venta — misma orden
+              Mensajes previos de post-venta — misma orden
             </div>
             {contexto.map((msg, i) => {
               const hiloCtx = Array.isArray(msg.hilo_json) ? msg.hilo_json : []
               return hiloCtx.map((m, j) => renderBubble(m, j, { dimmed: true, keyPrefix: `ctx-${i}-` }))
             })}
             <div style={{ textAlign:'center', fontSize:13, fontWeight:600, color:'var(--red)', padding:'4px 0', borderBottom:'1px dashed var(--red-border)', marginBottom:4 }}>
-              🚨 Inicio del reclamo
+              Inicio del reclamo
             </div>
           </>
         )}
@@ -836,7 +854,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         {item.tipo === 'PRE-COMPRA' && contexto.length > 0 && (
           <>
             <div style={{ textAlign:'center', fontSize:12, fontWeight:700, color:'var(--text2)', padding:'6px 0', borderBottom:'1px solid var(--border)', marginBottom:8 }}>
-              📋 {contexto.length} pregunta{contexto.length > 1 ? 's' : ''} previa{contexto.length > 1 ? 's' : ''} sobre este producto
+              {contexto.length} pregunta{contexto.length > 1 ? 's' : ''} previa{contexto.length > 1 ? 's' : ''} sobre este producto
             </div>
             {contexto.map((msg, i) => (
               <div key={`pctx-${i}`} style={{ opacity: 0.85 }}>
@@ -845,79 +863,153 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               </div>
             ))}
             <div style={{ textAlign:'center', fontSize:13, fontWeight:600, color:'var(--purple)', padding:'4px 0', borderBottom:'1px dashed var(--purple-border)', marginBottom:4 }}>
-              💬 Pregunta actual
+              Pregunta actual
             </div>
           </>
         )}
 
-        {/* Mensajes del hilo principal */}
-        {hilo.length > 0
-          ? hilo.map((msg, i) => renderBubble(msg, i))
-          : isClaim
-            ? (
-              <div style={{ background:'var(--surface2)', border:'1px solid var(--red-border)', borderRadius:10, padding:'14px 16px', fontSize:13, lineHeight:1.8 }}>
-                <div style={{ fontWeight:700, color:'var(--red)', marginBottom:10, fontSize:14 }}>Informacion del reclamo</div>
-                {item.mensaje_cliente && (
-                  <div style={{ marginBottom:4 }}>
-                    <span style={{ color:'var(--text3)' }}>Motivo: </span>
-                    <b>{getClaimReason(item.mensaje_cliente?.replace('Reclamo — ', '').replace('Motivo: ', ''))}</b>
+        {/* Tabs para reclamos: Mensajes comprador / Mensajes con ML */}
+        {isClaim && (
+          <div style={{ display:'flex', gap:0, borderBottom:'2px solid var(--border)', marginBottom:8 }}>
+            {[
+              { key:'comprador', label:'Mensajes comprador' },
+              { key:'ml',        label:'Mensajes con ML' },
+            ].map(tab => (
+              <button key={tab.key}
+                onClick={() => {
+                  setClaimTab(tab.key)
+                  if (tab.key === 'ml' && claimMsgs.length === 0) loadClaimMessages()
+                }}
+                style={{
+                  flex:1, padding:'8px 0', fontSize:13, fontWeight:600, cursor:'pointer',
+                  background:'none', border:'none',
+                  color: claimTab === tab.key ? 'var(--blue)' : 'var(--text3)',
+                  borderBottom: claimTab === tab.key ? '2px solid var(--blue)' : '2px solid transparent',
+                  marginBottom: -2, transition:'all .15s',
+                }}
+              >{tab.label}</button>
+            ))}
+          </div>
+        )}
+
+        {/* Tab: Mensajes comprador (hilo_json original) */}
+        {(!isClaim || claimTab === 'comprador') && (
+          <>
+            {hilo.length > 0
+              ? hilo.map((msg, i) => renderBubble(msg, i))
+              : isClaim
+                ? (
+                  <div style={{ background:'var(--surface2)', border:'1px solid var(--red-border)', borderRadius:10, padding:'14px 16px', fontSize:13, lineHeight:1.8 }}>
+                    <div style={{ fontWeight:700, color:'var(--red)', marginBottom:10, fontSize:14 }}>Informacion del reclamo</div>
+                    {item.mensaje_cliente && (
+                      <div style={{ marginBottom:4 }}>
+                        <span style={{ color:'var(--text3)' }}>Motivo: </span>
+                        <b>{getClaimReason(item.mensaje_cliente?.replace('Reclamo — ', '').replace('Motivo: ', ''))}</b>
+                      </div>
+                    )}
+                    {item.orden_id && (
+                      <div style={{ marginBottom:4, display:'flex', alignItems:'center', gap:6 }}>
+                        <span style={{ color:'var(--text3)' }}>Orden: </span>
+                        <div
+                          onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/${item.orden_id}/detalle`).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
+                          title="Clic para copiar enlace directo"
+                          style={{ fontSize:12, color: copiedOrden ? '#22c55e' : 'var(--text2)',
+                            background: copiedOrden ? 'rgba(34,197,94,0.1)' : 'var(--surface)',
+                            border: copiedOrden ? '1px solid #22c55e' : '1px solid var(--border)', borderRadius:5, padding:'2px 8px',
+                            cursor:'pointer', display:'inline-flex', alignItems:'center', gap:4, transition:'all 0.2s' }}
+                          onMouseEnter={e => { if (!copiedOrden) e.currentTarget.style.background='var(--blue-light)' }}
+                          onMouseLeave={e => { if (!copiedOrden) e.currentTarget.style.background='var(--surface)' }}
+                        >
+                          {copiedOrden ? '✓ Copiado' : <><code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
+                          <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span></>}
+                        </div>
+                      </div>
+                    )}
+                    {item.claim_id && (
+                      <div style={{ marginBottom:4 }}>
+                        <span onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/reclamos/${item.claim_id}`).then(() => { setSuccess('✓ Enlace copiado'); setTimeout(() => setSuccess(''), 1500) }) }}
+                          title="Clic para copiar enlace al reclamo"
+                          style={{ fontSize:11, color:'var(--text3)', cursor:'pointer', transition:'color .15s' }}
+                          onMouseEnter={e => e.currentTarget.style.color='var(--blue)'}
+                          onMouseLeave={e => e.currentTarget.style.color='var(--text3)'}>
+                          Reclamo #{item.claim_id}
+                        </span>
+                      </div>
+                    )}
+                    {item.producto && (
+                      <div style={{ marginBottom:4 }}>
+                        <span style={{ color:'var(--text3)' }}>Producto: </span>
+                        {item.producto}
+                      </div>
+                    )}
+                    {item.sku && (
+                      <div style={{ marginBottom:4 }}>
+                        <span style={{ color:'var(--text3)' }}>SKU: </span>
+                        <code style={{ background:'var(--surface)', padding:'1px 6px', borderRadius:4, fontSize:12 }}>{item.sku}</code>
+                      </div>
+                    )}
+                    {item.urgencia && (
+                      <div>
+                        <span style={{ color:'var(--text3)' }}>Urgencia: </span>
+                        <b style={{ color: item.urgencia === 'CRITICO' ? 'var(--red)' : item.urgencia === 'URGENTE' ? '#e07b00' : 'var(--text2)' }}>
+                          {item.urgencia}
+                        </b>
+                      </div>
+                    )}
                   </div>
-                )}
-                {item.orden_id && (
-                  <div style={{ marginBottom:4, display:'flex', alignItems:'center', gap:6 }}>
-                    <span style={{ color:'var(--text3)' }}>Orden: </span>
-                    <div
-                      onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/${item.orden_id}/detalle`).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
-                      title="Clic para copiar enlace directo"
-                      style={{ fontSize:12, color: copiedOrden ? '#22c55e' : 'var(--text2)',
-                        background: copiedOrden ? 'rgba(34,197,94,0.1)' : 'var(--surface)',
-                        border: copiedOrden ? '1px solid #22c55e' : '1px solid var(--border)', borderRadius:5, padding:'2px 8px',
-                        cursor:'pointer', display:'inline-flex', alignItems:'center', gap:4, transition:'all 0.2s' }}
-                      onMouseEnter={e => { if (!copiedOrden) e.currentTarget.style.background='var(--blue-light)' }}
-                      onMouseLeave={e => { if (!copiedOrden) e.currentTarget.style.background='var(--surface)' }}
-                    >
-                      {copiedOrden ? '✓ Copiado' : <><code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
-                      <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span></>}
-                    </div>
+                )
+                : item.mensaje_cliente
+                  ? renderBubble({ r: 'b', t: item.mensaje_cliente, ts: item.creado_en || undefined }, 0)
+                  : null
+            }
+          </>
+        )}
+
+        {/* Tab: Mensajes con ML (mediación) */}
+        {isClaim && claimTab === 'ml' && (
+          <>
+            {loadingClaimMsgs && (
+              <div style={{ textAlign:'center', fontSize:13, color:'var(--text3)', padding:'16px 0' }}>Cargando mensajes de mediacion...</div>
+            )}
+            {!loadingClaimMsgs && claimMsgs.length === 0 && (
+              <div style={{ textAlign:'center', fontSize:13, color:'var(--text3)', padding:'16px 0' }}>No hay mensajes de mediacion disponibles</div>
+            )}
+            {claimMsgs.map((m, i) => {
+              const ROLE_STYLE = {
+                mediator:    { label:'Mercado Libre', color:'#1d4ed8', bg:'#eff6ff', border:'#bfdbfe' },
+                respondent:  { label: item.cuenta || 'Vendedor', color:'#15803d', bg:'#f0fdf4', border:'#bbf7d0' },
+                complainant: { label:'Comprador', color:'#6b7280', bg:'var(--surface2)', border:'var(--border)' },
+              }
+              const rs = ROLE_STYLE[m.sender_role] || ROLE_STYLE.complainant
+              const isUs = m.sender_role === 'respondent'
+              return (
+                <div key={`cm-${i}`} style={{ display:'flex', flexDirection:'column', alignItems: isUs ? 'flex-end' : 'flex-start' }}>
+                  <div style={{
+                    maxWidth:'82%', padding:'12px 16px', borderRadius:12,
+                    fontSize:14, lineHeight:1.6,
+                    color:'var(--text)', background: rs.bg, border:`1px solid ${rs.border}`,
+                    whiteSpace:'pre-wrap', wordBreak:'break-word',
+                  }}>
+                    {m.message}
+                    {m.attachments && m.attachments.length > 0 && (
+                      <div style={{ marginTop:8, fontSize:12, color:'var(--text3)', display:'flex', flexWrap:'wrap', gap:4 }}>
+                        {m.attachments.map((fname, j) => (
+                          <span key={j} style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:4, padding:'2px 6px' }}>
+                            Adjunto: {fname}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-                {item.claim_id && (
-                  <div style={{ marginBottom:4 }}>
-                    <span onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/reclamos/${item.claim_id}`).then(() => { setSuccess('✓ Enlace copiado'); setTimeout(() => setSuccess(''), 1500) }) }}
-                      title="Clic para copiar enlace al reclamo"
-                      style={{ fontSize:11, color:'var(--text3)', cursor:'pointer', transition:'color .15s' }}
-                      onMouseEnter={e => e.currentTarget.style.color='var(--blue)'}
-                      onMouseLeave={e => e.currentTarget.style.color='var(--text3)'}>
-                      Reclamo #{item.claim_id}
-                    </span>
+                  <div style={{ fontSize:13, color:'var(--text3)', marginTop:4, paddingLeft:4, paddingRight:4, display:'flex', gap:6, alignItems:'center' }}>
+                    <span style={{ color: rs.color, fontWeight:600 }}>{rs.label}</span>
+                    {m.date_created && <span style={{ opacity:.7 }}>· {fmtTs(m.date_created)}</span>}
                   </div>
-                )}
-                {item.producto && (
-                  <div style={{ marginBottom:4 }}>
-                    <span style={{ color:'var(--text3)' }}>Producto: </span>
-                    {item.producto}
-                  </div>
-                )}
-                {item.sku && (
-                  <div style={{ marginBottom:4 }}>
-                    <span style={{ color:'var(--text3)' }}>SKU: </span>
-                    <code style={{ background:'var(--surface)', padding:'1px 6px', borderRadius:4, fontSize:12 }}>{item.sku}</code>
-                  </div>
-                )}
-                {item.urgencia && (
-                  <div>
-                    <span style={{ color:'var(--text3)' }}>Urgencia: </span>
-                    <b style={{ color: item.urgencia === 'CRITICO' ? 'var(--red)' : item.urgencia === 'URGENTE' ? '#e07b00' : 'var(--text2)' }}>
-                      {item.urgencia}
-                    </b>
-                  </div>
-                )}
-              </div>
-            )
-            : item.mensaje_cliente
-              ? renderBubble({ r: 'b', t: item.mensaje_cliente, ts: item.creado_en || undefined }, 0)
-              : null
-        }
+                </div>
+              )
+            })}
+          </>
+        )}
 
         {/* Respuesta final enviada */}
         {isResolved && item.respuesta_final && (
