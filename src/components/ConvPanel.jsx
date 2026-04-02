@@ -65,6 +65,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
   const [claimFiles, setClaimFiles] = useState([])
   const [claimReplyText, setClaimReplyText] = useState('')
   const [sendingClaimReply, setSendingClaimReply] = useState('')
+  const [compradorMessages, setCompradorMessages] = useState([])
   const claimFileRef = useRef(null)
   const [corrMode, setCorrMode] = useState(false)
   const [corrText, setCorrText] = useState('')
@@ -81,6 +82,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
     setCorrMode(false); setCorrText(''); setIaMinimized(false)
     setClaimTab('comprador'); setClaimMsgs([]); setClaimStage('')
     setClaimFiles([]); setClaimReplyText(''); setSendingClaimReply('')
+    setCompradorMessages([])
 
     const token = localStorage.getItem('khn_token')
     setOrdenData(null)
@@ -107,19 +109,32 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
         .finally(() => setLoadingOrden(false))
     }
 
-    // Reclamos: contexto post-venta del mismo orden
-    if (item?.id && item?.orden_id && (item?.tipo === 'RECLAMO' || item?.tipo === 'reclamo' || item?.claim_id)) {
-      setLoadingCtx(true)
-      fetch(`${RAILWAY}/api/inbox?orden_id=${item.orden_id}&tipo=POST-VENTA`, {
+    // Reclamos: contexto post-venta del mismo orden + mensajes en vivo
+    if (item?.id && (item?.tipo === 'RECLAMO' || item?.tipo === 'reclamo' || item?.claim_id)) {
+      if (item?.orden_id) {
+        setLoadingCtx(true)
+        fetch(`${RAILWAY}/api/inbox?orden_id=${item.orden_id}&tipo=POST-VENTA`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(r => r.ok ? r.json() : { items: [] })
+          .then(data => {
+            const otros = Array.isArray(data?.items) ? data.items.filter(m => m.id !== item.id) : []
+            setContexto(otros)
+          })
+          .catch(() => setContexto([]))
+          .finally(() => setLoadingCtx(false))
+      }
+      // Prefetch claim-messages para tener comprador_messages listo
+      fetch(`${RAILWAY}/api/inbox/${item.id}/claim-messages`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(r => r.ok ? r.json() : { items: [] })
-        .then(data => {
-          const otros = Array.isArray(data?.items) ? data.items.filter(m => m.id !== item.id) : []
-          setContexto(otros)
+        .then(r => r.ok ? r.json() : {})
+        .then(d => {
+          setClaimMsgs(Array.isArray(d.messages) ? d.messages : [])
+          if (d.claim_stage) setClaimStage(d.claim_stage)
+          if (Array.isArray(d.comprador_messages)) setCompradorMessages(d.comprador_messages)
         })
-        .catch(() => setContexto([]))
-        .finally(() => setLoadingCtx(false))
+        .catch(() => {})
     }
 
     // Pre-compra: historial completo de preguntas del mismo SKU
@@ -170,6 +185,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       const d = await r.json()
       setClaimMsgs(Array.isArray(d.messages) ? d.messages : [])
       if (d.claim_stage) setClaimStage(d.claim_stage)
+      if (Array.isArray(d.comprador_messages)) setCompradorMessages(d.comprador_messages)
     } catch { setClaimMsgs([]) }
     setLoadingClaimMsgs(false)
   }
@@ -928,14 +944,16 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           </div>
         )}
 
-        {/* Tab: Mensajes comprador (hilo_json original) */}
+        {/* Tab: Mensajes comprador (hilo_json original o comprador_messages en vivo) */}
         {(!isClaim || claimTab === 'comprador') && (
           <>
-            {hilo.length > 0
-              ? hilo.map((msg, i) => renderBubble(msg, i))
-              : !isClaim && item.mensaje_cliente
-                ? renderBubble({ r: 'b', t: item.mensaje_cliente, ts: item.creado_en || undefined }, 0)
-                : null
+            {isClaim && compradorMessages.length > 0
+              ? compradorMessages.map((msg, i) => renderBubble(msg, i, { keyPrefix: 'cm-live-' }))
+              : hilo.length > 0
+                ? hilo.map((msg, i) => renderBubble(msg, i))
+                : !isClaim && item.mensaje_cliente
+                  ? renderBubble({ r: 'b', t: item.mensaje_cliente, ts: item.creado_en || undefined }, 0)
+                  : null
             }
           </>
         )}
