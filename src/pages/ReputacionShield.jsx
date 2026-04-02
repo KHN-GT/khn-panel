@@ -62,18 +62,18 @@ function cdColor(days) {
 function fmtPct(r) { return ((r||0)*100).toFixed(2)+'%' }
 
 function calcReqs(m) {
-  if (!m || m.error) return { met:0, items:[] }
-  const a = (m.claims_rate||0) < 0.01
-  const b = (m.transactions_completed||0) >= 10
-  const c = (m.cancellations_rate||0) < 0.005
-  const d = (m.delayed_rate||0) < 0.08
-  const met = [a,b,c,d].filter(Boolean).length
-  const needed = a ? 0 : Math.max(0, Math.ceil((m.claims_value||0)/0.015 - (m.transactions_total||0)))
-  return { met, needed, items: [
-    { ok:a, text: a ? 'Sin reclamos excesivos' : `Reducir reclamos bajo 1%${needed ? ` (aprox. ${needed} ventas mas)` : ''}` },
-    { ok:b, text: 'Ventas concretadas' },
-    { ok:c, text: 'Canceladas por ti' },
-    { ok:d, text: 'Despachaste con demora' },
+  if(!m||m.error) return {met:0,needed:0,items:[]}
+  const a=(m.claims_rate||0)<0.01
+  const b=(m.transactions_completed||0)>=10
+  const c=(m.cancellations_rate||0)<0.005
+  const d=(m.delayed_rate||0)<0.08
+  const met=[a,b,c,d].filter(Boolean).length
+  const needed=a?0:Math.max(0,Math.ceil((m.claims_value||0)/0.015-(m.transactions_total||0)))
+  return {met,needed,items:[
+    {ok:a,text:a?'Sin reclamos excesivos':'Reducir reclamos bajo 1%'},
+    {ok:b,text:'Ventas concretadas'},
+    {ok:c,text:'Canceladas por ti'},
+    {ok:d,text:'Despachaste con demora'},
   ]}
 }
 
@@ -197,12 +197,6 @@ function AccountCard({ cuenta, m }) {
       </div>
 
       <div style={{padding:'10px 14px', borderBottom:`1px solid ${C.border}`, background:C.bgSoft, flex:1}}>
-        {!isErr && reqs.needed > 0 && (
-          <div style={{display:'flex', alignItems:'baseline', gap:8, marginBottom:10, padding:'6px 10px', background:'#fefce8', border:'1px solid #fde68a', borderRadius:7}}>
-            <span style={{fontSize:20, fontWeight:700, color:'#92400e'}}>{reqs.needed}</span>
-            <span style={{fontSize:12, color:'#92400e'}}>ventas sin reclamos para recuperar color</span>
-          </div>
-        )}
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:8}}>
           <svg width="38" height="38" viewBox="0 0 36 36" style={{flexShrink:0}}>
             <circle cx="18" cy="18" r="15.9" fill="none" stroke={C.border} strokeWidth="3"/>
@@ -216,6 +210,18 @@ function AccountCard({ cuenta, m }) {
             <div style={{fontSize:10, color:C.txtMd, marginTop:1}}>Requisitos para MercadoLider</div>
           </div>
         </div>
+        {reqs.needed > 0 && (
+          <div style={{display:'flex', alignItems:'baseline', gap:6, marginBottom:10,
+            padding:'7px 10px', background:'#fefce8', border:'1px solid #fde68a',
+            borderRadius:7}}>
+            <span style={{fontSize:22, fontWeight:700, color:'#92400e', lineHeight:1}}>
+              {reqs.needed}
+            </span>
+            <span style={{fontSize:11, color:'#92400e', lineHeight:1.3}}>
+              ventas sin reclamos para recuperar color verde
+            </span>
+          </div>
+        )}
         <div style={{display:'flex', flexDirection:'column', gap:5}}>
           {reqs.items.map((item,i)=>(
             <div key={i} style={{display:'flex', alignItems:'flex-start', gap:7}}>
