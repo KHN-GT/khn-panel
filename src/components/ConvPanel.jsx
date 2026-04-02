@@ -790,7 +790,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
               style={{ fontSize:11, color:'var(--text3)', cursor:'pointer', transition:'color .15s' }}
               onMouseEnter={e => e.currentTarget.style.color='var(--blue)'}
               onMouseLeave={e => e.currentTarget.style.color='var(--text3)'}>
-              Reclamo #{item.claim_id}
+              Reclamo #{item.claim_id}{item.mensaje_cliente ? ` — ${getClaimReason(item.mensaje_cliente?.replace('Reclamo — ', '').replace('Motivo: ', ''))}` : ''}
             </span>
           )}
         </div>
