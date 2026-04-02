@@ -516,7 +516,9 @@ export default function ReputacionShield() {
   if (loading) return <div style={{padding:'2rem', color:C.txtSoft, fontSize:14}}>Cargando datos de MercadoLibre...</div>
 
   return (
-    <div style={{padding:'1.25rem', maxWidth:1140, fontFamily:'system-ui, -apple-system, sans-serif'}}>
+    <div style={{height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden'}}>
+    <div style={{flex:1, overflowY:'auto'}}>
+    <div style={{padding:'1.25rem 2rem', maxWidth:1140, margin:'0 auto', fontFamily:'system-ui, -apple-system, sans-serif'}}>
       <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'1.5rem', flexWrap:'wrap', gap:10}}>
         <div style={{display:'flex', alignItems:'center', gap:10}}>
           <div style={{width:34, height:34, borderRadius:9, background:'#fef2f2', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, border:`1px solid ${C.dangerBorder}`}}>🛡️</div>
@@ -545,6 +547,8 @@ export default function ReputacionShield() {
       <ClaimsTable reclamos={reclamosFiltrados} filtro={filtro} setFiltro={setFiltro}/>
       <RecoverySection metricas={metricas} reclamos={reclamos} activeTab={recoveryTab} setActiveTab={setRecoveryTab}/>
       <BottomSection reclamos={reclamos}/>
+    </div>
+    </div>
     </div>
   )
 }
