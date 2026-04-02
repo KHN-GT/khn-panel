@@ -242,8 +242,12 @@ function AccountCard({ cuenta, m }) {
 
 function CopyChip({ r }) {
   const [copied, setCopied] = useState(false)
-  const id = r.orden_id || r.order_id || r.pack_id || r.claim_id || r.id || ''
-  const url = id ? `https://www.mercadolibre.com.mx/ventas/${id}/detalle` : null
+  const id = r.orden_id || r.order_id || ''
+  const url = id
+    ? `https://www.mercadolibre.com.mx/ventas/${id}/detalle`
+    : r.claim_id
+    ? `https://www.mercadolibre.com.mx/ventas/reclamos/${r.claim_id}`
+    : null
   const handleCopy = () => {
     if (!url) return
     navigator.clipboard.writeText(url).then(() => {
