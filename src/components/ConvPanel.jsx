@@ -897,70 +897,9 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
           <>
             {hilo.length > 0
               ? hilo.map((msg, i) => renderBubble(msg, i))
-              : isClaim
-                ? (
-                  <div style={{ background:'var(--surface2)', border:'1px solid var(--red-border)', borderRadius:10, padding:'14px 16px', fontSize:13, lineHeight:1.8 }}>
-                    <div style={{ fontWeight:700, color:'var(--red)', marginBottom:10, fontSize:14 }}>Informacion del reclamo</div>
-                    {item.mensaje_cliente && (
-                      <div style={{ marginBottom:4 }}>
-                        <span style={{ color:'var(--text3)' }}>Motivo: </span>
-                        <b>{getClaimReason(item.mensaje_cliente?.replace('Reclamo — ', '').replace('Motivo: ', ''))}</b>
-                      </div>
-                    )}
-                    {item.orden_id && (
-                      <div style={{ marginBottom:4, display:'flex', alignItems:'center', gap:6 }}>
-                        <span style={{ color:'var(--text3)' }}>Orden: </span>
-                        <div
-                          onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/${item.orden_id}/detalle`).then(() => { setCopiedOrden(true); setTimeout(() => setCopiedOrden(false), 1500) }); }}
-                          title="Clic para copiar enlace directo"
-                          style={{ fontSize:12, color: copiedOrden ? '#22c55e' : 'var(--text2)',
-                            background: copiedOrden ? 'rgba(34,197,94,0.1)' : 'var(--surface)',
-                            border: copiedOrden ? '1px solid #22c55e' : '1px solid var(--border)', borderRadius:5, padding:'2px 8px',
-                            cursor:'pointer', display:'inline-flex', alignItems:'center', gap:4, transition:'all 0.2s' }}
-                          onMouseEnter={e => { if (!copiedOrden) e.currentTarget.style.background='var(--blue-light)' }}
-                          onMouseLeave={e => { if (!copiedOrden) e.currentTarget.style.background='var(--surface)' }}
-                        >
-                          {copiedOrden ? '✓ Copiado' : <><code style={{ fontSize:12, fontWeight:700, color:'var(--blue)' }}>#{item.orden_id}</code>
-                          <span style={{ fontSize:12, color:'var(--text3)', opacity:.6 }}>⎘</span></>}
-                        </div>
-                      </div>
-                    )}
-                    {item.claim_id && (
-                      <div style={{ marginBottom:4 }}>
-                        <span onClick={() => { navigator.clipboard.writeText(`https://www.mercadolibre.com.mx/ventas/reclamos/${item.claim_id}`).then(() => { setSuccess('✓ Enlace copiado'); setTimeout(() => setSuccess(''), 1500) }) }}
-                          title="Clic para copiar enlace al reclamo"
-                          style={{ fontSize:11, color:'var(--text3)', cursor:'pointer', transition:'color .15s' }}
-                          onMouseEnter={e => e.currentTarget.style.color='var(--blue)'}
-                          onMouseLeave={e => e.currentTarget.style.color='var(--text3)'}>
-                          Reclamo #{item.claim_id}
-                        </span>
-                      </div>
-                    )}
-                    {item.producto && (
-                      <div style={{ marginBottom:4 }}>
-                        <span style={{ color:'var(--text3)' }}>Producto: </span>
-                        {item.producto}
-                      </div>
-                    )}
-                    {item.sku && (
-                      <div style={{ marginBottom:4 }}>
-                        <span style={{ color:'var(--text3)' }}>SKU: </span>
-                        <code style={{ background:'var(--surface)', padding:'1px 6px', borderRadius:4, fontSize:12 }}>{item.sku}</code>
-                      </div>
-                    )}
-                    {item.urgencia && (
-                      <div>
-                        <span style={{ color:'var(--text3)' }}>Urgencia: </span>
-                        <b style={{ color: item.urgencia === 'CRITICO' ? 'var(--red)' : item.urgencia === 'URGENTE' ? '#e07b00' : 'var(--text2)' }}>
-                          {item.urgencia}
-                        </b>
-                      </div>
-                    )}
-                  </div>
-                )
-                : item.mensaje_cliente
-                  ? renderBubble({ r: 'b', t: item.mensaje_cliente, ts: item.creado_en || undefined }, 0)
-                  : null
+              : !isClaim && item.mensaje_cliente
+                ? renderBubble({ r: 'b', t: item.mensaje_cliente, ts: item.creado_en || undefined }, 0)
+                : null
             }
           </>
         )}
