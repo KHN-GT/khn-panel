@@ -532,43 +532,56 @@ function BottomSection({ reclamos }) {
 export default function ReputacionShield({ onLogout }) {
   const [metricas,    setMetricas]    = useState({})
   const [reclamos,    setReclamos]    = useState([])
-  const [loading,     setLoading]     = useState(true)
+  const [loading,     setLoading]     = useState(false)
   const [lastUpdate,  setLastUpdate]  = useState(null)
   const [refreshing,  setRefreshing]  = useState(false)
   const [recoveryTab, setRecoveryTab] = useState('GTK')
   const [filtro,      setFiltro]      = useState('Todas')
 
+  const CACHE_TTL = 5 * 60 * 1000 // 5 minutos
+
   const fetchData = useCallback(async (force = false) => {
-    try {
-      setRefreshing(true)
-      const tok = localStorage.getItem('khn_token')
-      const h = { Authorization: `Bearer ${tok}` }
-      const metUrl = force
-        ? `${RAILWAY}/api/reputacion/metricas-reales?force=1`
-        : `${RAILWAY}/api/reputacion/metricas-reales`
+    const tok = localStorage.getItem('khn_token')
+    const h = { Authorization: `Bearer ${tok}` }
 
-      fetch(`${RAILWAY}/api/reputacion/reclamos`, {headers:h})
-        .then(r=>r.json())
-        .then(raw=>{
-          setReclamos(Array.isArray(raw) ? raw : (raw?.reclamos||[]))
-          setLoading(false)
-        })
-        .catch(()=>setLoading(false))
-
-      fetch(metUrl, {headers:h})
-        .then(r=>r.json())
-        .then(data=>{
-          setMetricas(data||{})
-          setLastUpdate(new Date())
-          setRefreshing(false)
-        })
-        .catch(()=>setRefreshing(false))
-
-    } catch(e) {
-      console.error('[ReputacionShield]', e)
-      setLoading(false)
-      setRefreshing(false)
+    // Cargar metricas desde cache local si no han expirado
+    if (!force) {
+      try {
+        const cached = localStorage.getItem('khn_metricas_cache')
+        if (cached) {
+          const { data, ts } = JSON.parse(cached)
+          if (Date.now() - ts < CACHE_TTL) {
+            setMetricas(data)
+          }
+        }
+      } catch(e) {}
     }
+
+    // Reclamos siempre frescos (son pocos datos y cambian seguido)
+    fetch(`${RAILWAY}/api/reputacion/reclamos`, {headers:h})
+      .then(r=>r.json())
+      .then(raw=>{
+        setReclamos(Array.isArray(raw) ? raw : (raw?.reclamos||[]))
+      })
+      .catch(()=>{})
+      .finally(()=>{ setLoading(false); setRefreshing(false) })
+
+    // Metricas en background (lentas, cacheadas)
+    const metUrl = force
+      ? `${RAILWAY}/api/reputacion/metricas-reales?force=1`
+      : `${RAILWAY}/api/reputacion/metricas-reales`
+
+    fetch(metUrl, {headers:h})
+      .then(r=>r.json())
+      .then(data=>{
+        setMetricas(data||{})
+        setLastUpdate(new Date())
+        try {
+          localStorage.setItem('khn_metricas_cache', JSON.stringify({ data, ts: Date.now() }))
+        } catch(e) {}
+      })
+      .catch(()=>{})
+
   }, [])
 
   useEffect(()=>{ fetchData() }, [fetchData])
@@ -582,8 +595,6 @@ export default function ReputacionShield({ onLogout }) {
     const diff = Math.floor((Date.now()-lastUpdate)/60000)
     return diff<1 ? 'hace menos de 1 min' : `hace ${diff} min`
   }
-
-  if (loading) return <div style={{padding:'2rem', color:C.txtSoft, fontSize:14}}>Cargando datos de MercadoLibre...</div>
 
   return (
     <div style={{height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden'}}>
