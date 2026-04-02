@@ -994,6 +994,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
                 <textarea
                   value={claimReplyText}
                   onChange={e => setClaimReplyText(e.target.value)}
+                  onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); sendClaimReply() } }}
                   placeholder="Responder en la mediacion..."
                   rows={3}
                   style={{
