@@ -18,6 +18,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
   const [precompRespondidas, setPrecompRespondidas] = useState([])
   const [etqOpciones, setEtqOpciones] = useState([])
   const [showEtqFilter, setShowEtqFilter] = useState(false)
+  const [expandedGroups, setExpandedGroups] = useState({})
 
   const fetchRespondidas = useCallback(async () => {
     const token = localStorage.getItem('khn_token')
@@ -290,24 +291,96 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
             <div style={{ fontSize:14, fontWeight:600, color:'var(--text2)' }}>Todo atendido</div>
             <div style={{ fontSize:13, marginTop:4 }}>No hay mensajes pendientes</div>
           </div>
-        ) : (
-          filtered.map(i => (
-            <div key={i.id} style={{ position: 'relative' }}>
-              <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
-              {tipoFilter === 'PRE-COMPRA' && precompSubTab === 'respondidas' && (
-                <button onClick={(e) => { e.stopPropagation(); archivarUno(i.id) }} title="Archivar"
-                  style={{ position: 'absolute', top: 6, right: 6, fontSize: 14,
-                    background: 'var(--surface)', border: '1px solid var(--border)',
-                    borderRadius: 6, cursor: 'pointer', padding: '2px 5px', lineHeight: 1,
-                    opacity: 0.6, zIndex: 2 }}
-                  onMouseEnter={ev => ev.currentTarget.style.opacity='1'}
-                  onMouseLeave={ev => ev.currentTarget.style.opacity='0.6'}>
-                  {'\uD83D\uDDD1\uFE0F'}
-                </button>
-              )}
-            </div>
-          ))
-        )}
+        ) : (() => {
+          const isPCPendientes = tipoFilter === 'PRE-COMPRA' && precompSubTab === 'pendientes'
+          if (!isPCPendientes) {
+            return filtered.map(i => (
+              <div key={i.id} style={{ position: 'relative' }}>
+                <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
+                {tipoFilter === 'PRE-COMPRA' && precompSubTab === 'respondidas' && (
+                  <button onClick={(e) => { e.stopPropagation(); archivarUno(i.id) }} title="Archivar"
+                    style={{ position: 'absolute', top: 6, right: 6, fontSize: 14,
+                      background: 'var(--surface)', border: '1px solid var(--border)',
+                      borderRadius: 6, cursor: 'pointer', padding: '2px 5px', lineHeight: 1,
+                      opacity: 0.6, zIndex: 2 }}
+                    onMouseEnter={ev => ev.currentTarget.style.opacity='1'}
+                    onMouseLeave={ev => ev.currentTarget.style.opacity='0.6'}>
+                    {'\uD83D\uDDD1\uFE0F'}
+                  </button>
+                )}
+              </div>
+            ))
+          }
+          // Agrupar PRE-COMPRA pendientes por comprador+producto
+          const groups = []
+          const groupMap = {}
+          filtered.forEach(i => {
+            const key = (i.comprador_id || i.comprador || '?') + '|' + (i.item_id || i.sku || '?')
+            if (!groupMap[key]) {
+              groupMap[key] = { key, items: [] }
+              groups.push(groupMap[key])
+            }
+            groupMap[key].items.push(i)
+          })
+          return groups.map(g => {
+            if (g.items.length === 1) {
+              const i = g.items[0]
+              return (
+                <div key={i.id} style={{ position: 'relative' }}>
+                  <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
+                </div>
+              )
+            }
+            const expanded = !!expandedGroups[g.key]
+            const newest = g.items[0]
+            const rest = g.items.slice(1)
+            const peekCount = Math.min(rest.length, 2)
+            return (
+              <div key={g.key} style={{ marginBottom: expanded ? 0 : peekCount * 5 }}>
+                {expanded ? (
+                  <>
+                    {g.items.map((i, idx) => (
+                      <div key={i.id} style={{ position:'relative' }}>
+                        <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
+                      </div>
+                    ))}
+                    <div onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: false }))}
+                      style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--purple)',
+                        cursor:'pointer', padding:'3px 0 6px', userSelect:'none' }}>
+                      Colapsar
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ position:'relative' }}>
+                    {/* Peek cards behind */}
+                    {Array.from({ length: peekCount }).map((_, pi) => (
+                      <div key={`peek-${g.key}-${pi}`}
+                        onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: true }))}
+                        style={{
+                          position:'absolute', bottom: -(pi + 1) * 5, left: (pi + 1) * 4,
+                          right: -(pi + 1) * 2, height: 10,
+                          background: pi === 0 ? 'var(--surface2)' : 'var(--surface)',
+                          border:'1px solid var(--border)', borderRadius:'0 0 8px 8px',
+                          zIndex: -pi - 1, cursor:'pointer',
+                        }} />
+                    ))}
+                    <div style={{ position:'relative', zIndex:1 }}>
+                      <MessageCard item={newest} selected={newest.id === selectedId} onClick={() => onSelect(newest)} />
+                      <span onClick={e => { e.stopPropagation(); setExpandedGroups(p => ({ ...p, [g.key]: true })) }}
+                        style={{
+                          position:'absolute', bottom:6, right:8, fontSize:10, fontWeight:700,
+                          background:'var(--purple)', color:'#fff', borderRadius:99,
+                          padding:'2px 7px', cursor:'pointer', zIndex:3, lineHeight:1.4,
+                        }}>
+                        +{rest.length} mas
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })
+        })()}
       </div>
     </div>
   )
