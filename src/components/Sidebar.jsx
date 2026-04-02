@@ -338,12 +338,25 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
             return (
               <div key={g.key} style={{ marginBottom: expanded ? 0 : peekCount * 8 }}>
                 {expanded ? (
-                  g.items.map((i, idx) => (
-                    <div key={i.id} style={{ position:'relative' }}
-                      onClick={() => { if (idx === 0) setExpandedGroups(p => ({ ...p, [g.key]: false })); else onSelect(i) }}>
-                      <MessageCard item={i} selected={i.id === selectedId} onClick={() => { if (idx > 0) onSelect(i) }} />
+                  <>
+                    <div style={{ position:'relative' }}
+                      onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: false }))}>
+                      <MessageCard item={newest} selected={newest.id === selectedId} onClick={() => {}} />
                     </div>
-                  ))
+                    <div style={{
+                      overflow:'hidden',
+                      maxHeight: expanded ? '600px' : '0px',
+                      opacity: expanded ? 1 : 0,
+                      transform: expanded ? 'translateY(0)' : 'translateY(-10px)',
+                      transition:'max-height 280ms ease-out, opacity 220ms ease-out, transform 220ms ease-out',
+                    }}>
+                      {rest.map(i => (
+                        <div key={i.id} style={{ position:'relative' }} onClick={() => onSelect(i)}>
+                          <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 ) : (
                   <div style={{ position:'relative' }}
                     onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: true }))}>
