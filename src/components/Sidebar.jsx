@@ -336,41 +336,33 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
             const rest = g.items.slice(1)
             const peekCount = Math.min(rest.length, 2)
             return (
-              <div key={g.key} style={{ marginBottom: expanded ? 0 : peekCount * 5 }}>
+              <div key={g.key} style={{ marginBottom: expanded ? 0 : peekCount * 8 }}>
                 {expanded ? (
-                  <>
-                    {g.items.map((i, idx) => (
-                      <div key={i.id} style={{ position:'relative' }}>
-                        <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
-                      </div>
-                    ))}
-                    <div onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: false }))}
-                      style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--purple)',
-                        cursor:'pointer', padding:'3px 0 6px', userSelect:'none' }}>
-                      Colapsar
+                  g.items.map((i, idx) => (
+                    <div key={i.id} style={{ position:'relative' }}
+                      onClick={() => { if (idx === 0) setExpandedGroups(p => ({ ...p, [g.key]: false })); else onSelect(i) }}>
+                      <MessageCard item={i} selected={i.id === selectedId} onClick={() => { if (idx > 0) onSelect(i) }} />
                     </div>
-                  </>
+                  ))
                 ) : (
-                  <div style={{ position:'relative' }}>
-                    {/* Peek cards behind */}
+                  <div style={{ position:'relative' }}
+                    onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: true }))}>
                     {Array.from({ length: peekCount }).map((_, pi) => (
                       <div key={`peek-${g.key}-${pi}`}
-                        onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: true }))}
                         style={{
-                          position:'absolute', bottom: -(pi + 1) * 5, left: (pi + 1) * 4,
-                          right: -(pi + 1) * 2, height: 10,
+                          position:'absolute', bottom: -(pi + 1) * 8, left: (pi + 1) * 4,
+                          right: 0, height: 8,
                           background: pi === 0 ? 'var(--surface2)' : 'var(--surface)',
                           border:'1px solid var(--border)', borderRadius:'0 0 8px 8px',
-                          zIndex: -pi - 1, cursor:'pointer',
+                          zIndex: 2 - pi,
                         }} />
                     ))}
-                    <div style={{ position:'relative', zIndex:1 }}>
-                      <MessageCard item={newest} selected={newest.id === selectedId} onClick={() => onSelect(newest)} />
-                      <span onClick={e => { e.stopPropagation(); setExpandedGroups(p => ({ ...p, [g.key]: true })) }}
-                        style={{
+                    <div style={{ position:'relative', zIndex:3 }}>
+                      <MessageCard item={newest} selected={newest.id === selectedId} onClick={() => {}} />
+                      <span style={{
                           position:'absolute', bottom:6, right:8, fontSize:10, fontWeight:700,
                           background:'var(--purple)', color:'#fff', borderRadius:99,
-                          padding:'2px 7px', cursor:'pointer', zIndex:3, lineHeight:1.4,
+                          padding:'2px 7px', zIndex:4, lineHeight:1.4, pointerEvents:'none',
                         }}>
                         +{rest.length} mas
                       </span>
