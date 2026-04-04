@@ -226,20 +226,18 @@ export default function Supervision({ onLogout }) {
                   )}
                   {/* Botón corregir */}
                   {item.accion === 'corregido_post_envio' ? (
-                    <span style={{ fontSize:12, fontWeight:700, color:'var(--green)', padding:'3px 10px', borderRadius:99, background:'var(--green-light)', border:'1px solid var(--green-border)', display:'inline-flex', alignItems:'center', gap:4 }}>
-                      ✓ Ya corregida
-                    </span>
-                  ) : item.es_error ? (
-                    <span style={{ fontSize:12, fontWeight:600, color:'var(--green)', display:'inline-flex', alignItems:'center', gap:4 }}>
+                    <span style={{fontSize:11, fontWeight:500, color:'#16a34a',
+                      background:'#f0fdf4', border:'1px solid #bbf7d0',
+                      padding:'2px 8px', borderRadius:4}}>
                       Ya corregida
                     </span>
-                  ) : (
+                  ) : item.accion === 'auto_enviado' ? (
                     <button
                       onClick={() => { setCorrModal(item); setCorrTexto('') }}
                       style={{ fontSize:12, fontWeight:600, padding:'5px 14px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--red-border)', background:'var(--red-light)', color:'var(--red)', cursor:'pointer' }}>
                       Marcar como error
                     </button>
-                  )}
+                  ) : null}
                 </div>
               )
             })}
