@@ -31,7 +31,7 @@ export default function Supervision({ onLogout }) {
   const load = async (off = 0) => {
     setLoading(true)
     const tok = localStorage.getItem('khn_token')
-    let url = `${RAILWAY}/api/feedback?limit=${LIMIT}&offset=${off}&excluir_accion=corregido_post_envio&canal=${canalTab}`
+    let url = `${RAILWAY}/api/feedback?limit=${LIMIT}&offset=${off}&canal=${canalTab}`
     if (filtCuenta)     url += `&cuenta=${filtCuenta}`
     if (filtError)      url += `&es_error=${filtError}`
     if (filtDesde)      url += `&fecha_desde=${filtDesde}`
