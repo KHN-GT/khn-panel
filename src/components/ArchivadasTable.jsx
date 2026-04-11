@@ -36,6 +36,8 @@ export default function ArchivadasTable({ onClose }) {
   const [cuenta, setCuenta] = useState('Todas')
   const [search, setSearch] = useState('')
   const [searchDebounced, setSearchDebounced] = useState('')
+  const [pinEditId, setPinEditId] = useState(null)
+  const [pinNota, setPinNota] = useState('')
   const timer = useRef(null)
 
   const handleSearch = useCallback((val) => {
@@ -69,6 +71,34 @@ export default function ArchivadasTable({ onClose }) {
       })
       setItems(prev => prev.filter(i => i.id !== id))
       setTotal(prev => prev - 1)
+    } catch {}
+  }
+
+  const togglePin = async (item) => {
+    if (item.pinned) {
+      // Unpin directly
+      try {
+        await fetch(`${RAILWAY}/api/inbox/${item.id}/pin`, {
+          method: 'PATCH', headers: authHeaders(),
+          body: JSON.stringify({ pinned: false, pin_nota: '' })
+        })
+        setItems(prev => prev.map(i => i.id === item.id ? { ...i, pinned: false, pin_nota: '' } : i))
+      } catch {}
+    } else {
+      // Open pin editor
+      setPinEditId(item.id)
+      setPinNota(item.pin_nota || '')
+    }
+  }
+
+  const savePin = async (id) => {
+    try {
+      await fetch(`${RAILWAY}/api/inbox/${id}/pin`, {
+        method: 'PATCH', headers: authHeaders(),
+        body: JSON.stringify({ pinned: true, pin_nota: pinNota })
+      })
+      setItems(prev => prev.map(i => i.id === id ? { ...i, pinned: true, pin_nota: pinNota } : i))
+      setPinEditId(null)
     } catch {}
   }
 
@@ -122,24 +152,63 @@ export default function ArchivadasTable({ onClose }) {
             {items.map(item => {
               const ac = ACCT[item.cuenta] || { color:'var(--text3)', bg:'var(--surface2)', br:'var(--border)' }
               const tiempo = tiempoCompra(item.atendido_en, item.conversion_en)
+              const isPinned = item.pinned
               return (
-                <div key={item.id} style={{ background:'var(--surface)', border:'1.5px solid var(--border)',
+                <div key={item.id} style={{
+                  background: isPinned ? '#fffbeb' : 'var(--surface)',
+                  border: isPinned ? '1.5px solid #fde68a' : '1.5px solid var(--border)',
                   borderRadius:'var(--radius)', overflow:'hidden', position:'relative' }}>
 
-                  {/* Desarchivar button */}
-                  <button onClick={() => desarchivar(item.id)}
-                    style={{ position:'absolute', top:10, right:10, fontSize:11, fontWeight:600,
-                      padding:'4px 10px', borderRadius:6, border:'1px solid var(--border)',
-                      background:'var(--surface)', color:'var(--text3)', cursor:'pointer', zIndex:2 }}
-                    onMouseEnter={ev => { ev.currentTarget.style.background='var(--surface2)'; ev.currentTarget.style.color='var(--text)' }}
-                    onMouseLeave={ev => { ev.currentTarget.style.background='var(--surface)'; ev.currentTarget.style.color='var(--text3)' }}>
-                    Desarchivar
-                  </button>
+                  {/* Top-right buttons */}
+                  <div style={{ position:'absolute', top:10, right:10, display:'flex', gap:6, zIndex:2 }}>
+                    <button onClick={() => togglePin(item)}
+                      title={isPinned ? 'Quitar pin' : 'Pinear'}
+                      style={{ fontSize:14, padding:'3px 6px', borderRadius:6,
+                        border: isPinned ? '1px solid #fde68a' : '1px solid var(--border)',
+                        background: isPinned ? '#fef3c7' : 'var(--surface)',
+                        cursor:'pointer', lineHeight:1 }}>
+                      {'\uD83D\uDCCC'}
+                    </button>
+                    <button onClick={() => desarchivar(item.id)}
+                      style={{ fontSize:11, fontWeight:600, padding:'4px 10px', borderRadius:6,
+                        border:'1px solid var(--border)', background:'var(--surface)',
+                        color:'var(--text3)', cursor:'pointer' }}
+                      onMouseEnter={ev => { ev.currentTarget.style.background='var(--surface2)'; ev.currentTarget.style.color='var(--text)' }}
+                      onMouseLeave={ev => { ev.currentTarget.style.background='var(--surface)'; ev.currentTarget.style.color='var(--text3)' }}>
+                      Desarchivar
+                    </button>
+                  </div>
+
+                  {/* Pin editor inline */}
+                  {pinEditId === item.id && (
+                    <div style={{ padding:'10px 14px', background:'#fef3c7', borderBottom:'1px solid #fde68a',
+                      display:'flex', gap:8, alignItems:'center' }}>
+                      <span style={{ fontSize:14 }}>{'\uD83D\uDCCC'}</span>
+                      <textarea value={pinNota} onChange={e => setPinNota(e.target.value)}
+                        placeholder="Nota del pin (opcional)..."
+                        rows={1}
+                        style={{ flex:1, fontSize:12, padding:'5px 8px', borderRadius:6,
+                          border:'1px solid #fde68a', background:'#fff', color:'var(--text)',
+                          resize:'none', boxSizing:'border-box' }} />
+                      <button onClick={() => savePin(item.id)}
+                        style={{ fontSize:11, fontWeight:700, padding:'5px 14px', borderRadius:6,
+                          background:'#f59e0b', color:'#fff', border:'none', cursor:'pointer' }}>
+                        Pinear
+                      </button>
+                      <button onClick={() => setPinEditId(null)}
+                        style={{ fontSize:11, padding:'5px 10px', borderRadius:6,
+                          border:'1px solid var(--border)', background:'transparent',
+                          color:'var(--text3)', cursor:'pointer' }}>
+                        Cancelar
+                      </button>
+                    </div>
+                  )}
 
                   <div style={{ display:'flex', gap:0 }}>
                     {/* Left: product info */}
                     <div style={{ width:200, flexShrink:0, padding:14, borderRight:'1px solid var(--border)',
-                      display:'flex', flexDirection:'column', gap:8, background:'var(--surface2)' }}>
+                      display:'flex', flexDirection:'column', gap:8,
+                      background: isPinned ? '#fefce8' : 'var(--surface2)' }}>
                       {item.imagen_thumbnail ? (
                         <img src={item.imagen_thumbnail} alt=""
                           style={{ width:'100%', height:120, objectFit:'contain', borderRadius:6,
@@ -182,6 +251,12 @@ export default function ArchivadasTable({ onClose }) {
                     <div style={{ flex:1, padding:14, display:'flex', flexDirection:'column', gap:10, minWidth:0 }}>
                       {/* Meta row */}
                       <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+                        {isPinned && (
+                          <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4,
+                            background:'#fef3c7', color:'#b45309', border:'1px solid #fde68a' }}>
+                            {'\uD83D\uDCCC'} Pineada
+                          </span>
+                        )}
                         <span style={{ fontSize:11, color:'var(--text3)' }}>{formatFecha(item.creado_en)}</span>
                         <span style={{ fontSize:11, color:'var(--text3)' }}>
                           {item.comprador || 'Comprador'}
@@ -194,6 +269,14 @@ export default function ArchivadasTable({ onClose }) {
                           </span>
                         )}
                       </div>
+
+                      {/* Pin nota */}
+                      {isPinned && item.pin_nota && (
+                        <div style={{ fontSize:12, color:'#92400e', background:'#fef3c7',
+                          padding:'6px 10px', borderRadius:6, border:'1px solid #fde68a', lineHeight:1.5 }}>
+                          {item.pin_nota}
+                        </div>
+                      )}
 
                       {/* Pregunta */}
                       <div style={{ fontSize:13, color:'var(--text)', lineHeight:1.6 }}>
