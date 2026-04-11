@@ -159,25 +159,26 @@ export default function ArchivadasTable({ onClose }) {
                   border: isPinned ? '1.5px solid #fde68a' : '1.5px solid var(--border)',
                   borderRadius:'var(--radius)', overflow:'hidden', position:'relative' }}>
 
-                  {/* Top-right buttons */}
-                  <div style={{ position:'absolute', top:10, right:10, display:'flex', gap:6, zIndex:2 }}>
-                    <button onClick={() => togglePin(item)}
-                      title={isPinned ? 'Quitar pin' : 'Pinear'}
-                      style={{ fontSize:14, padding:'3px 6px', borderRadius:6,
-                        border: isPinned ? '1px solid #fde68a' : '1px solid var(--border)',
-                        background: isPinned ? '#fef3c7' : 'var(--surface)',
-                        cursor:'pointer', lineHeight:1 }}>
-                      {'\uD83D\uDCCC'}
-                    </button>
-                    <button onClick={() => desarchivar(item.id)}
-                      style={{ fontSize:11, fontWeight:600, padding:'4px 10px', borderRadius:6,
-                        border:'1px solid var(--border)', background:'var(--surface)',
-                        color:'var(--text3)', cursor:'pointer' }}
-                      onMouseEnter={ev => { ev.currentTarget.style.background='var(--surface2)'; ev.currentTarget.style.color='var(--text)' }}
-                      onMouseLeave={ev => { ev.currentTarget.style.background='var(--surface)'; ev.currentTarget.style.color='var(--text3)' }}>
-                      Desarchivar
-                    </button>
-                  </div>
+                  {/* Pin button — top left */}
+                  <button onClick={() => togglePin(item)}
+                    title={isPinned ? 'Quitar pin' : 'Pinear'}
+                    style={{ position:'absolute', top:10, left:10, fontSize:14, padding:'3px 6px',
+                      borderRadius:6, zIndex:2, lineHeight:1, cursor:'pointer',
+                      border: isPinned ? '1px solid #fde68a' : '1px solid var(--border)',
+                      background: isPinned ? '#fef3c7' : 'var(--surface)' }}>
+                    {'\uD83D\uDCCC'}
+                  </button>
+
+                  {/* Desarchivar — top right */}
+                  <button onClick={() => desarchivar(item.id)}
+                    style={{ position:'absolute', top:10, right:10, fontSize:11, fontWeight:600,
+                      padding:'4px 10px', borderRadius:6, zIndex:2,
+                      border:'1px solid var(--border)', background:'var(--surface)',
+                      color:'var(--text3)', cursor:'pointer' }}
+                    onMouseEnter={ev => { ev.currentTarget.style.background='var(--surface2)'; ev.currentTarget.style.color='var(--text)' }}
+                    onMouseLeave={ev => { ev.currentTarget.style.background='var(--surface)'; ev.currentTarget.style.color='var(--text3)' }}>
+                    Desarchivar
+                  </button>
 
                   {/* Pin editor inline */}
                   {pinEditId === item.id && (
