@@ -153,7 +153,7 @@ export default function ArchivadasTable({ onClose }) {
                       )}
                       <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', lineHeight:1.4,
                         overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>
-                        {item.titulo || item.item_id || item.sku || '-'}
+                        {item.producto || item.sku || '-'}
                       </div>
                       {item.precio && (
                         <div style={{ fontSize:14, fontWeight:800, color:'var(--text)' }}>
