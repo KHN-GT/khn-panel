@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Read(//c/Users/KHN/graphictek-worker/**)",
+      "Bash(python scripts/fix_cp1252.py)",
+      "Bash(git push:*)",
+      "Bash(git remote:*)",
+      "Bash(python:*)"
+    ]
+  }
+}
