@@ -153,7 +153,7 @@ export default function ArchivadasTable({ onClose }) {
                       )}
                       <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', lineHeight:1.4,
                         overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>
-                        {item.titulo || item.mensaje_cliente?.slice(0, 60) || '-'}
+                        {item.titulo || item.item_id || item.sku || '-'}
                       </div>
                       {item.precio && (
                         <div style={{ fontSize:14, fontWeight:800, color:'var(--text)' }}>
@@ -208,7 +208,7 @@ export default function ArchivadasTable({ onClose }) {
                             textTransform:'uppercase', letterSpacing:'.05em' }}>
                             Respuesta IA
                           </div>
-                          <div style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, whiteSpace:'pre-wrap' }}>
+                          <div style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, whiteSpace:'normal' }}>
                             {item.respuesta_ia}
                           </div>
                         </div>
