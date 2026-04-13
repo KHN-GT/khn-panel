@@ -308,9 +308,9 @@ export default function PreCompra({ onLogout }) {
               const showPreview = hasAI && !isEditing
               const showEdit = isEditing
               return (
-                <div>
+                <div style={{ marginTop:8 }}>
                   {hasAI && (
-                    <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase',
+                    <div style={{ fontSize:10, fontWeight:700, color:'var(--purple)', textTransform:'uppercase',
                       letterSpacing:'.05em', marginBottom:4 }}>
                       {isEditing ? 'Editando respuesta' : 'Respuesta sugerida \u2014 clic para editar'}
                     </div>
@@ -322,9 +322,10 @@ export default function PreCompra({ onLogout }) {
                       onClick={() => { setReplyId(item.id); setReplyText(flatAI) }}
                       style={{
                         width:'100%', boxSizing:'border-box', fontSize:13, lineHeight:1.5,
-                        padding:'8px 12px', borderRadius:6, minHeight:60,
-                        resize:'none', background:'transparent',
-                        border:'1px solid var(--border)', color:'var(--text2)',
+                        padding:'8px 12px', borderRadius:'0 6px 6px 0', minHeight:60,
+                        resize:'none', background:'#f8f7ff',
+                        border:'1px solid var(--border)', borderLeft:'3px solid var(--purple)',
+                        color:'var(--text2)',
                         cursor:'pointer',
                       }} />
                   )}
