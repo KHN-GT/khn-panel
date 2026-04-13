@@ -60,6 +60,8 @@ export default function PreCompra({ onLogout }) {
   const [replyId, setReplyId] = useState(null)
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
+  const [editingPinNota, setEditingPinNota] = useState(null)
+  const [pinNotaText, setPinNotaText] = useState('')
   const timer = useRef(null)
 
   const handleSearch = useCallback((val) => {
@@ -93,17 +95,47 @@ export default function PreCompra({ onLogout }) {
     try {
       const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/approve`, {
         method: 'POST', headers: authHeaders(),
-        body: JSON.stringify({ respuesta: replyText.trim() })
+        body: JSON.stringify({ respuesta_final: replyText.trim(), accion: 'aprobado' })
       })
       if (r.ok) {
         setItems(prev => prev.map(i => i.id === item.id
-          ? { ...i, estado: 'resuelto', respuesta_ia: replyText.trim(), atendido_por: 'humano' }
+          ? { ...i, estado: 'enviada', respuesta_ia: replyText.trim(), atendido_por: 'humano' }
           : i))
         setReplyId(null)
         setReplyText('')
       }
     } catch {}
     setSending(false)
+  }
+
+  const togglePin = async (item) => {
+    const newPinned = !item.pinned
+    try {
+      const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/pin`, {
+        method: 'PATCH', headers: authHeaders(),
+        body: JSON.stringify({ pinned: newPinned, pin_nota: newPinned ? (item.pin_nota || '') : '' })
+      })
+      if (r.ok) {
+        setItems(prev => prev.map(i => i.id === item.id
+          ? { ...i, pinned: newPinned, pin_nota: newPinned ? (i.pin_nota || '') : '' }
+          : i))
+      }
+    } catch {}
+  }
+
+  const savePinNota = async (item) => {
+    try {
+      const r = await fetch(`${RAILWAY}/api/inbox/${item.id}/pin`, {
+        method: 'PATCH', headers: authHeaders(),
+        body: JSON.stringify({ pinned: true, pin_nota: pinNotaText })
+      })
+      if (r.ok) {
+        setItems(prev => prev.map(i => i.id === item.id
+          ? { ...i, pin_nota: pinNotaText }
+          : i))
+        setEditingPinNota(null)
+      }
+    } catch {}
   }
 
   // Client-side filter by estado tab
@@ -124,6 +156,12 @@ export default function PreCompra({ onLogout }) {
   groups.forEach(g => {
     g.items.sort((a, b) => new Date(a.creado_en) - new Date(b.creado_en))
   })
+  // Pinned groups first
+  groups.sort((a, b) => {
+    const ap = a.items.some(i => i.pinned) ? 1 : 0
+    const bp = b.items.some(i => i.pinned) ? 1 : 0
+    return bp - ap
+  })
 
   const totalPages = Math.ceil(total / LIMIT)
   const currentPage = Math.floor(offset / LIMIT) + 1
@@ -138,6 +176,19 @@ export default function PreCompra({ onLogout }) {
         background: isPinned ? '#fffbeb' : 'var(--surface)',
         border: isPinned ? '1.5px solid #fde68a' : '1.5px solid var(--border)',
         borderRadius:'var(--radius)', overflow:'hidden', position:'relative' }}>
+
+        {/* Pin button */}
+        <button onClick={(e) => { e.stopPropagation(); togglePin(item) }}
+          title={isPinned ? 'Despinear' : 'Pinear'}
+          style={{ position:'absolute', top:6, left:6, zIndex:5, fontSize:14, lineHeight:1,
+            width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center',
+            borderRadius:6, border: isPinned ? '1px solid #fde68a' : '1px solid var(--border)',
+            background: isPinned ? '#fef3c7' : 'var(--surface)', cursor:'pointer',
+            opacity: isPinned ? 1 : 0.5, transition:'opacity 150ms' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = 1}
+          onMouseLeave={e => { if (!isPinned) e.currentTarget.style.opacity = 0.5 }}>
+          {'\uD83D\uDCCC'}
+        </button>
 
         <div style={{ display:'flex', gap:0 }}>
           {/* Left: product info */}
@@ -208,6 +259,42 @@ export default function PreCompra({ onLogout }) {
               </span>
             </div>
 
+            {/* Pin nota */}
+            {isPinned && (
+              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                {editingPinNota === item.id ? (
+                  <>
+                    <input type="text" value={pinNotaText}
+                      onChange={e => setPinNotaText(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') savePinNota(item) }}
+                      placeholder="Nota del pin..."
+                      style={{ flex:1, fontSize:12, padding:'4px 8px', borderRadius:4,
+                        border:'1px solid #fde68a', background:'#fffbeb', color:'var(--text)',
+                        maxWidth:300 }} />
+                    <button onClick={() => savePinNota(item)}
+                      style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:4,
+                        background:'#f59e0b', color:'#fff', border:'none', cursor:'pointer' }}>
+                      Guardar
+                    </button>
+                    <button onClick={() => setEditingPinNota(null)}
+                      style={{ fontSize:10, padding:'3px 8px', borderRadius:4,
+                        border:'1px solid var(--border)', background:'transparent',
+                        color:'var(--text3)', cursor:'pointer' }}>
+                      Cancelar
+                    </button>
+                  </>
+                ) : (
+                  <div style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer' }}
+                    onClick={(e) => { e.stopPropagation(); setEditingPinNota(item.id); setPinNotaText(item.pin_nota || '') }}>
+                    <span style={{ fontSize:12, color:'#b45309', fontStyle: item.pin_nota ? 'normal' : 'italic' }}>
+                      {item.pin_nota || 'Agregar nota...'}
+                    </span>
+                    <span style={{ fontSize:10, color:'#d97706' }}>{'\u270F\uFE0F'}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Pregunta */}
             <div style={{ fontSize:13, color:'var(--text)', lineHeight:1.6 }}>
               {item.mensaje_cliente || '-'}
@@ -231,11 +318,12 @@ export default function PreCompra({ onLogout }) {
             {isPendiente && replyId === item.id && (
               <div style={{ display:'flex', gap:8, alignItems:'flex-start' }}>
                 <textarea value={replyText} onChange={e => setReplyText(e.target.value)}
-                  placeholder="Escribir respuesta..."
-                  rows={3}
+                  onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') sendReply(item) }}
+                  placeholder="Escribe tu respuesta..."
+                  rows={4}
                   style={{ flex:1, fontSize:13, padding:'8px 10px', borderRadius:6,
                     border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text)',
-                    resize:'vertical', boxSizing:'border-box' }} />
+                    resize:'vertical', boxSizing:'border-box', minHeight:100 }} />
                 <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
                   <button onClick={() => sendReply(item)} disabled={sending}
                     style={{ fontSize:11, fontWeight:700, padding:'6px 14px', borderRadius:6,
