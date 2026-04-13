@@ -307,26 +307,16 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
             <div style={{ fontSize:13, marginTop:4 }}>No hay mensajes pendientes</div>
           </div>
         ) : (() => {
-          const isPCPendientes = tipoFilter === 'PRE-COMPRA' && precompSubTab === 'pendientes'
-          if (!isPCPendientes) {
+          const isPCStacked = tipoFilter === 'PRE-COMPRA' && (precompSubTab === 'pendientes' || precompSubTab === 'respondidas')
+          const isPCRespondidas = tipoFilter === 'PRE-COMPRA' && precompSubTab === 'respondidas'
+          if (!isPCStacked) {
             return filtered.map(i => (
               <div key={i.id} style={{ position: 'relative' }}>
                 <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
-                {tipoFilter === 'PRE-COMPRA' && precompSubTab === 'respondidas' && (
-                  <button onClick={(e) => { e.stopPropagation(); archivarUno(i.id) }} title="Archivar"
-                    style={{ position: 'absolute', top: 6, right: 6, fontSize: 14,
-                      background: 'var(--surface)', border: '1px solid var(--border)',
-                      borderRadius: 6, cursor: 'pointer', padding: '2px 5px', lineHeight: 1,
-                      opacity: 0.6, zIndex: 2 }}
-                    onMouseEnter={ev => ev.currentTarget.style.opacity='1'}
-                    onMouseLeave={ev => ev.currentTarget.style.opacity='0.6'}>
-                    {'\uD83D\uDDD1\uFE0F'}
-                  </button>
-                )}
               </div>
             ))
           }
-          // Agrupar PRE-COMPRA pendientes por comprador+producto
+          // Agrupar PRE-COMPRA por comprador+producto
           const groups = []
           const groupMap = {}
           filtered.forEach(i => {
@@ -337,12 +327,24 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
             }
             groupMap[key].items.push(i)
           })
+          const archiveBtn = (item) => isPCRespondidas ? (
+            <button onClick={(e) => { e.stopPropagation(); archivarUno(item.id) }} title="Archivar"
+              style={{ position: 'absolute', top: 6, right: 6, fontSize: 14,
+                background: 'var(--surface)', border: '1px solid var(--border)',
+                borderRadius: 6, cursor: 'pointer', padding: '2px 5px', lineHeight: 1,
+                opacity: 0.6, zIndex: 5 }}
+              onMouseEnter={ev => ev.currentTarget.style.opacity='1'}
+              onMouseLeave={ev => ev.currentTarget.style.opacity='0.6'}>
+              {'\uD83D\uDDD1\uFE0F'}
+            </button>
+          ) : null
           return groups.map(g => {
             if (g.items.length === 1) {
               const i = g.items[0]
               return (
                 <div key={i.id} style={{ position: 'relative' }}>
                   <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
+                  {archiveBtn(i)}
                 </div>
               )
             }
@@ -357,6 +359,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
                     <div style={{ position:'relative' }}
                       onClick={() => { setExpandedGroups(p => ({ ...p, [g.key]: false })); onSelect(newest) }}>
                       <MessageCard item={newest} selected={newest.id === selectedId} onClick={() => {}} />
+                      {archiveBtn(newest)}
                     </div>
                     <div style={{
                       overflow:'hidden',
@@ -368,6 +371,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
                       {rest.map(i => (
                         <div key={i.id} style={{ position:'relative' }} onClick={() => onSelect(i)}>
                           <MessageCard item={i} selected={i.id === selectedId} onClick={() => onSelect(i)} />
+                          {archiveBtn(i)}
                         </div>
                       ))}
                     </div>
@@ -387,6 +391,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
                     ))}
                     <div style={{ position:'relative', zIndex:3 }}>
                       <MessageCard item={newest} selected={newest.id === selectedId} onClick={() => {}} />
+                      {archiveBtn(newest)}
                       <span style={{
                           position:'absolute', bottom:6, right:8, fontSize:10, fontWeight:700,
                           background:'var(--purple)', color:'#fff', borderRadius:99,
