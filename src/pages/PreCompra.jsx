@@ -280,8 +280,8 @@ export default function PreCompra({ onLogout }) {
               {item.mensaje_cliente || '-'}
             </div>
 
-            {/* Respuesta */}
-            {(item.respuesta_ia || item.respuesta_final) && (() => {
+            {/* Respuesta — non-pendiente: read-only block */}
+            {!isPendiente && (item.respuesta_ia || item.respuesta_final) && (() => {
               const texto = item.respuesta_final || item.respuesta_ia
               const esIA = !item.atendido_por || item.atendido_por === 'IA' || (item.atendido_por && item.atendido_por.startsWith('auto'))
               const label = esIA ? 'Respuesta IA' : 'Respuesta Humano'
@@ -300,42 +300,82 @@ export default function PreCompra({ onLogout }) {
               )
             })()}
 
-            {/* Reply inline */}
-            {isPendiente && replyId === item.id && (
-              <div style={{ display:'flex', gap:8, alignItems:'flex-start' }}>
-                <textarea value={replyText} onChange={e => setReplyText(e.target.value)}
-                  onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') sendReply(item) }}
-                  placeholder="Escribe tu respuesta..."
-                  rows={4}
-                  style={{ flex:1, fontSize:13, padding:'8px 10px', borderRadius:6,
-                    border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text)',
-                    resize:'vertical', boxSizing:'border-box', minHeight:100 }} />
-                <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-                  <button onClick={() => sendReply(item)} disabled={sending}
-                    style={{ fontSize:11, fontWeight:700, padding:'6px 14px', borderRadius:6,
-                      background:'var(--purple)', color:'#fff', border:'none', cursor:'pointer',
-                      opacity: sending ? 0.6 : 1 }}>
-                    {sending ? 'Enviando...' : 'Enviar'}
-                  </button>
-                  <button onClick={() => { setReplyId(null); setReplyText('') }}
-                    style={{ fontSize:11, padding:'6px 10px', borderRadius:6,
-                      border:'1px solid var(--border)', background:'transparent',
-                      color:'var(--text3)', cursor:'pointer' }}>
-                    Cancelar
-                  </button>
+            {/* Pendiente: editable reply area */}
+            {isPendiente && (() => {
+              const isEditing = replyId === item.id
+              const hasAI = !!item.respuesta_ia
+              const flatAI = hasAI ? item.respuesta_ia.replace(/\n/g, ' ') : ''
+              const showPreview = hasAI && !isEditing
+              const showEdit = isEditing
+              return (
+                <div>
+                  {hasAI && (
+                    <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', textTransform:'uppercase',
+                      letterSpacing:'.05em', marginBottom:4 }}>
+                      {isEditing ? 'Editando respuesta' : 'Respuesta sugerida \u2014 clic para editar'}
+                    </div>
+                  )}
+                  {showPreview && (
+                    <textarea
+                      value={flatAI}
+                      readOnly
+                      onClick={() => { setReplyId(item.id); setReplyText(flatAI) }}
+                      style={{
+                        width:'100%', boxSizing:'border-box', fontSize:13, lineHeight:1.5,
+                        padding:'8px 12px', borderRadius:6, minHeight:60,
+                        resize:'none', background:'transparent',
+                        border:'1px solid var(--border)', color:'var(--text2)',
+                        cursor:'pointer',
+                      }} />
+                  )}
+                  {showEdit && (
+                    <>
+                      <textarea
+                        value={replyText}
+                        onChange={e => setReplyText(e.target.value)}
+                        onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') sendReply(item) }}
+                        placeholder="Escribe tu respuesta..."
+                        autoFocus={hasAI}
+                        style={{
+                          width:'100%', boxSizing:'border-box', fontSize:13, lineHeight:1.5,
+                          padding:'8px 12px', borderRadius:6, minHeight:80,
+                          resize:'vertical', background:'var(--surface)',
+                          border:'2px solid var(--purple)', color:'var(--text)',
+                        }} />
+                      <div style={{ display:'flex', gap:8, marginTop:6 }}>
+                        <button onClick={() => sendReply(item)} disabled={sending}
+                          style={{ fontSize:11, fontWeight:700, padding:'6px 14px', borderRadius:6,
+                            background:'var(--purple)', color:'#fff', border:'none', cursor:'pointer',
+                            opacity: sending ? 0.6 : 1 }}>
+                          {sending ? 'Enviando...' : 'Enviar'}
+                        </button>
+                        {hasAI && (
+                          <button onClick={() => { setReplyId(null); setReplyText('') }}
+                            style={{ fontSize:11, padding:'6px 10px', borderRadius:6,
+                              border:'1px solid var(--border)', background:'transparent',
+                              color:'var(--text3)', cursor:'pointer' }}>
+                            Cancelar
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+                  {!hasAI && !isEditing && (
+                    <textarea
+                      placeholder="Escribe tu respuesta..."
+                      readOnly
+                      onClick={() => { setReplyId(item.id); setReplyText('') }}
+                      style={{
+                        width:'100%', boxSizing:'border-box', fontSize:13, lineHeight:1.5,
+                        padding:'8px 12px', borderRadius:6, minHeight:60,
+                        resize:'none', background:'transparent',
+                        border:'1px solid var(--border)', color:'var(--text3)',
+                        cursor:'pointer',
+                      }} />
+                  )}
                 </div>
-              </div>
-            )}
-
-            {/* Responder button */}
-            {isPendiente && replyId !== item.id && (
-              <button onClick={() => { setReplyId(item.id); setReplyText(item.respuesta_ia || '') }}
-                style={{ alignSelf:'flex-start', fontSize:11, fontWeight:600, padding:'5px 14px',
-                  borderRadius:6, background:'var(--purple-light)', color:'var(--purple)',
-                  border:'1px solid var(--purple-border)', cursor:'pointer' }}>
-                Responder
-              </button>
-            )}
+              )
+            })()}
           </div>
         </div>
       </div>
