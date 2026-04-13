@@ -33,6 +33,9 @@ export default function Ventas({ onLogout }) {
   const [refreshingShip, setRefreshingShip] = useState({})
   const [selectedOrders, setSelectedOrders] = useState(new Set())
   const [refreshingBulk, setRefreshingBulk] = useState(false)
+  const [editingNota, setEditingNota] = useState(null)
+  const [notaText, setNotaText] = useState('')
+  const [savingNota, setSavingNota] = useState(false)
 
   const toggleSelect = (shipment_id, cuentaId) => {
     setSelectedOrders(prev => {
@@ -99,17 +102,26 @@ export default function Ventas({ onLogout }) {
     debounceRef.current = setTimeout(() => setBusquedaDebounced(val), 300)
   }
 
+  const segMap = useMemo(() => {
+    const m = {}
+    seguimientos.forEach(s => { if (s.orden_id) m[s.orden_id] = s })
+    return m
+  }, [seguimientos])
+
   const ordenesFiltradas = useMemo(() => {
     const q = busquedaDebounced.toLowerCase().trim()
-    if (!q) return ordenes
-    return ordenes.filter(o =>
-      (o.orden_id || '').toLowerCase().includes(q) ||
-      (o.comprador_nickname || '').toLowerCase().includes(q) ||
-      (o.comprador_nombre || '').toLowerCase().includes(q) ||
-      (o.producto || '').toLowerCase().includes(q) ||
-      (o.sku || '').toLowerCase().includes(q)
-    )
-  }, [ordenes, busquedaDebounced])
+    let list = ordenes
+    if (q) {
+      list = list.filter(o =>
+        (o.orden_id || '').toLowerCase().includes(q) ||
+        (o.comprador_nickname || '').toLowerCase().includes(q) ||
+        (o.comprador_nombre || '').toLowerCase().includes(q) ||
+        (o.producto || '').toLowerCase().includes(q) ||
+        (o.sku || '').toLowerCase().includes(q)
+      )
+    }
+    return [...list].sort((a, b) => (segMap[b.orden_id] ? 1 : 0) - (segMap[a.orden_id] ? 1 : 0))
+  }, [ordenes, busquedaDebounced, segMap])
 
   const autoRefreshLogisticTypes = (lista) => {
     const cache = (() => { try { return JSON.parse(localStorage.getItem('khn_logistic_cache') || '{}') } catch { return {} } })()
@@ -195,6 +207,42 @@ export default function Ventas({ onLogout }) {
       await cargarSeguimientos()
       await cargarOrdenes(true)
     } catch (e) { alert('Error: ' + e.message) }
+  }
+
+  const pinOrder = async (o) => {
+    try {
+      await fetch(`${RAILWAY}/api/seguimientos`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({
+          orden_id: o.orden_id, cuenta: o.cuenta, producto: o.producto,
+          sku: o.sku, comprador_nickname: o.comprador_nickname, notas: ''
+        })
+      })
+      await cargarSeguimientos()
+    } catch {}
+  }
+
+  const unpinOrder = async (segId) => {
+    try {
+      await fetch(`${RAILWAY}/api/seguimientos/${segId}`, {
+        method: 'PATCH', headers: authHeaders(),
+        body: JSON.stringify({ activo: false })
+      })
+      await cargarSeguimientos()
+    } catch {}
+  }
+
+  const saveOrderNota = async (segId) => {
+    setSavingNota(true)
+    try {
+      await fetch(`${RAILWAY}/api/seguimientos/${segId}`, {
+        method: 'PATCH', headers: authHeaders(),
+        body: JSON.stringify({ notas: notaText })
+      })
+      await cargarSeguimientos()
+      setEditingNota(null)
+    } catch {}
+    setSavingNota(false)
   }
 
   const statusBadge = (st) => {
@@ -305,9 +353,10 @@ export default function Ventas({ onLogout }) {
         {/* Tabla de ordenes */}
         <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', border: '1px solid var(--border)',
           boxShadow: 'var(--shadow)', overflow: 'hidden', marginBottom: 28 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '30px 60px 1fr 1.2fr 90px 110px 100px 80px 100px',
+          <div style={{ display: 'grid', gridTemplateColumns: '28px 30px 60px 1fr 1.2fr 90px 110px 100px 80px 100px',
             padding: '10px 16px', background: 'var(--surface2)', fontSize: 11, fontWeight: 700,
             color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', gap: 8 }}>
+            <span>{'\uD83D\uDCCC'}</span>
             <input type="checkbox" onChange={toggleSelectAll}
               checked={ordenesFiltradas.filter(isSelectable).length > 0 && ordenesFiltradas.filter(isSelectable).every(o => selectedOrders.has(`${o.shipment_id}|${o.cuenta}`))}
               style={{ cursor: 'pointer' }} />
@@ -320,78 +369,138 @@ export default function Ventas({ onLogout }) {
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text3)', fontSize: 13 }}>
               {modo === 'historico' ? 'Sin ordenes en este rango' : 'Sin ordenes pendientes'}
             </div>
-          ) : ordenesFiltradas.map((o, i) => (
-            <div key={o.orden_id + i} className="animate-in"
-              style={{ display: 'grid', gridTemplateColumns: '30px 60px 1fr 1.2fr 90px 110px 100px 80px 100px',
-                padding: '10px 16px', borderTop: '1px solid var(--border)', fontSize: 13, gap: 8,
-                alignItems: 'center', background: i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)' }}>
-              {isSelectable(o) ? (
-                <input type="checkbox"
-                  checked={selectedOrders.has(`${o.shipment_id}|${o.cuenta}`)}
-                  onChange={() => toggleSelect(o.shipment_id, o.cuenta)}
-                  style={{ cursor: 'pointer' }} />
-              ) : <span />}
-              <span style={{ fontWeight: 700, color: CUENTA_COLORS[o.cuenta] || 'var(--text2)', fontSize: 12 }}>
-                {o.cuenta}
-              </span>
-              <div>
-                <div style={{ fontWeight: 600, color: 'var(--text1)' }}>{o.comprador_nickname}</div>
-                <div style={{ fontSize: 11, color: 'var(--text3)' }}>{o.comprador_nombre}</div>
-              </div>
-              <div>
-                <div style={{ color: 'var(--text2)', fontSize: 12 }}>{o.producto?.slice(0, 60)}{o.producto?.length > 60 ? '...' : ''}</div>
-                {o.sku && <div style={{ fontSize: 11, color: 'var(--text3)' }}>SKU: {o.sku}</div>}
-              </div>
-              <span style={{ fontWeight: 600 }}>{formatMonto(o.monto)}</span>
-              {statusBadge(o.status)}
-              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-start' }}>
-                  {shippingBadge(shipmentStatuses[o.shipment_id] || o.shipping_status)}
-                  {(logisticTypes[o.shipment_id] || o.logistic_type) === 'fulfillment' && (
-                    <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99,
-                      background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>FULL</span>
+          ) : ordenesFiltradas.map((o, i) => {
+            const seg = segMap[o.orden_id]
+            const isPinned = !!seg
+            return (
+            <div key={o.orden_id + i}>
+              <div className="animate-in"
+                style={{ display: 'grid', gridTemplateColumns: '28px 30px 60px 1fr 1.2fr 90px 110px 100px 80px 100px',
+                  padding: '10px 16px', borderTop: '1px solid var(--border)', fontSize: 13, gap: 8,
+                  alignItems: 'center', background: isPinned ? '#fffbeb' : (i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)') }}>
+                <button onClick={() => isPinned ? unpinOrder(seg.id) : pinOrder(o)}
+                  title={isPinned ? 'Despinear' : 'Pinear'}
+                  style={{ fontSize: 13, lineHeight: 1, width: 24, height: 24, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', borderRadius: 4,
+                    border: isPinned ? '1px solid #fde68a' : '1px solid var(--border)',
+                    background: isPinned ? '#fef3c7' : 'var(--surface)', cursor: 'pointer',
+                    opacity: isPinned ? 1 : 0.4, transition: 'opacity 150ms' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                  onMouseLeave={e => { if (!isPinned) e.currentTarget.style.opacity = 0.4 }}>
+                  {'\uD83D\uDCCC'}
+                </button>
+                {isSelectable(o) ? (
+                  <input type="checkbox"
+                    checked={selectedOrders.has(`${o.shipment_id}|${o.cuenta}`)}
+                    onChange={() => toggleSelect(o.shipment_id, o.cuenta)}
+                    style={{ cursor: 'pointer' }} />
+                ) : <span />}
+                <span style={{ fontWeight: 700, color: CUENTA_COLORS[o.cuenta] || 'var(--text2)', fontSize: 12 }}>
+                  {o.cuenta}
+                </span>
+                <div>
+                  <div style={{ fontWeight: 600, color: 'var(--text1)' }}>{o.comprador_nickname}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text3)' }}>{o.comprador_nombre}</div>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text2)', fontSize: 12 }}>{o.producto?.slice(0, 60)}{o.producto?.length > 60 ? '...' : ''}</div>
+                  {o.sku && <div style={{ fontSize: 11, color: 'var(--text3)' }}>SKU: {o.sku}</div>}
+                </div>
+                <span style={{ fontWeight: 600 }}>{formatMonto(o.monto)}</span>
+                {statusBadge(o.status)}
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-start' }}>
+                    {shippingBadge(shipmentStatuses[o.shipment_id] || o.shipping_status)}
+                    {(logisticTypes[o.shipment_id] || o.logistic_type) === 'fulfillment' && (
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99,
+                        background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>FULL</span>
+                    )}
+                  </div>
+                  {o.shipment_id && (
+                    <button onClick={() => refreshShipment(o.shipment_id, o.cuenta)}
+                      disabled={refreshingShip[o.shipment_id]}
+                      title="Actualizar estado de envio"
+                      style={{ fontSize: 12, padding: '1px 5px', borderRadius: 4, cursor: 'pointer',
+                        background: 'none', border: '1px solid var(--border)', color: 'var(--text3)',
+                        marginLeft: 'auto', opacity: refreshingShip[o.shipment_id] ? 0.4 : 1 }}>
+                      {'\uD83D\uDD04'}
+                    </button>
                   )}
                 </div>
-                {o.shipment_id && (
-                  <button onClick={() => refreshShipment(o.shipment_id, o.cuenta)}
-                    disabled={refreshingShip[o.shipment_id]}
-                    title="Actualizar estado de envio"
-                    style={{ fontSize: 12, padding: '1px 5px', borderRadius: 4, cursor: 'pointer',
-                      background: 'none', border: '1px solid var(--border)', color: 'var(--text3)',
-                      marginLeft: 'auto', opacity: refreshingShip[o.shipment_id] ? 0.4 : 1 }}>
-                    {'\uD83D\uDD04'}
-                  </button>
-                )}
+                <span style={{ fontSize: 11, color: 'var(--text3)' }}>
+                  {o.fecha ? new Date(o.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : '-'}
+                </span>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
+                  {isPinned && (
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
+                      background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a' }}>
+                      {'\uD83D\uDCCC'}
+                    </span>
+                  )}
+                  {(o.tiene_seguimiento && !isPinned) ? (
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
+                      background: 'var(--purple-light)', color: 'var(--purple)', border: '1px solid var(--purple-border)' }}>
+                      Seguimiento
+                    </span>
+                  ) : (!isPinned && (
+                    <button onClick={() => { setModal(o); setNotas('') }}
+                      title="Crear seguimiento"
+                      style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, cursor: 'pointer',
+                        background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text2)' }}>
+                      Seguimiento
+                    </button>
+                  ))}
+                  {o.shipment_id && (
+                    <a href={`https://www.mercadolibre.com.mx/envios/detalle/${o.shipment_id}`}
+                      target="_blank" rel="noopener noreferrer" title="Ver guia de envio"
+                      style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
+                        background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text2)',
+                        textDecoration: 'none', fontWeight: 600 }}>
+                      {'\uD83D\uDCCB'} Guia
+                    </a>
+                  )}
+                </div>
               </div>
-              <span style={{ fontSize: 11, color: 'var(--text3)' }}>
-                {o.fecha ? new Date(o.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : '-'}
-              </span>
-              <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
-                {o.tiene_seguimiento ? (
-                  <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
-                    background: 'var(--purple-light)', color: 'var(--purple)', border: '1px solid var(--purple-border)' }}>
-                    Seguimiento
-                  </span>
-                ) : (
-                  <button onClick={() => { setModal(o); setNotas('') }}
-                    title="Crear seguimiento"
-                    style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, cursor: 'pointer',
-                      background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text2)' }}>
-                    Seguimiento
-                  </button>
-                )}
-                {o.shipment_id && (
-                  <a href={`https://www.mercadolibre.com.mx/envios/detalle/${o.shipment_id}`}
-                    target="_blank" rel="noopener noreferrer" title="Ver guia de envio"
-                    style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
-                      background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text2)',
-                      textDecoration: 'none', fontWeight: 600 }}>
-                    {'\uD83D\uDCCB'} Guia
-                  </a>
-                )}
-              </div>
+              {isPinned && (
+                <div style={{ padding: '4px 16px 8px', background: '#fffbeb',
+                  borderTop: '1px dashed #fde68a', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 11, color: '#b45309', fontWeight: 600 }}>Nota:</span>
+                  {editingNota === seg.id ? (
+                    <>
+                      <input type="text" value={notaText}
+                        onChange={e => setNotaText(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') saveOrderNota(seg.id) }}
+                        placeholder="Nota del pin..."
+                        style={{ flex: 1, fontSize: 12, padding: '3px 8px', borderRadius: 4,
+                          border: '1px solid #fde68a', background: '#fffbeb', color: 'var(--text)',
+                          maxWidth: 400 }} />
+                      <button onClick={() => saveOrderNota(seg.id)} disabled={savingNota}
+                        style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 4,
+                          background: '#f59e0b', color: '#fff', border: 'none', cursor: 'pointer',
+                          opacity: savingNota ? 0.6 : 1 }}>
+                        Guardar
+                      </button>
+                      <button onClick={() => setEditingNota(null)}
+                        style={{ fontSize: 10, padding: '3px 8px', borderRadius: 4,
+                          border: '1px solid var(--border)', background: 'transparent',
+                          color: 'var(--text3)', cursor: 'pointer' }}>
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
+                      onClick={() => { setEditingNota(seg.id); setNotaText(seg.notas || '') }}>
+                      <span style={{ fontSize: 12, color: '#b45309', fontStyle: seg.notas ? 'normal' : 'italic' }}>
+                        {seg.notas || 'Agregar nota...'}
+                      </span>
+                      <span style={{ fontSize: 10, color: '#d97706' }}>{'\u270F\uFE0F'}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Seguimientos activos - solo en modo pendientes */}
