@@ -32,7 +32,8 @@ function estadoBadge(item) {
     return { label: 'Pendiente', bg: '#fff7ed', color: '#ea580c', br: '#fed7aa' }
   }
   if (e === 'resuelto' || e === 'enviada' || e === 'fuera_horario') {
-    if ((item.respuesta_ia || item.respuesta_final) && (!item.atendido_por || item.atendido_por === 'IA'))
+    const esIA = !item.atendido_por || item.atendido_por === 'IA' || (item.atendido_por && item.atendido_por.startsWith('auto'))
+    if ((item.respuesta_ia || item.respuesta_final) && esIA)
       return { label: 'Respondida IA', bg: '#eff6ff', color: '#2563eb', br: '#bfdbfe' }
     return { label: 'Respondida', bg: '#f0fdf4', color: '#16a34a', br: '#bbf7d0' }
   }
@@ -282,9 +283,9 @@ export default function PreCompra({ onLogout }) {
             {/* Respuesta */}
             {(item.respuesta_ia || item.respuesta_final) && (() => {
               const texto = item.respuesta_final || item.respuesta_ia
-              const esHumano = item.atendido_por && item.atendido_por !== 'IA'
-              const label = esHumano ? 'Respuesta Humano' : 'Respuesta IA'
-              const accentColor = esHumano ? 'var(--green, #16a34a)' : 'var(--purple)'
+              const esIA = !item.atendido_por || item.atendido_por === 'IA' || (item.atendido_por && item.atendido_por.startsWith('auto'))
+              const label = esIA ? 'Respuesta IA' : 'Respuesta Humano'
+              const accentColor = esIA ? 'var(--purple)' : 'var(--green, #16a34a)'
               return (
                 <div style={{ background:'var(--surface2)', border:'1px solid var(--border)',
                   borderRadius:8, padding:'10px 14px', borderLeft:`3px solid ${accentColor}` }}>
