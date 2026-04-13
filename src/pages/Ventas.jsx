@@ -477,11 +477,11 @@ export default function Ventas({ onLogout }) {
                           borderRadius: 4, padding: '2px 8px', cursor: 'pointer', color: 'var(--text3)' }}>
                         {copied === `orden_${o.orden_id}` ? '\u2713' : `#${o.orden_id}`}
                       </span>
-                      <a href={`https://www.mercadolibre.com.mx/ventas/${o.orden_id}/detalle`}
-                        target="_blank" rel="noopener noreferrer"
-                        style={{ fontSize: 11, color: 'var(--purple)', textDecoration: 'none', fontWeight: 600 }}>
-                        Ver en ML {'\u2197'}
-                      </a>
+                      <span onClick={() => copyToClipboard(`https://www.mercadolibre.com.mx/ventas/${o.orden_id}/detalle`, `ml_${o.orden_id}`)}
+                        title="Copiar link ML"
+                        style={{ fontSize: 11, color: 'var(--purple)', cursor: 'pointer', fontWeight: 600 }}>
+                        {copied === `ml_${o.orden_id}` ? '\u2713 Copiado' : `Ver en ML \u2197`}
+                      </span>
                     </div>
 
                     {/* Row 5: shipping + refresh + actions */}
