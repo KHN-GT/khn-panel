@@ -41,6 +41,7 @@ export default function Ventas({ onLogout }) {
   const [editingNota, setEditingNota] = useState(null)
   const [notaText, setNotaText] = useState('')
   const [savingNota, setSavingNota] = useState(false)
+  const [copied, setCopied] = useState(null)
 
   const toggleSelect = (shipment_id, cuentaId) => {
     setSelectedOrders(prev => {
@@ -287,6 +288,12 @@ export default function Ventas({ onLogout }) {
 
   const formatMonto = (m) => m != null ? `$${Number(m).toLocaleString('es-MX', { minimumFractionDigits: 2 })}` : '-'
 
+  const copyToClipboard = (text, key) => {
+    navigator.clipboard.writeText(text)
+    setCopied(key)
+    setTimeout(() => setCopied(prev => prev === key ? null : prev), 1500)
+  }
+
   const tabStyle = (active) => ({
     padding: '8px 20px', fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer',
     borderRadius: '8px 8px 0 0', background: active ? 'var(--surface)' : 'transparent',
@@ -387,42 +394,25 @@ export default function Ventas({ onLogout }) {
                 </button>
 
                 <div style={{ display: 'flex', gap: 0 }}>
-                  {/* Left: product info */}
-                  <div style={{ width: 200, flexShrink: 0, padding: 14, borderRight: '1px solid var(--border)',
-                    display: 'flex', flexDirection: 'column', gap: 8,
+                  {/* Left: thumbnail only */}
+                  <div style={{ width: 140, flexShrink: 0, padding: 10, borderRight: '1px solid var(--border)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                     background: isPinned ? '#fefce8' : 'var(--surface2)' }}>
                     {o.thumbnail ? (
                       <img src={o.thumbnail} alt=""
-                        style={{ width: '100%', height: 120, objectFit: 'contain', borderRadius: 6,
-                          background: '#fff', border: '1px solid var(--border)' }} />
+                        style={{ width: '100%', maxHeight: 120, objectFit: 'contain', borderRadius: 6 }} />
                     ) : (
-                      <div style={{ width: '100%', height: 120, borderRadius: 6, background: 'var(--surface)',
+                      <div style={{ width: '100%', height: 80, borderRadius: 6, background: 'var(--surface)',
                         border: '1px solid var(--border)', display: 'flex', alignItems: 'center',
                         justifyContent: 'center' }}>
-                        <span style={{ fontSize: 36, opacity: 0.3 }}>{'\uD83D\uDCE6'}</span>
+                        <span style={{ fontSize: 32, opacity: 0.3 }}>{'\uD83D\uDCE6'}</span>
                       </div>
                     )}
-                    <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text)', lineHeight: 1.4,
-                      overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                      {o.producto || '-'}
-                    </div>
-                    <div style={{ fontSize: 16, fontWeight: 500, color: 'var(--text)' }}>
-                      {formatMonto(o.monto)}
-                    </div>
-                    {o.sku && (
-                      <div style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'monospace' }}>
-                        SKU: {o.sku}
-                      </div>
-                    )}
-                    <span style={{ alignSelf: 'flex-start', fontSize: 10, fontWeight: 700, padding: '2px 8px',
-                      borderRadius: 4, background: ac.bg, color: ac.color, border: `1px solid ${ac.br}` }}>
-                      {o.cuenta}
-                    </span>
                   </div>
 
-                  {/* Right: details */}
-                  <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
-                    {/* Row 1: status + date + comprador + checkbox */}
+                  {/* Right: all info */}
+                  <div style={{ flex: 1, padding: '10px 16px', display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+                    {/* Row 1: status + pin badge + date + comprador + checkbox */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                       {statusBadge(o.status)}
                       {isPinned && (
@@ -449,13 +439,54 @@ export default function Ventas({ onLogout }) {
                       )}
                     </div>
 
-                    {/* Row 2: shipping + FULL + refresh */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      {shippingBadge(shipmentStatuses[o.shipment_id] || o.shipping_status)}
+                    {/* Row 2: product title */}
+                    <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)', lineHeight: 1.4,
+                      overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                      {o.producto || '-'}
+                    </div>
+
+                    {/* Row 3: price + SKU + cuenta + FULL */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>{formatMonto(o.monto)}</span>
+                      {o.sku && (
+                        <span style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'monospace' }}>SKU: {o.sku}</span>
+                      )}
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                        borderRadius: 4, background: ac.bg, color: ac.color, border: `1px solid ${ac.br}` }}>
+                        {o.cuenta}
+                      </span>
                       {(logisticTypes[o.shipment_id] || o.logistic_type) === 'fulfillment' && (
                         <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99,
                           background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>FULL</span>
                       )}
+                    </div>
+
+                    {/* Row 4: copiable chips + orden link */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      {o.item_id && (
+                        <span onClick={() => copyToClipboard(o.item_id, `item_${o.orden_id}`)}
+                          title="Copiar Item ID"
+                          style={{ fontSize: 11, background: 'var(--surface2)', border: '1px solid var(--border)',
+                            borderRadius: 4, padding: '2px 8px', cursor: 'pointer', color: 'var(--text3)' }}>
+                          {copied === `item_${o.orden_id}` ? '\u2713' : `ID: ${o.item_id}`}
+                        </span>
+                      )}
+                      <span onClick={() => copyToClipboard(o.orden_id, `orden_${o.orden_id}`)}
+                        title="Copiar numero de orden"
+                        style={{ fontSize: 11, background: 'var(--surface2)', border: '1px solid var(--border)',
+                          borderRadius: 4, padding: '2px 8px', cursor: 'pointer', color: 'var(--text3)' }}>
+                        {copied === `orden_${o.orden_id}` ? '\u2713' : `#${o.orden_id}`}
+                      </span>
+                      <a href={`https://www.mercadolibre.com.mx/ventas/${o.orden_id}/detalle`}
+                        target="_blank" rel="noopener noreferrer"
+                        style={{ fontSize: 11, color: 'var(--purple)', textDecoration: 'none', fontWeight: 600 }}>
+                        Ver en ML {'\u2197'}
+                      </a>
+                    </div>
+
+                    {/* Row 5: shipping + refresh + actions */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      {shippingBadge(shipmentStatuses[o.shipment_id] || o.shipping_status)}
                       {o.shipment_id && (
                         <button onClick={() => refreshShipment(o.shipment_id, o.cuenta)}
                           disabled={refreshingShip[o.shipment_id]}
@@ -466,10 +497,6 @@ export default function Ventas({ onLogout }) {
                           {'\uD83D\uDD04'}
                         </button>
                       )}
-                    </div>
-
-                    {/* Row 3: actions */}
-                    <div style={{ marginTop: 'auto', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                       {(o.tiene_seguimiento && !isPinned) ? (
                         <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
                           background: 'var(--purple-light)', color: 'var(--purple)', border: '1px solid var(--purple-border)' }}>
