@@ -391,11 +391,17 @@ export default function Ventas({ onLogout }) {
                   <div style={{ width: 200, flexShrink: 0, padding: 14, borderRight: '1px solid var(--border)',
                     display: 'flex', flexDirection: 'column', gap: 8,
                     background: isPinned ? '#fefce8' : 'var(--surface2)' }}>
-                    <div style={{ width: '100%', height: 120, borderRadius: 6, background: 'var(--surface)',
-                      border: '1px solid var(--border)', display: 'flex', alignItems: 'center',
-                      justifyContent: 'center' }}>
-                      <span style={{ fontSize: 36, opacity: 0.3 }}>{'\uD83D\uDCE6'}</span>
-                    </div>
+                    {o.thumbnail ? (
+                      <img src={o.thumbnail} alt=""
+                        style={{ width: '100%', height: 120, objectFit: 'contain', borderRadius: 6,
+                          background: '#fff', border: '1px solid var(--border)' }} />
+                    ) : (
+                      <div style={{ width: '100%', height: 120, borderRadius: 6, background: 'var(--surface)',
+                        border: '1px solid var(--border)', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center' }}>
+                        <span style={{ fontSize: 36, opacity: 0.3 }}>{'\uD83D\uDCE6'}</span>
+                      </div>
+                    )}
                     <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text)', lineHeight: 1.4,
                       overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                       {o.producto || '-'}
