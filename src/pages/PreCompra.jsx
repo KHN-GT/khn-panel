@@ -233,8 +233,8 @@ export default function PreCompra({ onLogout }) {
                 </span>
               )}
               <span style={{ fontSize:11, color:'var(--text3)' }}>{formatFecha(item.creado_en)}</span>
-              <span style={{ fontSize:11, color:'var(--text3)' }}>
-                {item.comprador || 'Comprador'}
+              <span style={{ fontSize:13, fontWeight:700, color:'var(--text)' }}>
+                {item.comprador || item.comprador_nombre || 'Comprador'}
               </span>
             </div>
 
