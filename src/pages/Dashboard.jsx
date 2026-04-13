@@ -92,6 +92,11 @@ export default function Dashboard({ onLogout }) {
           <button onClick={refresh} title="Actualizar" style={{ fontSize:18, background:'none',
             border:'none', color:'var(--text3)', cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>↺</button>
 
+          {/* Botón Pre-Compra */}
+          <button onClick={() => navigate('/pre-compra')} title="Pre-Compra"
+            style={{ fontSize:15, background:'none', border:'none', color:'var(--text3)',
+              cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>{'\uD83D\uDCAC'}</button>
+
           {/* Botón Ventas */}
           <button onClick={() => navigate('/ventas')} title="Ventas"
             style={{ fontSize:15, background:'none', border:'none', color:'var(--text3)',
