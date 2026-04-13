@@ -72,6 +72,12 @@ export default function Config({ onLogout }) {
   const [loadingProact,    setLoadingProact]    = useState(false)
   const [savingProact,     setSavingProact]     = useState('')
 
+  // Contencion state
+  const [contencion,        setContencion]        = useState({})
+  const [loadingCont,       setLoadingCont]       = useState(false)
+  const [savingCont,        setSavingCont]        = useState('')
+  const [contFlash,         setContFlash]         = useState('')
+
   useEffect(() => {
     Promise.all([
       fetch(`${RAILWAY}/api/config/modos`,    { headers: authHeaders() }).then(r=>r.json()),
@@ -87,9 +93,52 @@ export default function Config({ onLogout }) {
     if (tab === 'templates') loadTemplates()
     if (tab === 'compatibilidades') loadCompats()
     if (tab === 'proactivos') loadProactivos()
+    if (tab === 'contencion') loadContencion()
   }, [tab])
 
   const flash = (text) => { setMsg(text); setTimeout(() => setMsg(''), 3000) }
+
+  // ── Contencion ────────────────────────────────────────────────
+  const loadContencion = async () => {
+    setLoadingCont(true)
+    try {
+      const r = await fetch(`${RAILWAY}/api/config/contencion`, { headers: authHeaders() })
+      const d = await r.json()
+      setContencion(d)
+    } catch { setContencion({}) }
+    finally { setLoadingCont(false) }
+  }
+
+  const saveContencion = async (cuenta) => {
+    setSavingCont(cuenta)
+    try {
+      const r = await fetch(`${RAILWAY}/api/config/contencion/${cuenta}`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify(contencion[cuenta])
+      })
+      if (r.ok) {
+        setContFlash(cuenta)
+        setTimeout(() => setContFlash(p => p === cuenta ? '' : p), 2000)
+      }
+    } catch {}
+    setSavingCont('')
+  }
+
+  const resetInstrucciones = async (cuenta) => {
+    try {
+      const r = await fetch(`${RAILWAY}/api/config/contencion/${cuenta}/reset-instrucciones`, {
+        method: 'POST', headers: authHeaders()
+      })
+      const d = await r.json()
+      if (d.ok) {
+        setContencion(prev => ({ ...prev, [cuenta]: { ...prev[cuenta], instrucciones_ia: d.instrucciones_ia } }))
+      }
+    } catch {}
+  }
+
+  const updateCont = (cuenta, field, value) => {
+    setContencion(prev => ({ ...prev, [cuenta]: { ...prev[cuenta], [field]: value } }))
+  }
 
   // ── Mensajes proactivos ───────────────────────────────────────
   const loadProactivos = async () => {
@@ -359,6 +408,7 @@ export default function Config({ onLogout }) {
             { id:'alertas',          label:'Alertas',          desc:'Horario notif. Telegram' },
             { id:'sonidos',          label:'Sonidos',          desc:'Alertas sonoras panel'  },
             { id:'proactivos',       label:'Msg Proactivos',   desc:'Enviado / Entregado'    },
+            { id:'contencion',       label:'Contencion',       desc:'Deteccion de frustracion' },
           ].map(s => (
             <button key={s.id} onClick={() => setTab(s.id)}
               style={{ textAlign:'left', padding:'10px 12px', borderRadius:'var(--radius-sm)', border: tab === s.id ? '1.5px solid var(--purple-border)' : '1.5px solid transparent', background: tab === s.id ? 'var(--purple-light)' : 'transparent', cursor:'pointer', transition:'all .15s' }}>
@@ -1102,6 +1152,119 @@ export default function Config({ onLogout }) {
             </div>
           )}
 
+          {/* ── TAB: Contencion ── */}
+          {tab === 'contencion' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+              <div style={{ fontSize:13, color:'var(--text3)', lineHeight:1.6 }}>
+                Configura la deteccion automatica de compradores frustrados y la respuesta de contencion por cuenta.
+              </div>
+              {loadingCont ? (
+                <div style={{ padding:40, textAlign:'center', color:'var(--text3)' }}>Cargando...</div>
+              ) : ['GTK','RBN','GDP'].map(c => {
+                const cfg = contencion[c] || {}
+                const isOn = !!cfg.activo
+                return (
+                  <div key={c} style={{ background: isOn ? 'var(--surface)' : 'var(--surface2)',
+                    border: isOn ? '1.5px solid var(--purple-border)' : '1px solid var(--border)',
+                    borderRadius:10, overflow:'hidden', opacity: isOn ? 1 : 0.7, transition:'all .2s' }}>
+                    {/* Header */}
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between',
+                      padding:'14px 20px', borderBottom: isOn ? '1px solid var(--border)' : 'none' }}>
+                      <span style={{ fontSize:15, fontWeight:700, color:'var(--text)' }}>{c}</span>
+                      <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                        {contFlash === c && (
+                          <span style={{ fontSize:12, fontWeight:600, color:'#16a34a' }}>Guardado</span>
+                        )}
+                        <label style={{ position:'relative', display:'inline-block', width:44, height:24, cursor:'pointer' }}>
+                          <input type="checkbox" checked={isOn}
+                            onChange={e => updateCont(c, 'activo', e.target.checked)}
+                            style={{ opacity:0, width:0, height:0 }} />
+                          <span style={{ position:'absolute', inset:0, borderRadius:12,
+                            background: isOn ? 'var(--purple)' : 'var(--border2)',
+                            transition:'background .2s' }}>
+                            <span style={{ position:'absolute', top:2, left: isOn ? 22 : 2,
+                              width:20, height:20, borderRadius:10, background:'#fff',
+                              transition:'left .2s', boxShadow:'0 1px 3px rgba(0,0,0,.2)' }} />
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                    {/* Body — only when ON */}
+                    {isOn && (
+                      <div style={{ padding:'16px 20px', display:'flex', flexDirection:'column', gap:14 }}>
+                        {/* Modo */}
+                        <div>
+                          <div style={{ fontSize:11, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', marginBottom:6 }}>Modo</div>
+                          <div style={{ display:'flex', gap:8 }}>
+                            {[
+                              { id:'solo_alertar', label:'Solo alertar (Telegram)' },
+                              { id:'auto_responder', label:'Responder automaticamente' },
+                            ].map(m => (
+                              <label key={m.id} style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer',
+                                fontSize:13, padding:'6px 14px', borderRadius:6,
+                                border: cfg.modo === m.id ? '1.5px solid var(--purple-border)' : '1px solid var(--border)',
+                                background: cfg.modo === m.id ? 'var(--purple-light)' : 'transparent',
+                                color: cfg.modo === m.id ? 'var(--purple)' : 'var(--text2)' }}>
+                                <input type="radio" name={`modo_${c}`} value={m.id}
+                                  checked={cfg.modo === m.id}
+                                  onChange={() => updateCont(c, 'modo', m.id)}
+                                  style={{ display:'none' }} />
+                                {m.label}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Umbral */}
+                        <div>
+                          <div style={{ fontSize:11, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', marginBottom:6 }}>
+                            Umbral de deteccion: {cfg.umbral_score || 3}
+                            <span style={{ fontWeight:400, marginLeft:8 }}>
+                              ({(cfg.umbral_score || 3) <= 1 ? 'Muy sensible' : (cfg.umbral_score || 3) <= 2 ? 'Sensible' : (cfg.umbral_score || 3) === 3 ? 'Equilibrado' : (cfg.umbral_score || 3) === 4 ? 'Conservador' : 'Solo casos graves'})
+                            </span>
+                          </div>
+                          <input type="range" min={1} max={5} value={cfg.umbral_score || 3}
+                            onChange={e => updateCont(c, 'umbral_score', Number(e.target.value))}
+                            style={{ width:'100%', maxWidth:300 }} />
+                        </div>
+                        {/* Derivar WhatsApp */}
+                        <label style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer' }}>
+                          <input type="checkbox" checked={cfg.derivar_whatsapp !== false}
+                            onChange={e => updateCont(c, 'derivar_whatsapp', e.target.checked)} />
+                          <div>
+                            <div style={{ fontSize:13, fontWeight:600, color:'var(--text)' }}>Derivar a WhatsApp</div>
+                            <div style={{ fontSize:11, color:'var(--text3)' }}>Mencionar el QR del paquete para contacto por WhatsApp</div>
+                          </div>
+                        </label>
+                        {/* Instrucciones IA */}
+                        <div>
+                          <div style={{ fontSize:11, fontWeight:700, color:'var(--text3)', textTransform:'uppercase', marginBottom:6 }}>Instrucciones para la IA</div>
+                          <textarea value={cfg.instrucciones_ia || ''}
+                            onChange={e => updateCont(c, 'instrucciones_ia', e.target.value)}
+                            style={{ width:'100%', boxSizing:'border-box', fontSize:13, padding:'10px 12px',
+                              borderRadius:6, border:'1px solid var(--border)', background:'var(--surface)',
+                              color:'var(--text)', resize:'vertical', minHeight:150, fontFamily:'inherit',
+                              lineHeight:1.5 }} />
+                          <button onClick={() => resetInstrucciones(c)}
+                            style={{ marginTop:6, fontSize:11, padding:'4px 12px', borderRadius:4,
+                              border:'1px solid var(--border)', background:'var(--surface2)',
+                              color:'var(--text3)', cursor:'pointer' }}>
+                            Restaurar default
+                          </button>
+                        </div>
+                        {/* Guardar */}
+                        <button onClick={() => saveContencion(c)} disabled={savingCont === c}
+                          style={{ alignSelf:'flex-start', fontSize:13, fontWeight:600, padding:'8px 20px',
+                            borderRadius:6, background:'var(--purple)', color:'#fff', border:'none',
+                            cursor:'pointer', opacity: savingCont === c ? 0.6 : 1 }}>
+                          {savingCont === c ? 'Guardando...' : 'Guardar'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
 
         </div>
       </div>
