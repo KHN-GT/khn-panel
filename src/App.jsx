@@ -10,6 +10,7 @@ import ReputacionShield from './pages/ReputacionShield'
 import WhatsApp from './pages/WhatsApp'
 import Entrenamiento from './pages/Entrenamiento'
 import Ventas from './pages/Ventas'
+import PreCompra from './pages/PreCompra'
 
 function getUserRol() {
   try { return JSON.parse(localStorage.getItem('khn_user') || '{}').rol || 'operador' } catch { return 'operador' }
@@ -77,6 +78,9 @@ export default function App() {
         } />
         <Route path="/ventas" element={
           <SupervisorRoute><Ventas onLogout={handleLogout} /></SupervisorRoute>
+        } />
+        <Route path="/pre-compra" element={
+          <SupervisorRoute><PreCompra onLogout={handleLogout} /></SupervisorRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

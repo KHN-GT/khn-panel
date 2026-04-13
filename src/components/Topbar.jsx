@@ -85,6 +85,7 @@ export default function Topbar({ onLogout, pendingCount = 0, claimsCount = 0, on
       })()}
       {esSupervisorOAdmin && navBtn('/whatsapp', 'WhatsApp', 'WhatsApp')}
       {esSupervisorOAdmin && navBtn('/ventas', 'Ventas', 'Ventas y seguimientos')}
+      {esSupervisorOAdmin && navBtn('/pre-compra', 'Pre-Compra', 'Preguntas Pre-Compra')}
       {navBtn('/supervision', 'Historial Preguntas', 'Historial de Preguntas')}
       {esSupervisorOAdmin && navBtn('/reportes', 'Reportes', 'Reportes')}
       {esSupervisorOAdmin && navBtn('/entrenamiento', 'Entrenamiento', 'Entrenamiento IA')}
