@@ -56,7 +56,6 @@ export default function PreCompra({ onLogout }) {
   const [estadoTab, setEstadoTab] = useState('todos')
   const [search, setSearch] = useState('')
   const [searchDebounced, setSearchDebounced] = useState('')
-  const [expandedGroups, setExpandedGroups] = useState({})
   const [replyId, setReplyId] = useState(null)
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
@@ -138,30 +137,10 @@ export default function PreCompra({ onLogout }) {
     } catch {}
   }
 
-  // Client-side filter by estado tab
-  const filtered = items.filter(i => estadoFilterMatch(i, estadoTab))
-
-  // Group by comprador+item_id
-  const groups = []
-  const groupMap = {}
-  filtered.forEach(i => {
-    const key = (i.comprador_id || i.comprador || '?') + '|' + (i.item_id || i.sku || '?')
-    if (!groupMap[key]) {
-      groupMap[key] = { key, items: [] }
-      groups.push(groupMap[key])
-    }
-    groupMap[key].items.push(i)
-  })
-  // Within each group, sort by creado_en ASC (chronological)
-  groups.forEach(g => {
-    g.items.sort((a, b) => new Date(a.creado_en) - new Date(b.creado_en))
-  })
-  // Pinned groups first
-  groups.sort((a, b) => {
-    const ap = a.items.some(i => i.pinned) ? 1 : 0
-    const bp = b.items.some(i => i.pinned) ? 1 : 0
-    return bp - ap
-  })
+  // Client-side filter by estado tab, pinned first
+  const filtered = items
+    .filter(i => estadoFilterMatch(i, estadoTab))
+    .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
 
   const totalPages = Math.ceil(total / LIMIT)
   const currentPage = Math.floor(offset / LIMIT) + 1
@@ -356,70 +335,6 @@ export default function PreCompra({ onLogout }) {
     )
   }
 
-  const renderGroup = (g) => {
-    if (g.items.length === 1) return renderCard(g.items[0])
-
-    const expanded = !!expandedGroups[g.key]
-    const newest = g.items[g.items.length - 1] // last = most recent for display
-    const rest = g.items.slice(0, -1)
-    const peekCount = Math.min(rest.length, 2)
-
-    return (
-      <div key={g.key} style={{ marginBottom: expanded ? 0 : peekCount * 8 }}>
-        {expanded ? (
-          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            <div style={{ position:'relative', cursor:'pointer' }}
-              onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: false }))}>
-              <div style={{ position:'absolute', top:10, right:10, fontSize:10, fontWeight:700,
-                background:'var(--purple)', color:'#fff', borderRadius:99,
-                padding:'2px 7px', zIndex:4, lineHeight:1.4, cursor:'pointer' }}>
-                Colapsar
-              </div>
-              {renderCard(newest)}
-            </div>
-            <div style={{
-              overflow:'hidden',
-              maxHeight: '2000px',
-              opacity: 1,
-              transform: 'translateY(0)',
-              transition:'max-height 280ms ease-out, opacity 220ms ease-out, transform 220ms ease-out',
-            }}>
-              {rest.map(i => (
-                <div key={i.id} style={{ marginBottom:12 }}>
-                  {renderCard(i)}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div style={{ position:'relative', cursor:'pointer' }}
-            onClick={() => setExpandedGroups(p => ({ ...p, [g.key]: true }))}>
-            {Array.from({ length: peekCount }).map((_, pi) => (
-              <div key={`peek-${g.key}-${pi}`}
-                style={{
-                  position:'absolute', bottom: -(pi + 1) * 8, left: (pi + 1) * 4,
-                  right: 0, height: 8,
-                  background: pi === 0 ? 'var(--surface2)' : 'var(--surface)',
-                  border:'1px solid var(--border)', borderRadius:'0 0 8px 8px',
-                  zIndex: 2 - pi,
-                }} />
-            ))}
-            <div style={{ position:'relative', zIndex:3 }}>
-              {renderCard(newest)}
-              <span style={{
-                position:'absolute', bottom:6, right:8, fontSize:10, fontWeight:700,
-                background:'var(--purple)', color:'#fff', borderRadius:99,
-                padding:'2px 7px', zIndex:4, lineHeight:1.4, pointerEvents:'none',
-              }}>
-                +{rest.length} mas
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
-
   return (
     <div style={{ height:'100vh', display:'flex', flexDirection:'column', background:'var(--bg)' }}>
       <Topbar onLogout={onLogout} />
@@ -473,11 +388,11 @@ export default function PreCompra({ onLogout }) {
       <div style={{ flex:1, overflowY:'auto', padding:'16px 24px' }}>
         {loading ? (
           <div style={{ textAlign:'center', padding:40, color:'var(--text3)' }}>Cargando...</div>
-        ) : groups.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div style={{ textAlign:'center', padding:40, color:'var(--text3)' }}>Sin resultados</div>
         ) : (
           <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            {groups.map(g => renderGroup(g))}
+            {filtered.map(item => renderCard(item))}
           </div>
         )}
 
