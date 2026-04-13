@@ -8,6 +8,11 @@ function authHeaders() {
 }
 
 const CUENTA_COLORS = { GTK: 'var(--acct-gtk)', RBN: 'var(--acct-rbn)', GDP: 'var(--acct-gdp)' }
+const ACCT = {
+  GTK: { color:'var(--acct-gtk)', bg:'var(--acct-gtk-bg)', br:'var(--acct-gtk-br)' },
+  RBN: { color:'var(--acct-rbn)', bg:'var(--acct-rbn-bg)', br:'var(--acct-rbn-br)' },
+  GDP: { color:'var(--acct-gdp)', bg:'var(--acct-gdp-bg)', br:'var(--acct-gdp-br)' },
+}
 
 export default function Ventas({ onLogout }) {
   const [modo, setModo] = useState('pendientes')
@@ -350,155 +355,180 @@ export default function Ventas({ onLogout }) {
           )}
         </div>
 
-        {/* Tabla de ordenes */}
-        <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow)', overflow: 'hidden', marginBottom: 28 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '28px 30px 60px 1fr 1.2fr 90px 110px 100px 80px 100px',
-            padding: '10px 16px', background: 'var(--surface2)', fontSize: 11, fontWeight: 700,
-            color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', gap: 8 }}>
-            <span>{'\uD83D\uDCCC'}</span>
-            <input type="checkbox" onChange={toggleSelectAll}
-              checked={ordenesFiltradas.filter(isSelectable).length > 0 && ordenesFiltradas.filter(isSelectable).every(o => selectedOrders.has(`${o.shipment_id}|${o.cuenta}`))}
-              style={{ cursor: 'pointer' }} />
-            <span>Cuenta</span><span>Comprador</span><span>Producto / SKU</span><span>Monto</span>
-            <span>Estado</span><span>Envio</span><span>Fecha</span><span>Acciones</span>
-          </div>
+        {/* Ordenes - card layout */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
           {loading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text3)', fontSize: 13 }}>Cargando ordenes...</div>
+            <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>Cargando ordenes...</div>
           ) : ordenesFiltradas.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text3)', fontSize: 13 }}>
+            <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>
               {modo === 'historico' ? 'Sin ordenes en este rango' : 'Sin ordenes pendientes'}
             </div>
           ) : ordenesFiltradas.map((o, i) => {
             const seg = segMap[o.orden_id]
             const isPinned = !!seg
+            const ac = ACCT[o.cuenta] || { color:'var(--text3)', bg:'var(--surface2)', br:'var(--border)' }
             return (
-            <div key={o.orden_id + i}>
-              <div className="animate-in"
-                style={{ display: 'grid', gridTemplateColumns: '28px 30px 60px 1fr 1.2fr 90px 110px 100px 80px 100px',
-                  padding: '10px 16px', borderTop: '1px solid var(--border)', fontSize: 13, gap: 8,
-                  alignItems: 'center', background: isPinned ? '#fffbeb' : (i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)') }}>
+              <div key={o.orden_id + i} className="animate-in" style={{
+                background: isPinned ? '#fffbeb' : 'var(--surface)',
+                border: isPinned ? '1.5px solid #fde68a' : '0.5px solid var(--border)',
+                borderRadius: 10, overflow: 'hidden', position: 'relative' }}>
+
+                {/* Pin button */}
                 <button onClick={() => isPinned ? unpinOrder(seg.id) : pinOrder(o)}
                   title={isPinned ? 'Despinear' : 'Pinear'}
-                  style={{ fontSize: 13, lineHeight: 1, width: 24, height: 24, display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', borderRadius: 4,
-                    border: isPinned ? '1px solid #fde68a' : '1px solid var(--border)',
+                  style={{ position: 'absolute', top: 8, left: 8, zIndex: 5, fontSize: 13, lineHeight: 1,
+                    width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    borderRadius: 6, border: isPinned ? '1px solid #fde68a' : '1px solid var(--border)',
                     background: isPinned ? '#fef3c7' : 'var(--surface)', cursor: 'pointer',
                     opacity: isPinned ? 1 : 0.4, transition: 'opacity 150ms' }}
                   onMouseEnter={e => e.currentTarget.style.opacity = 1}
                   onMouseLeave={e => { if (!isPinned) e.currentTarget.style.opacity = 0.4 }}>
                   {'\uD83D\uDCCC'}
                 </button>
-                {isSelectable(o) ? (
-                  <input type="checkbox"
-                    checked={selectedOrders.has(`${o.shipment_id}|${o.cuenta}`)}
-                    onChange={() => toggleSelect(o.shipment_id, o.cuenta)}
-                    style={{ cursor: 'pointer' }} />
-                ) : <span />}
-                <span style={{ fontWeight: 700, color: CUENTA_COLORS[o.cuenta] || 'var(--text2)', fontSize: 12 }}>
-                  {o.cuenta}
-                </span>
-                <div>
-                  <div style={{ fontWeight: 600, color: 'var(--text1)' }}>{o.comprador_nickname}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text3)' }}>{o.comprador_nombre}</div>
+
+                <div style={{ display: 'flex', gap: 0 }}>
+                  {/* Left: product info */}
+                  <div style={{ width: 200, flexShrink: 0, padding: 14, borderRight: '1px solid var(--border)',
+                    display: 'flex', flexDirection: 'column', gap: 8,
+                    background: isPinned ? '#fefce8' : 'var(--surface2)' }}>
+                    <div style={{ width: '100%', height: 120, borderRadius: 6, background: 'var(--surface)',
+                      border: '1px solid var(--border)', display: 'flex', alignItems: 'center',
+                      justifyContent: 'center' }}>
+                      <span style={{ fontSize: 36, opacity: 0.3 }}>{'\uD83D\uDCE6'}</span>
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text)', lineHeight: 1.4,
+                      overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                      {o.producto || '-'}
+                    </div>
+                    <div style={{ fontSize: 16, fontWeight: 500, color: 'var(--text)' }}>
+                      {formatMonto(o.monto)}
+                    </div>
+                    {o.sku && (
+                      <div style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'monospace' }}>
+                        SKU: {o.sku}
+                      </div>
+                    )}
+                    <span style={{ alignSelf: 'flex-start', fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                      borderRadius: 4, background: ac.bg, color: ac.color, border: `1px solid ${ac.br}` }}>
+                      {o.cuenta}
+                    </span>
+                  </div>
+
+                  {/* Right: details */}
+                  <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
+                    {/* Row 1: status + date + comprador + checkbox */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      {statusBadge(o.status)}
+                      {isPinned && (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 4,
+                          background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a' }}>
+                          {'\uD83D\uDCCC'} Pineada
+                        </span>
+                      )}
+                      <span style={{ fontSize: 11, color: 'var(--text3)' }}>
+                        {o.fecha ? new Date(o.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                          + ' ' + new Date(o.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-'}
+                      </span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>
+                        {o.comprador_nickname || 'Comprador'}
+                      </span>
+                      {o.comprador_nombre && (
+                        <span style={{ fontSize: 11, color: 'var(--text3)' }}>{o.comprador_nombre}</span>
+                      )}
+                      {isSelectable(o) && (
+                        <input type="checkbox"
+                          checked={selectedOrders.has(`${o.shipment_id}|${o.cuenta}`)}
+                          onChange={() => toggleSelect(o.shipment_id, o.cuenta)}
+                          style={{ cursor: 'pointer', marginLeft: 'auto' }} />
+                      )}
+                    </div>
+
+                    {/* Row 2: shipping + FULL + refresh */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {shippingBadge(shipmentStatuses[o.shipment_id] || o.shipping_status)}
+                      {(logisticTypes[o.shipment_id] || o.logistic_type) === 'fulfillment' && (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99,
+                          background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>FULL</span>
+                      )}
+                      {o.shipment_id && (
+                        <button onClick={() => refreshShipment(o.shipment_id, o.cuenta)}
+                          disabled={refreshingShip[o.shipment_id]}
+                          title="Actualizar estado de envio"
+                          style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, cursor: 'pointer',
+                            background: 'none', border: '1px solid var(--border)', color: 'var(--text3)',
+                            opacity: refreshingShip[o.shipment_id] ? 0.4 : 1 }}>
+                          {'\uD83D\uDD04'}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Row 3: actions */}
+                    <div style={{ marginTop: 'auto', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                      {(o.tiene_seguimiento && !isPinned) ? (
+                        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
+                          background: 'var(--purple-light)', color: 'var(--purple)', border: '1px solid var(--purple-border)' }}>
+                          Seguimiento
+                        </span>
+                      ) : (!isPinned && (
+                        <button onClick={() => { setModal(o); setNotas('') }}
+                          title="Crear seguimiento"
+                          style={{ fontSize: 12, padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
+                            background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text2)' }}>
+                          Seguimiento
+                        </button>
+                      ))}
+                      {o.shipment_id && (
+                        <a href={`https://www.mercadolibre.com.mx/envios/detalle/${o.shipment_id}`}
+                          target="_blank" rel="noopener noreferrer" title="Ver guia de envio"
+                          style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
+                            background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text2)',
+                            textDecoration: 'none', fontWeight: 600 }}>
+                          {'\uD83D\uDCCB'} Guia
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div style={{ color: 'var(--text2)', fontSize: 12 }}>{o.producto?.slice(0, 60)}{o.producto?.length > 60 ? '...' : ''}</div>
-                  {o.sku && <div style={{ fontSize: 11, color: 'var(--text3)' }}>SKU: {o.sku}</div>}
-                </div>
-                <span style={{ fontWeight: 600 }}>{formatMonto(o.monto)}</span>
-                {statusBadge(o.status)}
-                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-start' }}>
-                    {shippingBadge(shipmentStatuses[o.shipment_id] || o.shipping_status)}
-                    {(logisticTypes[o.shipment_id] || o.logistic_type) === 'fulfillment' && (
-                      <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99,
-                        background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>FULL</span>
+
+                {/* Pin nota */}
+                {isPinned && (
+                  <div style={{ padding: '6px 16px 8px', background: '#fffbeb',
+                    borderTop: '1px dashed #fde68a', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 11, color: '#b45309', fontWeight: 600 }}>Nota:</span>
+                    {editingNota === seg.id ? (
+                      <>
+                        <input type="text" value={notaText}
+                          onChange={e => setNotaText(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') saveOrderNota(seg.id) }}
+                          placeholder="Nota del pin..."
+                          style={{ flex: 1, fontSize: 12, padding: '3px 8px', borderRadius: 4,
+                            border: '1px solid #fde68a', background: '#fffbeb', color: 'var(--text)',
+                            maxWidth: 400 }} />
+                        <button onClick={() => saveOrderNota(seg.id)} disabled={savingNota}
+                          style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 4,
+                            background: '#f59e0b', color: '#fff', border: 'none', cursor: 'pointer',
+                            opacity: savingNota ? 0.6 : 1 }}>
+                          Guardar
+                        </button>
+                        <button onClick={() => setEditingNota(null)}
+                          style={{ fontSize: 10, padding: '3px 8px', borderRadius: 4,
+                            border: '1px solid var(--border)', background: 'transparent',
+                            color: 'var(--text3)', cursor: 'pointer' }}>
+                          Cancelar
+                        </button>
+                      </>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
+                        onClick={() => { setEditingNota(seg.id); setNotaText(seg.notas || '') }}>
+                        <span style={{ fontSize: 12, color: '#b45309', fontStyle: seg.notas ? 'normal' : 'italic' }}>
+                          {seg.notas || 'Agregar nota...'}
+                        </span>
+                        <span style={{ fontSize: 10, color: '#d97706' }}>{'\u270F\uFE0F'}</span>
+                      </div>
                     )}
                   </div>
-                  {o.shipment_id && (
-                    <button onClick={() => refreshShipment(o.shipment_id, o.cuenta)}
-                      disabled={refreshingShip[o.shipment_id]}
-                      title="Actualizar estado de envio"
-                      style={{ fontSize: 12, padding: '1px 5px', borderRadius: 4, cursor: 'pointer',
-                        background: 'none', border: '1px solid var(--border)', color: 'var(--text3)',
-                        marginLeft: 'auto', opacity: refreshingShip[o.shipment_id] ? 0.4 : 1 }}>
-                      {'\uD83D\uDD04'}
-                    </button>
-                  )}
-                </div>
-                <span style={{ fontSize: 11, color: 'var(--text3)' }}>
-                  {o.fecha ? new Date(o.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : '-'}
-                </span>
-                <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
-                  {isPinned && (
-                    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
-                      background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a' }}>
-                      {'\uD83D\uDCCC'}
-                    </span>
-                  )}
-                  {(o.tiene_seguimiento && !isPinned) ? (
-                    <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
-                      background: 'var(--purple-light)', color: 'var(--purple)', border: '1px solid var(--purple-border)' }}>
-                      Seguimiento
-                    </span>
-                  ) : (!isPinned && (
-                    <button onClick={() => { setModal(o); setNotas('') }}
-                      title="Crear seguimiento"
-                      style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, cursor: 'pointer',
-                        background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text2)' }}>
-                      Seguimiento
-                    </button>
-                  ))}
-                  {o.shipment_id && (
-                    <a href={`https://www.mercadolibre.com.mx/envios/detalle/${o.shipment_id}`}
-                      target="_blank" rel="noopener noreferrer" title="Ver guia de envio"
-                      style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
-                        background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text2)',
-                        textDecoration: 'none', fontWeight: 600 }}>
-                      {'\uD83D\uDCCB'} Guia
-                    </a>
-                  )}
-                </div>
+                )}
               </div>
-              {isPinned && (
-                <div style={{ padding: '4px 16px 8px', background: '#fffbeb',
-                  borderTop: '1px dashed #fde68a', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 11, color: '#b45309', fontWeight: 600 }}>Nota:</span>
-                  {editingNota === seg.id ? (
-                    <>
-                      <input type="text" value={notaText}
-                        onChange={e => setNotaText(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') saveOrderNota(seg.id) }}
-                        placeholder="Nota del pin..."
-                        style={{ flex: 1, fontSize: 12, padding: '3px 8px', borderRadius: 4,
-                          border: '1px solid #fde68a', background: '#fffbeb', color: 'var(--text)',
-                          maxWidth: 400 }} />
-                      <button onClick={() => saveOrderNota(seg.id)} disabled={savingNota}
-                        style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 4,
-                          background: '#f59e0b', color: '#fff', border: 'none', cursor: 'pointer',
-                          opacity: savingNota ? 0.6 : 1 }}>
-                        Guardar
-                      </button>
-                      <button onClick={() => setEditingNota(null)}
-                        style={{ fontSize: 10, padding: '3px 8px', borderRadius: 4,
-                          border: '1px solid var(--border)', background: 'transparent',
-                          color: 'var(--text3)', cursor: 'pointer' }}>
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
-                      onClick={() => { setEditingNota(seg.id); setNotaText(seg.notas || '') }}>
-                      <span style={{ fontSize: 12, color: '#b45309', fontStyle: seg.notas ? 'normal' : 'italic' }}>
-                        {seg.notas || 'Agregar nota...'}
-                      </span>
-                      <span style={{ fontSize: 10, color: '#d97706' }}>{'\u270F\uFE0F'}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
             )
           })}
         </div>
