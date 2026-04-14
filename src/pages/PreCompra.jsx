@@ -62,6 +62,8 @@ export default function PreCompra({ onLogout }) {
   const [sending, setSending] = useState(false)
   const [editingPinNota, setEditingPinNota] = useState(null)
   const [pinNotaText, setPinNotaText] = useState('')
+  const [expandedHistory, setExpandedHistory] = useState({})
+  const [loadingHistory, setLoadingHistory] = useState(null)
   const timer = useRef(null)
 
   const handleSearch = useCallback((val) => {
@@ -136,6 +138,21 @@ export default function PreCompra({ onLogout }) {
         setEditingPinNota(null)
       }
     } catch {}
+  }
+
+  const toggleHistory = async (item) => {
+    if (expandedHistory[item.id]) {
+      setExpandedHistory(prev => { const n = { ...prev }; delete n[item.id]; return n })
+      return
+    }
+    setLoadingHistory(item.id)
+    try {
+      const r = await fetch(`${RAILWAY}/api/inbox?tipo=PRE-COMPRA&q=${encodeURIComponent(item.comprador)}&limit=20&archivado=todos`, { headers: authHeaders() })
+      const d = await r.json()
+      const hist = (d.items || []).filter(i => i.id !== item.id && i.comprador === item.comprador)
+      setExpandedHistory(prev => ({ ...prev, [item.id]: hist }))
+    } catch { setExpandedHistory(prev => ({ ...prev, [item.id]: [] })) }
+    setLoadingHistory(null)
   }
 
   // Client-side filter by estado tab, pinned first
@@ -237,6 +254,17 @@ export default function PreCompra({ onLogout }) {
               <span style={{ fontSize:13, fontWeight:700, color:'var(--text)' }}>
                 {item.comprador || item.comprador_nombre || 'Comprador'}
               </span>
+              {item.comprador && (
+                <button onClick={(e) => { e.stopPropagation(); toggleHistory(item) }}
+                  disabled={loadingHistory === item.id}
+                  style={{ marginLeft:'auto', fontSize:11, padding:'3px 8px', borderRadius:4,
+                    background: expandedHistory[item.id] ? 'var(--purple-light)' : 'var(--surface2)',
+                    color: expandedHistory[item.id] ? 'var(--purple)' : 'var(--text3)',
+                    border: expandedHistory[item.id] ? '1px solid var(--purple-border)' : '1px solid var(--border)',
+                    cursor:'pointer', opacity: loadingHistory === item.id ? 0.5 : 1 }}>
+                  {loadingHistory === item.id ? '...' : '\uD83D\uDD70 Historial'}
+                </button>
+              )}
             </div>
 
             {/* Pin nota */}
@@ -272,6 +300,31 @@ export default function PreCompra({ onLogout }) {
                     <span style={{ fontSize:10, color:'#d97706' }}>{'\u270F\uFE0F'}</span>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Historial de preguntas anteriores */}
+            {expandedHistory[item.id] && (
+              <div style={{ background:'var(--surface2)', borderRadius:6, padding:10, marginBottom:4 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--text3)', textTransform:'uppercase',
+                  letterSpacing:'.05em', marginBottom:6 }}>
+                  Preguntas anteriores de {item.comprador}
+                </div>
+                {expandedHistory[item.id].length === 0 ? (
+                  <div style={{ fontSize:12, color:'var(--text3)', fontStyle:'italic' }}>Sin preguntas anteriores</div>
+                ) : expandedHistory[item.id].map((h, hi) => (
+                  <div key={h.id} style={{ paddingBottom:6, marginBottom:6,
+                    borderBottom: hi < expandedHistory[item.id].length - 1 ? '1px solid var(--border)' : 'none' }}>
+                    <div style={{ fontSize:10, color:'var(--text3)', marginBottom:2 }}>{formatFecha(h.creado_en)}</div>
+                    <div style={{ fontSize:12, color:'var(--text2)', lineHeight:1.4 }}>{h.mensaje_cliente}</div>
+                    {(h.respuesta_final || h.respuesta_ia) && (
+                      <div style={{ fontSize:12, color:'var(--purple)', borderLeft:'2px solid var(--purple)',
+                        paddingLeft:8, marginTop:2, lineHeight:1.4 }}>
+                        {h.respuesta_final || h.respuesta_ia}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
 
