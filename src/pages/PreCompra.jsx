@@ -249,16 +249,16 @@ export default function PreCompra({ onLogout }) {
                   {'\uD83D\uDCCC'} Pineada
                 </span>
               )}
-              {item.conversion_en && (
-                <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4,
-                  background:'#dcfce7', color:'#16a34a', border:'1px solid #bbf7d0' }}>
-                  {'\u2705'} Compro
-                </span>
-              )}
               <span style={{ fontSize:11, color:'var(--text3)' }}>{formatFecha(item.creado_en)}</span>
               <span style={{ fontSize:13, fontWeight:700, color:'var(--text)' }}>
                 {item.comprador || item.comprador_nombre || 'Comprador'}
               </span>
+              {item.conversion_en && (
+                <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4,
+                  background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0' }}>
+                  {'\u2705'} Compro
+                </span>
+              )}
               {item.comprador && compradorCount[item.comprador] > 1 && (
                 <button onClick={(e) => { e.stopPropagation(); toggleHistory(item) }}
                   style={{ marginLeft:'auto', fontSize:11, padding:'3px 8px', borderRadius:4,
