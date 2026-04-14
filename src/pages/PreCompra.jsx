@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Topbar from '../components/Topbar'
 
 const RAILWAY = 'https://worker-production-d575.up.railway.app'
@@ -63,7 +63,6 @@ export default function PreCompra({ onLogout }) {
   const [editingPinNota, setEditingPinNota] = useState(null)
   const [pinNotaText, setPinNotaText] = useState('')
   const [expandedHistory, setExpandedHistory] = useState({})
-  const [loadingHistory, setLoadingHistory] = useState(null)
   const timer = useRef(null)
 
   const handleSearch = useCallback((val) => {
@@ -140,19 +139,25 @@ export default function PreCompra({ onLogout }) {
     } catch {}
   }
 
-  const toggleHistory = async (item) => {
+  const compradorCount = useMemo(() => {
+    const map = {}
+    items.forEach(i => {
+      const key = i.comprador || i.comprador_id || ''
+      if (key) map[key] = (map[key] || 0) + 1
+    })
+    return map
+  }, [items])
+
+  const toggleHistory = (item) => {
     if (expandedHistory[item.id]) {
       setExpandedHistory(prev => { const n = { ...prev }; delete n[item.id]; return n })
       return
     }
-    setLoadingHistory(item.id)
-    try {
-      const r = await fetch(`${RAILWAY}/api/inbox?tipo=PRE-COMPRA&q=${encodeURIComponent(item.comprador)}&limit=20&archivado=todos`, { headers: authHeaders() })
-      const d = await r.json()
-      const hist = (d.items || []).filter(i => i.id !== item.id && i.comprador === item.comprador)
-      setExpandedHistory(prev => ({ ...prev, [item.id]: hist }))
-    } catch { setExpandedHistory(prev => ({ ...prev, [item.id]: [] })) }
-    setLoadingHistory(null)
+    const key = item.comprador || item.comprador_id || ''
+    const hist = items
+      .filter(i => i.id !== item.id && (i.comprador === key || i.comprador_id === key))
+      .sort((a, b) => new Date(b.creado_en) - new Date(a.creado_en))
+    setExpandedHistory(prev => ({ ...prev, [item.id]: hist }))
   }
 
   // Client-side filter by estado tab, pinned first
@@ -254,15 +259,14 @@ export default function PreCompra({ onLogout }) {
               <span style={{ fontSize:13, fontWeight:700, color:'var(--text)' }}>
                 {item.comprador || item.comprador_nombre || 'Comprador'}
               </span>
-              {item.comprador && (
+              {item.comprador && compradorCount[item.comprador] > 1 && (
                 <button onClick={(e) => { e.stopPropagation(); toggleHistory(item) }}
-                  disabled={loadingHistory === item.id}
                   style={{ marginLeft:'auto', fontSize:11, padding:'3px 8px', borderRadius:4,
                     background: expandedHistory[item.id] ? 'var(--purple-light)' : 'var(--surface2)',
                     color: expandedHistory[item.id] ? 'var(--purple)' : 'var(--text3)',
                     border: expandedHistory[item.id] ? '1px solid var(--purple-border)' : '1px solid var(--border)',
-                    cursor:'pointer', opacity: loadingHistory === item.id ? 0.5 : 1 }}>
-                  {loadingHistory === item.id ? '...' : '\uD83D\uDD70 Historial'}
+                    cursor:'pointer' }}>
+                  {'\uD83D\uDCDC'} Historial
                 </button>
               )}
             </div>
@@ -315,7 +319,12 @@ export default function PreCompra({ onLogout }) {
                 ) : expandedHistory[item.id].map((h, hi) => (
                   <div key={h.id} style={{ paddingBottom:6, marginBottom:6,
                     borderBottom: hi < expandedHistory[item.id].length - 1 ? '1px solid var(--border)' : 'none' }}>
-                    <div style={{ fontSize:10, color:'var(--text3)', marginBottom:2 }}>{formatFecha(h.creado_en)}</div>
+                    <div style={{ fontSize:10, color:'var(--text3)', marginBottom:2 }}>
+                      {formatFecha(h.creado_en)}
+                      {h.producto && h.producto !== item.producto && (
+                        <span style={{ marginLeft:6, fontStyle:'italic' }}>{h.producto}</span>
+                      )}
+                    </div>
                     <div style={{ fontSize:12, color:'var(--text2)', lineHeight:1.4 }}>{h.mensaje_cliente}</div>
                     {(h.respuesta_final || h.respuesta_ia) && (
                       <div style={{ fontSize:12, color:'var(--purple)', borderLeft:'2px solid var(--purple)',
