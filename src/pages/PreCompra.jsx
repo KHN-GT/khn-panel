@@ -169,7 +169,6 @@ export default function PreCompra({ onLogout }) {
   const currentPage = Math.floor(offset / LIMIT) + 1
 
   const renderCard = (item) => {
-    if (item.conversion_en) console.log('[PreCompra] item con conversion_en:', item.id, item.comprador, item.conversion_en)
     const ac = ACCT[item.cuenta] || { color:'var(--text3)', bg:'var(--surface2)', br:'var(--border)' }
     const eb = estadoBadge(item)
     const isPendiente = item.estado === 'pendiente' || item.estado === 'en_progreso' || item.estado === 'IA_sugerida'
@@ -254,6 +253,12 @@ export default function PreCompra({ onLogout }) {
               <span style={{ fontSize:13, fontWeight:700, color:'var(--text)' }}>
                 {item.comprador || item.comprador_nombre || 'Comprador'}
               </span>
+              {item.pedido_hecho && (
+                <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4,
+                  background:'#dcfce7', color:'#16a34a', border:'1px solid #86efac' }}>
+                  ✓ Pedido hecho
+                </span>
+              )}
               {item.conversion_en && (
                 <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4,
                   background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0' }}>
