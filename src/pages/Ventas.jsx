@@ -172,6 +172,20 @@ export default function Ventas({ onLogout }) {
       setLastUpdate(new Date(now))
       localStorage.setItem(key, JSON.stringify({ ordenes: lista, cuenta, modo, dias, ts: now }))
       autoRefreshLogisticTypes(lista)
+      // Resolve missing thumbnails in background
+      const missing = lista.filter(o => o.item_id && !o.thumbnail).map(o => o.item_id)
+      if (missing.length > 0) {
+        fetch(`${RAILWAY}/api/ventas/resolve-thumbnails`, {
+          method: 'POST', headers: authHeaders(),
+          body: JSON.stringify({ item_ids: [...new Set(missing)] })
+        }).then(r => r.json()).then(thumbs => {
+          if (thumbs && typeof thumbs === 'object' && !thumbs.error) {
+            setOrdenes(prev => prev.map(o =>
+              o.item_id && thumbs[o.item_id] ? { ...o, thumbnail: thumbs[o.item_id] } : o
+            ))
+          }
+        }).catch(() => {})
+      }
     } catch { setOrdenes([]) }
     finally { setLoading(false) }
   }
