@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 const RAILWAY = "https://worker-production-d575.up.railway.app"
 const s = {
   wrap:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg)"},
@@ -16,23 +16,66 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const submit = async e => {
-    e.preventDefault()
-    if (!username || !password) { setError("Ingresa usuario y contrasena"); return }
+  const [needs2FA, setNeeds2FA] = useState(false)
+  const [totpCode, setTotpCode] = useState("")
+  const totpRef = useRef(null)
+
+  useEffect(() => { if (needs2FA && totpRef.current) totpRef.current.focus() }, [needs2FA])
+
+  const doLogin = async (code) => {
     setLoading(true); setError("")
     try {
+      const body = { username, password }
+      if (code) body.totp_code = code
       const resp = await fetch(RAILWAY + "/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify(body)
       })
       const data = await resp.json()
-      if (!resp.ok || !data.token) { setError(data.error || "Error de acceso"); return }
+      if (data.requires_2fa) {
+        setNeeds2FA(true)
+        setLoading(false)
+        return
+      }
+      if (!resp.ok || !data.token) { setError(data.error || "Error de acceso"); setLoading(false); return }
       localStorage.setItem("khn_token", data.token)
       localStorage.setItem("khn_user", JSON.stringify({ nombre: data.nombre, rol: data.rol, cuentas: data.cuentas }))
       onLogin?.()
     } catch(err) { setError("Error de conexion") } finally { setLoading(false) }
   }
+
+  const submit = e => { e.preventDefault(); doLogin() }
+  const submit2FA = e => {
+    e.preventDefault()
+    if (totpCode.length !== 6) { setError("Ingresa el codigo de 6 digitos"); return }
+    doLogin(totpCode)
+  }
+
+  if (needs2FA) {
+    return (
+      <div style={s.wrap}><div style={s.card}>
+        <div style={s.logo}>KHN<span style={s.logoSpan}>_botics</span></div>
+        <p style={s.sub}>Verificacion en dos pasos</p>
+        <form onSubmit={submit2FA}>
+          <label style={s.label}>Codigo de autenticacion</label>
+          <input ref={totpRef} style={{...s.input, fontSize:24, textAlign:'center', letterSpacing:8}}
+            value={totpCode} onChange={e => setTotpCode(e.target.value.replace(/\D/g,'').slice(0,6))}
+            maxLength={6} placeholder="000000" inputMode="numeric" autoComplete="one-time-code" />
+          {error && <div style={s.err}>{error}</div>}
+          <button type="submit" style={{...s.btn, opacity:loading?0.7:1}} disabled={loading}>
+            {loading ? "Verificando..." : "Verificar"}
+          </button>
+          <button type="button" onClick={() => { setNeeds2FA(false); setTotpCode(''); setError('') }}
+            style={{ width:'100%', marginTop:8, padding:8, background:'none', border:'none',
+              color:'var(--text3)', fontSize:12, cursor:'pointer' }}>
+            Volver
+          </button>
+        </form>
+      </div></div>
+    )
+  }
+
   return (
     <div style={s.wrap}><div style={s.card}>
       <div style={s.logo}>KHN<span style={s.logoSpan}>_botics</span></div>

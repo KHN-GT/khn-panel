@@ -28,6 +28,58 @@ export default function Usuarios({ onLogout }) {
   const [form, setForm]     = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
 
+  // 2FA
+  const [twoFA, setTwoFA] = useState(null) // {qr_base64, secret}
+  const [tfaCode, setTfaCode] = useState('')
+  const [tfaSaving, setTfaSaving] = useState(false)
+  const [disableCode, setDisableCode] = useState('')
+  const [disabling, setDisabling] = useState(false)
+
+  const currentUser = (() => { try { return JSON.parse(localStorage.getItem('khn_user') || '{}') } catch { return {} } })()
+  const myUsername = currentUser.nombre || ''
+
+  const myUser = usuarios.find(u => {
+    try { const jwt = JSON.parse(atob(token.split('.')[1])); return u.id === jwt.sub } catch { return false }
+  })
+
+  const setup2FA = async () => {
+    try {
+      const r = await fetch(`${API}/api/auth/2fa/setup`, { method: 'POST', headers })
+      const data = await r.json()
+      if (!r.ok) throw new Error(data.error)
+      setTwoFA(data)
+      setTfaCode('')
+    } catch (e) { showFlash(e.message, true) }
+  }
+
+  const verify2FA = async () => {
+    if (tfaCode.length !== 6) { showFlash('Ingresa el codigo de 6 digitos', true); return }
+    setTfaSaving(true)
+    try {
+      const r = await fetch(`${API}/api/auth/2fa/verify`, { method: 'POST', headers, body: JSON.stringify({ code: tfaCode }) })
+      const data = await r.json()
+      if (!r.ok) throw new Error(data.error)
+      showFlash('2FA activado correctamente')
+      setTwoFA(null); setTfaCode('')
+      fetchUsuarios()
+    } catch (e) { showFlash(e.message, true) }
+    finally { setTfaSaving(false) }
+  }
+
+  const disable2FA = async () => {
+    if (disableCode.length !== 6) { showFlash('Ingresa el codigo de 6 digitos', true); return }
+    setDisabling(true)
+    try {
+      const r = await fetch(`${API}/api/auth/2fa/disable`, { method: 'POST', headers, body: JSON.stringify({ code: disableCode }) })
+      const data = await r.json()
+      if (!r.ok) throw new Error(data.error)
+      showFlash('2FA desactivado')
+      setDisableCode('')
+      fetchUsuarios()
+    } catch (e) { showFlash(e.message, true) }
+    finally { setDisabling(false) }
+  }
+
   const showFlash = (msg, isError = false) => {
     setFlash({ msg, isError })
     setTimeout(() => setFlash(''), 3000)
@@ -148,6 +200,76 @@ export default function Usuarios({ onLogout }) {
           </div>
         )}
 
+        {/* 2FA Section */}
+        {myUser && (
+          <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:10,
+            padding:'18px 22px', marginBottom:20 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom: twoFA ? 16 : 0 }}>
+              <span style={{ fontSize:14, fontWeight:700 }}>Autenticacion de dos factores</span>
+              {myUser.totp_enabled ? (
+                <span style={{ fontSize:11, fontWeight:700, padding:'3px 10px', borderRadius:99,
+                  background:'#d1fae5', color:'#047857', border:'1px solid #6ee7b7' }}>Activo</span>
+              ) : (
+                <span style={{ fontSize:11, fontWeight:700, padding:'3px 10px', borderRadius:99,
+                  background:'var(--surface2)', color:'var(--text3)', border:'1px solid var(--border)' }}>Inactivo</span>
+              )}
+              {!myUser.totp_enabled && !twoFA && (
+                <button onClick={setup2FA}
+                  style={{ marginLeft:'auto', fontSize:12, padding:'6px 14px', borderRadius:6, cursor:'pointer',
+                    background:'var(--purple)', color:'#fff', border:'none', fontWeight:700 }}>
+                  Activar 2FA
+                </button>
+              )}
+              {myUser.totp_enabled && (
+                <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:8 }}>
+                  <input value={disableCode} onChange={e => setDisableCode(e.target.value.replace(/\D/g,'').slice(0,6))}
+                    placeholder="Codigo" maxLength={6} inputMode="numeric"
+                    style={{ width:90, padding:'5px 8px', borderRadius:6, border:'1px solid var(--border)',
+                      background:'var(--bg)', color:'var(--text)', fontSize:13, textAlign:'center' }} />
+                  <button onClick={disable2FA} disabled={disabling}
+                    style={{ fontSize:12, padding:'6px 14px', borderRadius:6, cursor:'pointer',
+                      background:'var(--red-light)', color:'var(--red)', border:'1px solid var(--red-border)', fontWeight:600 }}>
+                    {disabling ? '...' : 'Desactivar'}
+                  </button>
+                </div>
+              )}
+            </div>
+            {twoFA && (
+              <div style={{ display:'flex', gap:24, alignItems:'flex-start', flexWrap:'wrap' }}>
+                <div>
+                  <img src={`data:image/png;base64,${twoFA.qr_base64}`} alt="QR"
+                    style={{ width:200, height:200, borderRadius:8, border:'1px solid var(--border)' }} />
+                  <div style={{ fontSize:11, color:'var(--text3)', marginTop:6, maxWidth:200, wordBreak:'break-all' }}>
+                    {twoFA.secret}
+                  </div>
+                </div>
+                <div style={{ flex:1, minWidth:200 }}>
+                  <p style={{ fontSize:13, color:'var(--text2)', margin:'0 0 12px', lineHeight:1.5 }}>
+                    Escanea el QR con Google Authenticator o Authy. Luego ingresa el codigo de 6 digitos para verificar.
+                  </p>
+                  <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                    <input value={tfaCode} onChange={e => setTfaCode(e.target.value.replace(/\D/g,'').slice(0,6))}
+                      placeholder="000000" maxLength={6} inputMode="numeric"
+                      style={{ width:120, padding:'8px 12px', borderRadius:6, border:'1.5px solid var(--border)',
+                        background:'var(--bg)', color:'var(--text)', fontSize:20, textAlign:'center', letterSpacing:6 }} />
+                    <button onClick={verify2FA} disabled={tfaSaving}
+                      style={{ padding:'8px 18px', borderRadius:6, border:'none', cursor:'pointer',
+                        background:'var(--purple)', color:'#fff', fontSize:13, fontWeight:700,
+                        opacity: tfaSaving ? 0.7 : 1 }}>
+                      {tfaSaving ? '...' : 'Verificar y activar'}
+                    </button>
+                    <button onClick={() => { setTwoFA(null); setTfaCode('') }}
+                      style={{ padding:'8px 12px', borderRadius:6, border:'1px solid var(--border)',
+                        background:'var(--bg)', color:'var(--text3)', fontSize:12, cursor:'pointer' }}>
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Error acceso */}
         {error && (
           <div style={{ padding:'16px', borderRadius:8, background:'var(--red-light)',
@@ -191,6 +313,14 @@ export default function Usuarios({ onLogout }) {
                     textTransform:'uppercase', letterSpacing:0.5 }}>
                     {u.rol}
                   </div>
+
+                  {/* 2FA badge */}
+                  {u.totp_enabled && (
+                    <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:99,
+                      background:'#d1fae5', color:'#047857', border:'1px solid #6ee7b7' }}>
+                      2FA
+                    </span>
+                  )}
 
                   {/* Cuentas */}
                   <div style={{ display:'flex', gap:4 }}>
