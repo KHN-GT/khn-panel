@@ -353,17 +353,23 @@ export default function Ventas({ onLogout }) {
             placeholder="Buscar por orden, comprador, SKU..."
             style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border)',
               fontSize: 13, background: 'var(--surface)', width: 240 }} />
-          <button onClick={() => { cargarOrdenes(true); cargarSeguimientos() }}
-            style={{ padding: '6px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600,
-              background: 'var(--purple)', color: '#fff', border: 'none', cursor: 'pointer' }}>
-            Actualizar
-          </button>
-          {selectedOrders.size > 0 && (
+          <label style={{ display:'flex', alignItems:'center', gap:4, cursor:'pointer', fontSize:12, color:'var(--text2)' }}>
+            <input type="checkbox" checked={ordenesFiltradas.filter(isSelectable).length > 0 && ordenesFiltradas.filter(isSelectable).every(o => selectedOrders.has(`${o.shipment_id}|${o.cuenta}`))}
+              onChange={toggleSelectAll} style={{ cursor:'pointer' }} />
+            Todas
+          </label>
+          {selectedOrders.size > 0 ? (
             <button onClick={refreshSelected} disabled={refreshingBulk}
               style={{ padding: '6px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600,
                 background: '#2563eb', color: '#fff', border: 'none', cursor: 'pointer',
                 opacity: refreshingBulk ? 0.6 : 1 }}>
               {refreshingBulk ? 'Actualizando...' : `\uD83D\uDD04 Actualizar (${selectedOrders.size})`}
+            </button>
+          ) : (
+            <button onClick={() => { cargarOrdenes(true); cargarSeguimientos() }}
+              style={{ padding: '6px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600,
+                background: 'var(--purple)', color: '#fff', border: 'none', cursor: 'pointer' }}>
+              Actualizar
             </button>
           )}
           <span style={{ fontSize: 12, color: 'var(--text3)' }}>
