@@ -224,8 +224,8 @@ export default function Usuarios({ onLogout }) {
                 <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:8 }}>
                   <input value={disableCode} onChange={e => setDisableCode(e.target.value.replace(/\D/g,'').slice(0,6))}
                     placeholder="Codigo" maxLength={6} inputMode="numeric"
-                    style={{ width:90, padding:'5px 8px', borderRadius:6, border:'1px solid var(--border)',
-                      background:'var(--bg)', color:'var(--text)', fontSize:13, textAlign:'center' }} />
+                    style={{ width:110, padding:'5px 8px', borderRadius:6, border:'1px solid var(--border)',
+                      background:'var(--bg)', color:'var(--text)', fontSize:13, textAlign:'center', letterSpacing:2 }} />
                   <button onClick={disable2FA} disabled={disabling}
                     style={{ fontSize:12, padding:'6px 14px', borderRadius:6, cursor:'pointer',
                       background:'var(--red-light)', color:'var(--red)', border:'1px solid var(--red-border)', fontWeight:600 }}>
@@ -250,7 +250,7 @@ export default function Usuarios({ onLogout }) {
                   <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                     <input value={tfaCode} onChange={e => setTfaCode(e.target.value.replace(/\D/g,'').slice(0,6))}
                       placeholder="000000" maxLength={6} inputMode="numeric"
-                      style={{ width:120, padding:'8px 12px', borderRadius:6, border:'1.5px solid var(--border)',
+                      style={{ width:160, padding:'8px 12px', borderRadius:6, border:'1.5px solid var(--border)',
                         background:'var(--bg)', color:'var(--text)', fontSize:20, textAlign:'center', letterSpacing:6 }} />
                     <button onClick={verify2FA} disabled={tfaSaving}
                       style={{ padding:'8px 18px', borderRadius:6, border:'none', cursor:'pointer',
