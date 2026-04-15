@@ -212,17 +212,19 @@ export default function PreCompra({ onLogout }) {
               overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>
               {item.producto || item.sku || '-'}
             </div>
-            {item.precio && (
-              <div style={{ fontSize:14, fontWeight:800, color:'var(--text)' }}>
-                ${Number(item.precio).toLocaleString('es-AR')}
-              </div>
-            )}
-            {(item.pedido_hecho || item.conversion_en) && (
-              <span style={{ alignSelf:'flex-start', fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4,
-                background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0' }}>
-                {'\u2705'} Compro
-              </span>
-            )}
+            <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+              {item.precio && (
+                <span style={{ fontSize:14, fontWeight:800, color:'var(--text)' }}>
+                  ${Number(item.precio).toLocaleString('es-AR')}
+                </span>
+              )}
+              {(item.pedido_hecho || item.conversion_en) && (
+                <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4,
+                  background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0' }}>
+                  {'\u2705'} Compro
+                </span>
+              )}
+            </div>
             <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
               {item.item_id && (
                 <div style={{ fontSize:10, color:'var(--text3)', fontFamily:'monospace' }}>
