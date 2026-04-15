@@ -169,6 +169,7 @@ export default function PreCompra({ onLogout }) {
   const currentPage = Math.floor(offset / LIMIT) + 1
 
   const renderCard = (item) => {
+    if (item.conversion_en) console.log('[PreCompra] item con conversion_en:', item.id, item.comprador, item.conversion_en)
     const ac = ACCT[item.cuenta] || { color:'var(--text3)', bg:'var(--surface2)', br:'var(--border)' }
     const eb = estadoBadge(item)
     const isPendiente = item.estado === 'pendiente' || item.estado === 'en_progreso' || item.estado === 'IA_sugerida'
