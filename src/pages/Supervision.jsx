@@ -261,6 +261,12 @@ export default function Supervision({ onLogout }) {
                               #{item.item_id}
                             </span>
                           )}
+                          {(item.pedido_hecho || item.conversion_en) && (
+                            <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4,
+                              background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0' }}>
+                              {'\u2705'} Compro
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>

@@ -217,6 +217,12 @@ export default function PreCompra({ onLogout }) {
                 ${Number(item.precio).toLocaleString('es-AR')}
               </div>
             )}
+            {(item.pedido_hecho || item.conversion_en) && (
+              <span style={{ alignSelf:'flex-start', fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4,
+                background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0' }}>
+                {'\u2705'} Compro
+              </span>
+            )}
             <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
               {item.item_id && (
                 <div style={{ fontSize:10, color:'var(--text3)', fontFamily:'monospace' }}>
@@ -253,12 +259,6 @@ export default function PreCompra({ onLogout }) {
               <span style={{ fontSize:13, fontWeight:700, color:'var(--text)' }}>
                 {item.comprador || item.comprador_nombre || 'Comprador'}
               </span>
-              {(item.pedido_hecho || item.conversion_en) && (
-                <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4,
-                  background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0' }}>
-                  {'\u2705'} Compro
-                </span>
-              )}
               {item.comprador && compradorCount[item.comprador] > 1 && (
                 <button onClick={(e) => { e.stopPropagation(); toggleHistory(item) }}
                   style={{ marginLeft:'auto', fontSize:11, padding:'3px 8px', borderRadius:4,
