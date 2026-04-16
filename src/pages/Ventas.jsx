@@ -321,7 +321,7 @@ export default function Ventas({ onLogout }) {
     if (!status) {
       s = { bg: 'var(--surface2)', c: 'var(--text3)', b: 'var(--border)', label: '...' }
     } else if (status === 'ready_to_ship' && substatus === 'ready_to_print') {
-      s = { bg: '#fff7ed', c: '#f97316', b: '#fed7aa', label: 'Imprimir etiqueta' }
+      s = { bg: '#eff6ff', c: '#2563eb', b: '#bfdbfe', label: 'Imprimir etiqueta' }
     } else if (status === 'ready_to_ship' && substatus === 'printed') {
       s = { bg: '#eff6ff', c: '#2563eb', b: '#bfdbfe', label: 'Etiqueta impresa' }
     } else if (status === 'ready_to_ship' && (substatus || '').includes('ready_to_deliver')) {
@@ -585,7 +585,7 @@ export default function Ventas({ onLogout }) {
                   </div>
 
                   {/* Right: shipping status column */}
-                  <div style={{ width: 120, flexShrink: 0, padding: '10px 12px', borderLeft: '1px solid var(--border)',
+                  <div style={{ width: 120, flexShrink: 0, padding: '10px 20px 10px 8px',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                     {substatusBadge(
                       shipmentStatuses[o.shipment_id] || o.shipping_status || '',
