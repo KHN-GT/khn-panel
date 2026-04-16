@@ -595,47 +595,86 @@ export default function Ventas({ onLogout }) {
               {seguimientos.length} total
             </span>
           </h3>
-          <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '50px 60px 1fr 1fr 90px 110px 100px 1.2fr 80px',
-              padding: '10px 16px', background: 'var(--surface2)', fontSize: 11, fontWeight: 700,
-              color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', gap: 8 }}>
-              <span>ID</span><span>Cuenta</span><span>Comprador</span><span>Producto</span><span>Monto</span>
-              <span>Envio</span><span>Mensaje</span><span>Notas</span><span>Acciones</span>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {loadingSeg ? (
               <div style={{ padding: 30, textAlign: 'center', color: 'var(--text3)', fontSize: 13 }}>Cargando...</div>
             ) : seguimientos.length === 0 ? (
               <div style={{ padding: 30, textAlign: 'center', color: 'var(--text3)', fontSize: 13 }}>Sin seguimientos activos</div>
-            ) : seguimientos.map((s, i) => (
+            ) : seguimientos.map(s => {
+              const ac = ACCT[s.cuenta] || ACCT.GTK
+              return (
               <div key={s.id} className="animate-in"
-                style={{ display: 'grid', gridTemplateColumns: '50px 60px 1fr 1fr 90px 110px 100px 1.2fr 80px',
-                  padding: '10px 16px', borderTop: '1px solid var(--border)', fontSize: 13, gap: 8,
-                  alignItems: 'center', background: i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)' }}>
-                <span style={{ fontSize: 11, color: 'var(--text3)' }}>#{s.id}</span>
-                <span style={{ fontWeight: 700, color: CUENTA_COLORS[s.cuenta] || 'var(--text2)', fontSize: 12 }}>
-                  {s.cuenta}
-                </span>
-                <div>
-                  <div style={{ fontWeight: 600 }}>{s.comprador_nickname}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text3)' }}>{s.comprador_nombre}</div>
+                style={{ background: 'var(--surface)', border: '0.5px solid var(--border)',
+                  borderRadius: 10, overflow: 'hidden', boxShadow: 'var(--shadow)' }}>
+                <div style={{ display: 'flex', gap: 0 }}>
+                  {/* Left: thumbnail placeholder */}
+                  <div style={{ width: 140, flexShrink: 0, padding: 10, borderRight: '1px solid var(--border)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface2)' }}>
+                    <div style={{ width: '100%', height: 80, borderRadius: 6, background: 'var(--surface)',
+                      border: '1px solid var(--border)', display: 'flex', alignItems: 'center',
+                      justifyContent: 'center' }}>
+                      <span style={{ fontSize: 32, opacity: 0.3 }}>{'\uD83D\uDCE6'}</span>
+                    </div>
+                  </div>
+
+                  {/* Right: info */}
+                  <div style={{ flex: 1, padding: '10px 16px', display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+                    {/* Row 1: cuenta badge + comprador + estado envio */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                        borderRadius: 4, background: ac.bg, color: ac.color, border: `1px solid ${ac.br}` }}>
+                        {s.cuenta}
+                      </span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>
+                        {s.comprador_nickname || 'Comprador'}
+                      </span>
+                      {s.comprador_nombre && (
+                        <span style={{ fontSize: 11, color: 'var(--text3)' }}>{s.comprador_nombre}</span>
+                      )}
+                      <span style={{ marginLeft: 'auto' }}>{shippingBadge(s.estado_envio)}</span>
+                    </div>
+
+                    {/* Row 2: producto */}
+                    <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)', lineHeight: 1.4,
+                      overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                      {s.producto || '-'}
+                    </div>
+
+                    {/* Row 3: monto + SKU + mensaje badge */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>{formatMonto(s.monto)}</span>
+                      {s.sku && (
+                        <span style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'monospace' }}>SKU: {s.sku}</span>
+                      )}
+                      {s.mensaje_enviado
+                        ? <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
+                            background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0' }}>Mensaje enviado</span>
+                        : <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
+                            background: 'var(--surface2)', color: 'var(--text3)', border: '1px solid var(--border)' }}>Sin mensaje</span>}
+                    </div>
+
+                    {/* Row 4: notas (si hay) */}
+                    {s.notas && (
+                      <div style={{ fontSize: 12, padding: '4px 10px', borderRadius: 6,
+                        background: '#fefce8', border: '1px solid #fde68a', color: '#92400e' }}>
+                        {s.notas}
+                      </div>
+                    )}
+
+                    {/* Row 5: boton quitar */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <button onClick={() => desactivarSeguimiento(s.id)}
+                        style={{ fontSize: 11, padding: '4px 12px', borderRadius: 6, cursor: 'pointer',
+                          background: 'var(--red-light)', border: '1px solid var(--red-border)', color: 'var(--red)',
+                          fontWeight: 600 }}>
+                        Quitar
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text2)' }}>{s.producto?.slice(0, 50)}</div>
-                <span style={{ fontWeight: 600 }}>{formatMonto(s.monto)}</span>
-                {shippingBadge(s.estado_envio)}
-                <span style={{ fontSize: 11 }}>
-                  {s.mensaje_enviado
-                    ? <span style={{ color: 'var(--green)', fontWeight: 600 }}>Enviado</span>
-                    : <span style={{ color: 'var(--text3)' }}>Pendiente</span>}
-                </span>
-                <div style={{ fontSize: 12, color: 'var(--text3)' }}>{s.notas || '-'}</div>
-                <button onClick={() => desactivarSeguimiento(s.id)}
-                  style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
-                    background: 'var(--red-light)', border: '1px solid var(--red-border)', color: 'var(--red)' }}>
-                  Quitar
-                </button>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
         )}
