@@ -394,10 +394,11 @@ export default function Ventas({ onLogout }) {
             const seg = segMap[o.orden_id]
             const isPinned = !!seg
             const ac = ACCT[o.cuenta] || { color:'var(--text3)', bg:'var(--surface2)', br:'var(--border)' }
+            const isFull = (logisticTypes[o.shipment_id] || o.logistic_type) === 'fulfillment'
             return (
               <div key={o.orden_id + i} className="animate-in" style={{
-                background: isPinned ? '#fffbeb' : 'var(--surface)',
-                border: isPinned ? '1.5px solid #fde68a' : '0.5px solid var(--border)',
+                background: isPinned ? '#fffbeb' : isFull ? 'rgba(59, 130, 246, 0.06)' : 'var(--surface)',
+                border: isPinned ? '1.5px solid #fde68a' : isFull ? '0.5px solid rgba(59, 130, 246, 0.2)' : '0.5px solid var(--border)',
                 borderRadius: 10, overflow: 'hidden', position: 'relative' }}>
 
                 {/* Pin button */}
