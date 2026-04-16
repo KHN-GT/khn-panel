@@ -338,8 +338,9 @@ export default function Ventas({ onLogout }) {
       s = { bg: 'var(--surface2)', c: 'var(--text3)', b: 'var(--border)', label: status }
     }
     return (
-      <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 6,
-        background: s.bg, color: s.c, border: `1px solid ${s.b}`, textAlign: 'center', lineHeight: 1.3 }}>
+      <span style={{ fontSize: 13, fontWeight: 700, padding: '8px 20px', borderRadius: 8,
+        background: s.bg, color: s.c, border: `1px solid ${s.b}`, textAlign: 'center', lineHeight: 1.3,
+        width: '100%', display: 'block', boxSizing: 'border-box' }}>
         {s.label}
       </span>
     )
@@ -585,28 +586,30 @@ export default function Ventas({ onLogout }) {
                   </div>
 
                   {/* Right: shipping status column */}
-                  <div style={{ width: 120, flexShrink: 0, padding: '10px 20px 10px 8px',
+                  <div style={{ width: 180, flexShrink: 0, padding: '10px 14px 10px 8px',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                     {substatusBadge(
                       shipmentStatuses[o.shipment_id] || o.shipping_status || '',
                       shipmentSubstatuses[o.shipment_id] || ''
                     )}
-                    {o.shipment_id && (
-                      <button onClick={() => refreshShipment(o.shipment_id, o.cuenta)}
-                        disabled={refreshingShip[o.shipment_id]}
-                        title="Actualizar estado de envio"
-                        style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, cursor: 'pointer',
-                          background: 'none', border: '1px solid var(--border)', color: 'var(--text3)',
-                          opacity: refreshingShip[o.shipment_id] ? 0.4 : 1 }}>
-                        {'\uD83D\uDD04'}
-                      </button>
-                    )}
-                    {isSelectable(o) && (
-                      <input type="checkbox"
-                        checked={selectedOrders.has(`${o.shipment_id}|${o.cuenta}`)}
-                        onChange={() => toggleSelect(o.shipment_id, o.cuenta)}
-                        style={{ cursor: 'pointer' }} />
-                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+                      {o.shipment_id && (
+                        <button onClick={() => refreshShipment(o.shipment_id, o.cuenta)}
+                          disabled={refreshingShip[o.shipment_id]}
+                          title="Actualizar estado de envio"
+                          style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, cursor: 'pointer',
+                            background: 'none', border: '1px solid var(--border)', color: 'var(--text3)',
+                            opacity: refreshingShip[o.shipment_id] ? 0.4 : 1 }}>
+                          {'\uD83D\uDD04'}
+                        </button>
+                      )}
+                      {isSelectable(o) && (
+                        <input type="checkbox"
+                          checked={selectedOrders.has(`${o.shipment_id}|${o.cuenta}`)}
+                          onChange={() => toggleSelect(o.shipment_id, o.cuenta)}
+                          style={{ cursor: 'pointer' }} />
+                      )}
+                    </div>
                   </div>
                 </div>
 
