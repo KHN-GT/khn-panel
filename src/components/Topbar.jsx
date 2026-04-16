@@ -83,7 +83,7 @@ export default function Topbar({ onLogout, pendingCount = 0, claimsCount = 0, on
           </button>
         )
       })()}
-      {esSupervisorOAdmin && navBtn('/sku-risk', '\u26A0\uFE0F SKU Risk', 'SKU Risk Master')}
+      {esSupervisorOAdmin && navBtn('/sku-risk', 'SKU Risk', 'SKU Risk Master')}
       {esSupervisorOAdmin && navBtn('/whatsapp', 'WhatsApp', 'WhatsApp')}
       {esSupervisorOAdmin && navBtn('/ventas', 'Ventas', 'Ventas y seguimientos')}
       {esSupervisorOAdmin && navBtn('/pre-compra', 'Pre-Compra', 'Preguntas Pre-Compra')}

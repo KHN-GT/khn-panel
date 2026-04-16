@@ -24,7 +24,7 @@ function riskColor(score) {
 }
 
 function riskLabel(score) {
-  if (score >= 15) return 'CRÍTICO'
+  if (score >= 15) return 'CRITICO'
   if (score >= 10) return 'ALTO'
   if (score >= 5)  return 'MEDIO'
   return 'BAJO'
@@ -47,14 +47,13 @@ function TabResumen({ rows }) {
   const altos     = rows.filter(r => r.risk_score >= 10 && r.risk_score < 15).length
   const medios    = rows.filter(r => r.risk_score >= 5  && r.risk_score < 10).length
   const total_reclamos = rows.reduce((a,r) => a + (r.total_reclamos||0), 0)
-  const total_dev      = rows.reduce((a,r) => a + (r.total_devoluciones||0), 0)
   const top10 = [...rows].sort((a,b) => b.risk_score - a.risk_score).slice(0,10)
 
   return (
     <div>
       <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20}}>
         {[
-          { label:'SKUs Críticos', val:criticos, color:C.danger },
+          { label:'SKUs Criticos', val:criticos, color:C.danger },
           { label:'SKUs Alto Riesgo', val:altos, color:C.warn },
           { label:'SKUs Medio Riesgo', val:medios, color:'#ca8a04' },
           { label:'Total Reclamos', val:total_reclamos, color:C.blue },
@@ -72,7 +71,7 @@ function TabResumen({ rows }) {
         <table style={{width:'100%', borderCollapse:'collapse', tableLayout:'fixed'}}>
           <thead>
             <tr style={{background:C.bgMuted}}>
-              {['SKU','Cuenta','Risk Score','Reclamos','Devoluciones','Problemas','No Recibidos','Últ. actividad'].map(h => (
+              {['SKU','Cuenta','Risk Score','Reclamos','Devoluciones','Problemas','No Recibidos','Ult. actividad'].map(h => (
                 <th key={h} style={{padding:'8px 12px', textAlign:'left', fontSize:11, color:C.txtSoft, fontWeight:600}}>{h}</th>
               ))}
             </tr>
@@ -88,14 +87,14 @@ function TabResumen({ rows }) {
                 <td style={{padding:'8px 12px', fontSize:12}}>{r.total_problemas_tecnicos||0}</td>
                 <td style={{padding:'8px 12px', fontSize:12}}>{r.total_no_recibidos||0}</td>
                 <td style={{padding:'8px 12px', fontSize:11, color:C.txtSoft}}>
-                  {r.ultima_actualizacion ? new Date(r.ultima_actualizacion).toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}
+                  {r.ultima_actualizacion ? new Date(r.ultima_actualizacion).toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '--'}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
         {top10.length === 0 && (
-          <div style={{padding:24, textAlign:'center', color:C.txtSoft, fontSize:13}}>Sin datos de riesgo aún</div>
+          <div style={{padding:24, textAlign:'center', color:C.txtSoft, fontSize:13}}>Sin datos de riesgo aun</div>
         )}
       </div>
     </div>
@@ -104,8 +103,7 @@ function TabResumen({ rows }) {
 
 function TabPorCuenta({ rows }) {
   const [cuenta, setCuenta] = useState('GTK')
-  const filtered = rows.filter(r => r.cuenta === cuenta)
-    .sort((a,b) => b.risk_score - a.risk_score)
+  const filtered = rows.filter(r => r.cuenta === cuenta).sort((a,b) => b.risk_score - a.risk_score)
 
   return (
     <div>
@@ -151,20 +149,16 @@ function TabPorCuenta({ rows }) {
 }
 
 function TabReclamos({ rows }) {
-  const conReclamos = [...rows]
-    .filter(r => r.total_reclamos > 0)
-    .sort((a,b) => b.total_reclamos - a.total_reclamos)
+  const conReclamos = [...rows].filter(r => r.total_reclamos > 0).sort((a,b) => b.total_reclamos - a.total_reclamos)
 
   return (
     <div>
-      <div style={{marginBottom:12, fontSize:13, color:C.txtMd}}>
-        {conReclamos.length} SKUs con reclamos activos
-      </div>
+      <div style={{marginBottom:12, fontSize:13, color:C.txtMd}}>{conReclamos.length} SKUs con reclamos</div>
       <div style={{background:C.bgSoft, border:`1px solid ${C.border}`, borderRadius:10, overflow:'hidden'}}>
         <table style={{width:'100%', borderCollapse:'collapse', tableLayout:'fixed'}}>
           <thead>
             <tr style={{background:C.bgMuted}}>
-              {['SKU','Cuenta','Reclamos','Risk Score','No Recibidos','Devoluciones','Problemas Técnicos'].map(h => (
+              {['SKU','Cuenta','Reclamos','Risk Score','No Recibidos','Devoluciones','Problemas Tecnicos'].map(h => (
                 <th key={h} style={{padding:'8px 12px', textAlign:'left', fontSize:11, color:C.txtSoft, fontWeight:600}}>{h}</th>
               ))}
             </tr>
@@ -184,7 +178,7 @@ function TabReclamos({ rows }) {
           </tbody>
         </table>
         {conReclamos.length === 0 && (
-          <div style={{padding:24, textAlign:'center', color:C.ok, fontSize:13}}>✅ Sin SKUs con reclamos</div>
+          <div style={{padding:24, textAlign:'center', color:C.ok, fontSize:13}}>Sin SKUs con reclamos</div>
         )}
       </div>
     </div>
@@ -193,22 +187,13 @@ function TabReclamos({ rows }) {
 
 function TabTodos({ rows }) {
   const [search, setSearch] = useState('')
-  const filtered = rows
-    .filter(r => !search || r.sku.toLowerCase().includes(search.toLowerCase()))
-    .sort((a,b) => b.risk_score - a.risk_score)
+  const filtered = rows.filter(r => !search || r.sku.toLowerCase().includes(search.toLowerCase())).sort((a,b) => b.risk_score - a.risk_score)
 
   return (
     <div>
-      <input
-        placeholder="Buscar SKU..."
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        style={{
-          width:'100%', padding:'8px 12px', borderRadius:8,
-          border:`1px solid ${C.borderMd}`, fontSize:13,
-          marginBottom:12, boxSizing:'border-box',
-        }}
-      />
+      <input placeholder="Buscar SKU..." value={search} onChange={e => setSearch(e.target.value)}
+        style={{width:'100%', padding:'8px 12px', borderRadius:8, border:`1px solid ${C.borderMd}`,
+          fontSize:13, marginBottom:12, boxSizing:'border-box'}} />
       <div style={{background:C.bgSoft, border:`1px solid ${C.border}`, borderRadius:10, overflow:'hidden'}}>
         <table style={{width:'100%', borderCollapse:'collapse', tableLayout:'fixed'}}>
           <thead>
@@ -224,7 +209,7 @@ function TabTodos({ rows }) {
                 <td style={{padding:'8px 12px', fontSize:12, fontWeight:600}}>{r.sku}</td>
                 <td style={{padding:'8px 12px', fontSize:12}}>{r.cuenta}</td>
                 <td style={{padding:'8px 12px'}}><RiskBadge score={r.risk_score||0}/></td>
-                <td style={{padding:'8px 12px', fontSize:12, color: (r.total_reclamos||0)>0 ? C.danger : C.txtSoft}}>{r.total_reclamos||0}</td>
+                <td style={{padding:'8px 12px', fontSize:12, color:(r.total_reclamos||0)>0?C.danger:C.txtSoft}}>{r.total_reclamos||0}</td>
                 <td style={{padding:'8px 12px', fontSize:12}}>{r.total_devoluciones||0}</td>
                 <td style={{padding:'8px 12px', fontSize:12}}>{r.total_problemas_tecnicos||0}</td>
                 <td style={{padding:'8px 12px', fontSize:12}}>{r.total_compatibilidad||0}</td>
@@ -233,24 +218,22 @@ function TabTodos({ rows }) {
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && (
-          <div style={{padding:24, textAlign:'center', color:C.txtSoft, fontSize:13}}>Sin resultados</div>
-        )}
+        {filtered.length === 0 && <div style={{padding:24, textAlign:'center', color:C.txtSoft, fontSize:13}}>Sin resultados</div>}
       </div>
     </div>
   )
 }
 
 const TABS = [
-  { id:'resumen',   label:'Resumen' },
-  { id:'cuenta',    label:'Por Cuenta' },
-  { id:'reclamos',  label:'Reclamos' },
-  { id:'todos',     label:'Todos los SKUs' },
+  { id:'resumen', label:'Resumen' },
+  { id:'cuenta',  label:'Por Cuenta' },
+  { id:'reclamos',label:'Reclamos' },
+  { id:'todos',   label:'Todos los SKUs' },
 ]
 
 export default function SkuRisk({ onLogout }) {
-  const [tab, setTab]       = useState('resumen')
-  const [rows, setRows]     = useState([])
+  const [tab, setTab]         = useState('resumen')
+  const [rows, setRows]       = useState([])
   const [loading, setLoading] = useState(false)
   const [lastUpdate, setLastUpdate] = useState(null)
 
@@ -265,11 +248,8 @@ export default function SkuRisk({ onLogout }) {
       const d = await r.json()
       setRows(d.sku_risk || [])
       setLastUpdate(new Date())
-    } catch(e) {
-      console.error('sku_risk load error', e)
-    } finally {
-      setLoading(false)
-    }
+    } catch(e) { console.error('sku_risk load error', e) }
+    finally { setLoading(false) }
   }
 
   useEffect(() => { load() }, [])
@@ -280,33 +260,26 @@ export default function SkuRisk({ onLogout }) {
     <div style={{minHeight:'100vh', background:C.bgMuted}}>
       <Topbar onLogout={onLogout} />
       <div style={{maxWidth:1100, margin:'0 auto', padding:'24px 16px'}}>
-
-        {/* Header */}
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
           <div>
             <h1 style={{margin:0, fontSize:20, fontWeight:700, color:C.txt}}>SKU Risk Master</h1>
             <div style={{fontSize:12, color:C.txtSoft, marginTop:2}}>
-              Monitoreo de riesgo por producto · {rows.length} SKUs tracked
-              {lastUpdate && ` · Actualizado ${lastUpdate.toLocaleTimeString('es-MX')}`}
+              {rows.length} SKUs {lastUpdate && `Actualizado ${lastUpdate.toLocaleTimeString('es-MX')}`}
             </div>
           </div>
           <div style={{display:'flex', gap:8, alignItems:'center'}}>
             {criticos > 0 && (
               <span style={{background:C.dangerBg, color:C.danger, border:`1px solid ${C.dangerBorder}`,
                 borderRadius:8, padding:'4px 12px', fontSize:12, fontWeight:700}}>
-                🔴 {criticos} CRÍTICO{criticos>1?'S':''}
+                {criticos} CRITICO{criticos>1?'S':''}
               </span>
             )}
             <button onClick={load} disabled={loading} style={{
               padding:'7px 16px', borderRadius:8, border:`1px solid ${C.borderMd}`,
               background:C.bg, cursor:'pointer', fontSize:13, color:C.txt,
-            }}>
-              {loading ? 'Cargando...' : '↻ Actualizar'}
-            </button>
+            }}>{loading ? 'Cargando...' : 'Actualizar'}</button>
           </div>
         </div>
-
-        {/* Tabs */}
         <div style={{display:'flex', gap:4, marginBottom:16, background:C.bg, borderRadius:10,
           padding:4, border:`1px solid ${C.border}`, width:'fit-content'}}>
           {TABS.map(t => (
@@ -315,20 +288,17 @@ export default function SkuRisk({ onLogout }) {
               background: tab===t.id ? C.blue : 'transparent',
               color: tab===t.id ? '#fff' : C.txtMd,
               cursor:'pointer', fontWeight: tab===t.id ? 600 : 400, fontSize:13,
-              transition:'all 0.15s',
             }}>{t.label}</button>
           ))}
         </div>
-
-        {/* Content */}
         {loading && rows.length === 0 ? (
-          <div style={{padding:40, textAlign:'center', color:C.txtSoft}}>Cargando datos de riesgo...</div>
+          <div style={{padding:40, textAlign:'center', color:C.txtSoft}}>Cargando...</div>
         ) : (
           <>
-            {tab === 'resumen'  && <TabResumen rows={rows} />}
-            {tab === 'cuenta'   && <TabPorCuenta rows={rows} />}
-            {tab === 'reclamos' && <TabReclamos rows={rows} />}
-            {tab === 'todos'    && <TabTodos rows={rows} />}
+            {tab==='resumen'  && <TabResumen rows={rows}/>}
+            {tab==='cuenta'   && <TabPorCuenta rows={rows}/>}
+            {tab==='reclamos' && <TabReclamos rows={rows}/>}
+            {tab==='todos'    && <TabTodos rows={rows}/>}
           </>
         )}
       </div>
