@@ -83,7 +83,21 @@ export default function Topbar({ onLogout, pendingCount = 0, claimsCount = 0, on
           </button>
         )
       })()}
-      {esSupervisorOAdmin && navBtn('/sku-risk', 'SKU Risk', 'SKU Risk Master')}
+      {esSupervisorOAdmin && (() => {
+        const active = location.pathname === '/sku-risk'
+        return (
+          <button onClick={() => navigate('/sku-risk')} title="SKU Risk Master"
+            style={{ fontSize:13, fontWeight:700,
+              background: active ? 'var(--red-light)' : 'var(--surface2)',
+              border: active ? '1.5px solid var(--red-border)' : '1.5px solid var(--border)',
+              color: active ? 'var(--red)' : 'var(--text2)',
+              cursor:'pointer', padding:'5px 12px', borderRadius:6, lineHeight:1,
+              display:'flex', alignItems:'center', gap:5 }}>
+            <span style={{ fontSize:15 }}>{'\u26A0\uFE0F'}</span>
+            SKU Risk
+          </button>
+        )
+      })()}
       {esSupervisorOAdmin && navBtn('/whatsapp', 'WhatsApp', 'WhatsApp')}
       {esSupervisorOAdmin && navBtn('/ventas', 'Ventas', 'Ventas y seguimientos')}
       {esSupervisorOAdmin && navBtn('/pre-compra', 'Pre-Compra', 'Preguntas Pre-Compra')}
