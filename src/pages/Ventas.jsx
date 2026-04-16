@@ -35,6 +35,9 @@ export default function Ventas({ onLogout }) {
   const [logisticTypes, setLogisticTypes] = useState(() => {
     try { return JSON.parse(localStorage.getItem('khn_logistic_cache') || '{}') } catch { return {} }
   })
+  const [shipmentSubstatuses, setShipmentSubstatuses] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('khn_substatus_cache') || '{}') } catch { return {} }
+  })
   const [refreshingShip, setRefreshingShip] = useState({})
   const [selectedOrders, setSelectedOrders] = useState(new Set())
   const [refreshingBulk, setRefreshingBulk] = useState(false)
@@ -98,6 +101,11 @@ export default function Ventas({ onLogout }) {
           return next
         })
       }
+      setShipmentSubstatuses(prev => {
+        const next = { ...prev, [shipment_id]: d.substatus || '' }
+        localStorage.setItem('khn_substatus_cache', JSON.stringify(next))
+        return next
+      })
     } catch {}
     finally { setRefreshingShip(p => ({ ...p, [shipment_id]: false })) }
   }
@@ -308,6 +316,35 @@ export default function Ventas({ onLogout }) {
     )
   }
 
+  const substatusBadge = (status, substatus) => {
+    let s
+    if (!status) {
+      s = { bg: 'var(--surface2)', c: 'var(--text3)', b: 'var(--border)', label: '...' }
+    } else if (status === 'ready_to_ship' && substatus === 'ready_to_print') {
+      s = { bg: '#fff7ed', c: '#f97316', b: '#fed7aa', label: 'Imprimir etiqueta' }
+    } else if (status === 'ready_to_ship' && substatus === 'printed') {
+      s = { bg: '#eff6ff', c: '#2563eb', b: '#bfdbfe', label: 'Etiqueta impresa' }
+    } else if (status === 'ready_to_ship' && (substatus || '').includes('ready_to_deliver')) {
+      s = { bg: '#f0fdf4', c: '#16a34a', b: '#bbf7d0', label: 'Listo p/enviar' }
+    } else if (status === 'shipped') {
+      s = { bg: '#eff6ff', c: '#2563eb', b: '#bfdbfe', label: 'Enviado' }
+    } else if (status === 'delivered') {
+      s = { bg: '#f0fdf4', c: '#16a34a', b: '#bbf7d0', label: 'Entregado' }
+    } else if (status === 'handling') {
+      s = { bg: '#fefce8', c: '#d97706', b: '#fde68a', label: 'Procesando' }
+    } else if (status === 'pending') {
+      s = { bg: 'var(--surface2)', c: 'var(--text3)', b: 'var(--border)', label: 'Pendiente' }
+    } else {
+      s = { bg: 'var(--surface2)', c: 'var(--text3)', b: 'var(--border)', label: status }
+    }
+    return (
+      <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 6,
+        background: s.bg, color: s.c, border: `1px solid ${s.b}`, textAlign: 'center', lineHeight: 1.3 }}>
+        {s.label}
+      </span>
+    )
+  }
+
   const formatMonto = (m) => m != null ? `$${Number(m).toLocaleString('es-MX', { minimumFractionDigits: 2 })}` : '-'
 
   const copyToClipboard = (text, key) => {
@@ -452,9 +489,9 @@ export default function Ventas({ onLogout }) {
                     )}
                   </div>
 
-                  {/* Right: all info */}
+                  {/* Center: all info */}
                   <div style={{ flex: 1, padding: '10px 16px', display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
-                    {/* Row 1: status + pin badge + date + comprador + checkbox */}
+                    {/* Row 1: status + pin badge + date + comprador */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                       {statusBadge(o.status)}
                       {isPinned && (
@@ -472,12 +509,6 @@ export default function Ventas({ onLogout }) {
                       </span>
                       {o.comprador_nombre && (
                         <span style={{ fontSize: 11, color: 'var(--text3)' }}>{o.comprador_nombre}</span>
-                      )}
-                      {isSelectable(o) && (
-                        <input type="checkbox"
-                          checked={selectedOrders.has(`${o.shipment_id}|${o.cuenta}`)}
-                          onChange={() => toggleSelect(o.shipment_id, o.cuenta)}
-                          style={{ cursor: 'pointer', marginLeft: 'auto' }} />
                       )}
                     </div>
 
@@ -526,19 +557,8 @@ export default function Ventas({ onLogout }) {
                       </span>
                     </div>
 
-                    {/* Row 5: shipping + refresh + actions */}
+                    {/* Row 5: actions */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      {shippingBadge(shipmentStatuses[o.shipment_id] || o.shipping_status)}
-                      {o.shipment_id && (
-                        <button onClick={() => refreshShipment(o.shipment_id, o.cuenta)}
-                          disabled={refreshingShip[o.shipment_id]}
-                          title="Actualizar estado de envio"
-                          style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, cursor: 'pointer',
-                            background: 'none', border: '1px solid var(--border)', color: 'var(--text3)',
-                            opacity: refreshingShip[o.shipment_id] ? 0.4 : 1 }}>
-                          {'\uD83D\uDD04'}
-                        </button>
-                      )}
                       {(o.tiene_seguimiento && !isPinned) ? (
                         <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
                           background: 'var(--purple-light)', color: 'var(--purple)', border: '1px solid var(--purple-border)' }}>
@@ -562,6 +582,31 @@ export default function Ventas({ onLogout }) {
                         </a>
                       )}
                     </div>
+                  </div>
+
+                  {/* Right: shipping status column */}
+                  <div style={{ width: 120, flexShrink: 0, padding: '10px 12px', borderLeft: '1px solid var(--border)',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    {substatusBadge(
+                      shipmentStatuses[o.shipment_id] || o.shipping_status || '',
+                      shipmentSubstatuses[o.shipment_id] || ''
+                    )}
+                    {o.shipment_id && (
+                      <button onClick={() => refreshShipment(o.shipment_id, o.cuenta)}
+                        disabled={refreshingShip[o.shipment_id]}
+                        title="Actualizar estado de envio"
+                        style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, cursor: 'pointer',
+                          background: 'none', border: '1px solid var(--border)', color: 'var(--text3)',
+                          opacity: refreshingShip[o.shipment_id] ? 0.4 : 1 }}>
+                        {'\uD83D\uDD04'}
+                      </button>
+                    )}
+                    {isSelectable(o) && (
+                      <input type="checkbox"
+                        checked={selectedOrders.has(`${o.shipment_id}|${o.cuenta}`)}
+                        onChange={() => toggleSelect(o.shipment_id, o.cuenta)}
+                        style={{ cursor: 'pointer' }} />
+                    )}
                   </div>
                 </div>
 
