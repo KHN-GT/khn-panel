@@ -7,6 +7,7 @@ import Reportes from './pages/Reportes'
 import Supervision from './pages/Supervision'
 import Usuarios from './pages/Usuarios'
 import ReputacionShield from './pages/ReputacionShield'
+import SkuRisk from './pages/SkuRisk'
 import WhatsApp from './pages/WhatsApp'
 import Entrenamiento from './pages/Entrenamiento'
 import Ventas from './pages/Ventas'
@@ -69,6 +70,9 @@ export default function App() {
         } />
         <Route path="/reputacion" element={
           <SupervisorRoute><ReputacionShield onLogout={handleLogout} /></SupervisorRoute>
+        } />
+        <Route path="/sku-risk" element={
+          <SupervisorRoute><SkuRisk onLogout={handleLogout} /></SupervisorRoute>
         } />
         <Route path="/whatsapp" element={
           <SupervisorRoute><WhatsApp onLogout={handleLogout} /></SupervisorRoute>
