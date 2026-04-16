@@ -321,7 +321,7 @@ export default function Ventas({ onLogout }) {
     if (!status) {
       s = { bg: 'var(--surface2)', c: 'var(--text3)', b: 'var(--border)', label: '...' }
     } else if (status === 'ready_to_ship' && substatus === 'ready_to_print') {
-      s = { bg: '#eff6ff', c: '#2563eb', b: '#bfdbfe', label: 'Imprimir etiqueta' }
+      s = { bg: '#eff6ff', c: '#2563eb', b: '#bfdbfe', label: 'Etiqueta lista' }
     } else if (status === 'ready_to_ship' && substatus === 'printed') {
       s = { bg: '#eff6ff', c: '#2563eb', b: '#bfdbfe', label: 'Etiqueta impresa' }
     } else if (status === 'ready_to_ship' && (substatus || '').includes('ready_to_deliver')) {
