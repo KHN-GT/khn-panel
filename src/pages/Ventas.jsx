@@ -116,6 +116,12 @@ export default function Ventas({ onLogout }) {
 
   const ordenesFiltradas = useMemo(() => {
     let list = ordenes
+    if (modo === 'pendientes') {
+      list = list.filter(o => {
+        const realStatus = shipmentStatuses[o.shipment_id] || o.shipping_status || ''
+        return realStatus !== 'shipped' && realStatus !== 'delivered'
+      })
+    }
     if (cuentasActivas.size > 0) {
       list = list.filter(o => cuentasActivas.has(o.cuenta))
     }
@@ -130,7 +136,7 @@ export default function Ventas({ onLogout }) {
       )
     }
     return [...list].sort((a, b) => (segMap[b.orden_id] ? 1 : 0) - (segMap[a.orden_id] ? 1 : 0))
-  }, [ordenes, cuentasActivas, busquedaDebounced, segMap])
+  }, [ordenes, modo, shipmentStatuses, cuentasActivas, busquedaDebounced, segMap])
 
   const autoRefreshLogisticTypes = (lista) => {
     const cache = (() => { try { return JSON.parse(localStorage.getItem('khn_logistic_cache') || '{}') } catch { return {} } })()
