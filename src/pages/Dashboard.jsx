@@ -116,6 +116,11 @@ export default function Dashboard({ onLogout }) {
             style={{ fontSize:18, background:'none', border:'none',
               cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>{'\uD83D\uDEE1\uFE0F'}</button>
 
+          {/* Botón SKU Risk */}
+          <button onClick={() => navigate('/sku-risk')} title="SKU Risk"
+            style={{ fontSize:15, background:'none', border:'none', color:'var(--text3)',
+              cursor:'pointer', padding:'4px 6px', borderRadius:6 }}>{'\u26A0\uFE0F'}</button>
+
           {/* Botón WhatsApp */}
           <button onClick={() => navigate('/whatsapp')} title="WhatsApp"
             style={{ background:'none', border:'none',
