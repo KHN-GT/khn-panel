@@ -9,7 +9,7 @@ const TABS = [
 const ACCT_BTNS = ['Todas', 'GTK', 'RBN', 'GDP']
 const RAILWAY = 'https://worker-production-d575.up.railway.app'
 
-export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcctFilter, tipoFilter, onTipoFilter, onShowArchivadas }) {
+export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcctFilter, tipoFilter, onTipoFilter }) {
   const [etqFilter, setEtqFilter] = useState(null)
   const [reclamoSubTab, setReclamoSubTab] = useState('activos')  // etiqueta seleccionada para filtrar
   const [postvtSubTab,  setPostvtSubTab]  = useState('pendientes')
@@ -253,19 +253,6 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
         </div>
       )}
 
-      {/* Botón Archivadas — solo Pre-compra */}
-      {tipoFilter === 'PRE-COMPRA' && (
-        <div style={{ padding:'6px 10px 0', flexShrink:0 }}>
-          <button onClick={() => onShowArchivadas && onShowArchivadas()}
-            style={{ width:'100%', fontSize:13, fontWeight:600, padding:'7px 12px',
-              borderRadius:'var(--radius-sm)', cursor:'pointer', textAlign:'center',
-              border:'1.5px solid var(--border)', background:'var(--surface2)',
-              color:'var(--text2)', display:'flex', alignItems:'center', justifyContent:'center', gap:6,
-              transition:'all .15s' }}>
-            {'\uD83D\uDCE6'} Archivadas
-          </button>
-        </div>
-      )}
 
       {/* Filtro por etiqueta */}
       <div style={{ padding:'0 10px 6px', flexShrink:0 }}>
