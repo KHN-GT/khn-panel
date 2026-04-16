@@ -17,7 +17,7 @@ const ACCT = {
 export default function Ventas({ onLogout }) {
   const [modo, setModo] = useState('pendientes')
   const [dias, setDias] = useState(7)
-  const [cuenta, setCuenta] = useState('')
+  const [cuentasActivas, setCuentasActivas] = useState(new Set())
   const [ordenes, setOrdenes] = useState([])
   const [lastUpdate, setLastUpdate] = useState(null)
   const [seguimientos, setSeguimientos] = useState([])
@@ -115,8 +115,11 @@ export default function Ventas({ onLogout }) {
   }, [seguimientos])
 
   const ordenesFiltradas = useMemo(() => {
-    const q = busquedaDebounced.toLowerCase().trim()
     let list = ordenes
+    if (cuentasActivas.size > 0) {
+      list = list.filter(o => cuentasActivas.has(o.cuenta))
+    }
+    const q = busquedaDebounced.toLowerCase().trim()
     if (q) {
       list = list.filter(o =>
         (o.orden_id || '').toLowerCase().includes(q) ||
@@ -127,7 +130,7 @@ export default function Ventas({ onLogout }) {
       )
     }
     return [...list].sort((a, b) => (segMap[b.orden_id] ? 1 : 0) - (segMap[a.orden_id] ? 1 : 0))
-  }, [ordenes, busquedaDebounced, segMap])
+  }, [ordenes, cuentasActivas, busquedaDebounced, segMap])
 
   const autoRefreshLogisticTypes = (lista) => {
     const cache = (() => { try { return JSON.parse(localStorage.getItem('khn_logistic_cache') || '{}') } catch { return {} } })()
@@ -146,7 +149,7 @@ export default function Ventas({ onLogout }) {
     if (!forceRefresh) {
       try {
         const cached = JSON.parse(localStorage.getItem(key) || 'null')
-        if (cached && cached.cuenta === cuenta && cached.modo === modo
+        if (cached && cached.modo === modo
             && (modo !== 'historico' || cached.dias === dias)
             && (Date.now() - cached.ts) < ttl) {
           setOrdenes(cached.ordenes)
@@ -159,7 +162,6 @@ export default function Ventas({ onLogout }) {
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      if (cuenta) params.set('cuenta', cuenta)
       if (modo === 'historico') {
         params.set('modo', 'historico')
         params.set('dias', String(dias))
@@ -170,7 +172,7 @@ export default function Ventas({ onLogout }) {
       const now = Date.now()
       setOrdenes(lista)
       setLastUpdate(new Date(now))
-      localStorage.setItem(key, JSON.stringify({ ordenes: lista, cuenta, modo, dias, ts: now }))
+      localStorage.setItem(key, JSON.stringify({ ordenes: lista, modo, dias, ts: now }))
       autoRefreshLogisticTypes(lista)
       // Resolve missing thumbnails in background
       const missing = lista.filter(o => o.item_id && !o.thumbnail).map(o => o.item_id)
@@ -200,7 +202,7 @@ export default function Ventas({ onLogout }) {
     finally { setLoadingSeg(false) }
   }
 
-  useEffect(() => { setSelectedOrders(new Set()); cargarOrdenes() }, [cuenta, modo, dias])
+  useEffect(() => { setSelectedOrders(new Set()); cargarOrdenes() }, [modo, dias])
   useEffect(() => { cargarSeguimientos() }, [])
 
   const crearSeguimiento = async () => {
@@ -332,14 +334,27 @@ export default function Ventas({ onLogout }) {
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
-          <select value={cuenta} onChange={e => setCuenta(e.target.value)}
-            style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border)',
-              fontSize: 13, background: 'var(--surface)' }}>
-            <option value="">Todas</option>
-            <option value="GTK">GTK</option>
-            <option value="RBN">RBN</option>
-            <option value="GDP">GDP</option>
-          </select>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {['GTK', 'RBN', 'GDP'].map(id => {
+              const ac = ACCT[id]
+              const on = cuentasActivas.has(id)
+              return (
+                <button key={id} onClick={() => setCuentasActivas(prev => {
+                  const next = new Set(prev)
+                  if (next.has(id)) next.delete(id); else next.add(id)
+                  return next
+                })}
+                  style={{ padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700,
+                    cursor: 'pointer', transition: 'all 150ms',
+                    background: on ? ac.color : 'transparent',
+                    color: on ? '#fff' : ac.color,
+                    border: `1.5px solid ${ac.color}`,
+                    boxShadow: on ? 'inset 0 2px 4px rgba(0,0,0,0.2)' : 'none' }}>
+                  {id}
+                </button>
+              )
+            })}
+          </div>
           {modo === 'historico' && (
             <select value={dias} onChange={e => setDias(Number(e.target.value))}
               style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border)',
