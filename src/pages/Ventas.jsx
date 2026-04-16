@@ -326,6 +326,8 @@ export default function Ventas({ onLogout }) {
       s = { bg: '#eff6ff', c: '#2563eb', b: '#bfdbfe', label: 'Etiqueta impresa' }
     } else if (status === 'ready_to_ship' && (substatus || '').includes('ready_to_deliver')) {
       s = { bg: '#f0fdf4', c: '#16a34a', b: '#bbf7d0', label: 'Listo p/enviar' }
+    } else if (status === 'ready_to_ship') {
+      s = { bg: '#f0fdf4', c: '#16a34a', b: '#bbf7d0', label: 'Listo para enviar' }
     } else if (status === 'shipped') {
       s = { bg: '#eff6ff', c: '#2563eb', b: '#bfdbfe', label: 'Enviado' }
     } else if (status === 'delivered') {
