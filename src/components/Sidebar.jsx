@@ -48,7 +48,6 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
   }
 
   const archivarTodo = async () => {
-    if (!window.confirm('Archivar todas las preguntas respondidas por IA? Esta accion no se puede deshacer facilmente.')) return
     const token = localStorage.getItem('khn_token')
     const body = acctFilter !== 'Todas' ? JSON.stringify({ cuenta: acctFilter }) : '{}'
     try {
@@ -148,7 +147,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
                     borderRadius: 99, background: active ? '#6366f1' : '#eef2ff',
                     color: active ? '#fff' : '#6366f1',
                     border: '1px solid #c7d2fe' }}>
-                    {countPCRespondidas} IA
+                    {countPCRespondidas}
                   </span>
                 )}
               </div>
@@ -224,7 +223,7 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
       {/* Sub-tabs Pendientes / Respondidas — solo Pre-compra */}
       {tipoFilter === 'PRE-COMPRA' && (
         <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--border)', flexShrink: 0, margin: '0 10px' }}>
-          {[{id:'pendientes',label:'Pendientes',count:countPCPendiente},{id:'respondidas',label:'Respondidas IA',count:countPCRespondidas}].map(st => (
+          {[{id:'pendientes',label:'Pendientes',count:countPCPendiente},{id:'respondidas',label:'Respondidas',count:countPCRespondidas}].map(st => (
             <button key={st.id} onClick={() => setPrecompSubTab(st.id)} style={{
               flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
               fontSize: 12, fontWeight: precompSubTab === st.id ? 700 : 400,
@@ -243,11 +242,11 @@ export default function Sidebar({ items, selectedId, onSelect, acctFilter, onAcc
             </button>
           ))}
           {precompSubTab === 'respondidas' && countPCRespondidas > 0 && (
-            <button onClick={archivarTodo} title="Archivar todo"
-              style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6,
-                background: 'var(--surface2)', border: '1px solid var(--border)',
-                color: 'var(--text3)', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
-              Archivar todo
+            <button onClick={archivarTodo} title="Archivar todas las respondidas"
+              style={{ fontSize: 14, padding: '4px 6px', borderRadius: 4,
+                background: 'none', border: '1px solid var(--border)',
+                color: 'var(--text3)', cursor: 'pointer', flexShrink: 0, lineHeight: 1 }}>
+              {'\uD83D\uDCE5'}
             </button>
           )}
         </div>
