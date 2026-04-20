@@ -1667,7 +1667,7 @@ export default function ConvPanel({ item, onApprove, onDiscard, onCorrect }) {
       )}
 
       {/* ── Barra de acciones */}
-      <div style={{ padding:'12px 14px', borderTop:'1.5px solid var(--border)', background:'var(--surface)', display:'flex', gap:8, flexShrink:0, flexWrap:'wrap', alignItems:'center' }}>
+      <div style={{ padding:'12px 14px 52px', borderTop:'1.5px solid var(--border)', background:'var(--surface)', display:'flex', gap:8, flexShrink:0, flexWrap:'wrap', alignItems:'center' }}>
 
         {isClaim && (
           <>
