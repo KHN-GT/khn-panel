@@ -32,6 +32,8 @@ export default function Config({ onLogout }) {
   const [horarios,   setHorarios]   = useState({})
   const [modoFestivo, setModoFestivo] = useState({})
   const [mensajes,   setMensajes]   = useState({})
+  const [segundaFh,  setSegundaFh]  = useState({})
+  const [savingSegundaFh, setSavingSegundaFh] = useState('')
   const [loading,    setLoading]    = useState(true)
   const [saving,     setSaving]     = useState(false)
   const [msg,        setMsg]        = useState('')
@@ -85,7 +87,17 @@ export default function Config({ onLogout }) {
       fetch(`${RAILWAY}/api/config/mensajes`, { headers: authHeaders() }).then(r=>r.json()),
       fetch(`${RAILWAY}/api/config/alertas`,  { headers: authHeaders() }).then(r=>r.json()),
       fetch(`${RAILWAY}/api/config/modo-festivo`, { headers: authHeaders() }).then(r=>r.json()),
-    ]).then(([m, h, msg, al, mf]) => { setModos(m); setHorarios(h); setMensajes(msg); setAlertas(al); setModoFestivo(mf || {}) })
+    ]).then(([m, h, msg, al, mf]) => {
+      setModos(m); setHorarios(h); setMensajes(msg); setAlertas(al); setModoFestivo(mf || {})
+      const sfh = {}
+      for (const cuenta of ['GTK','RBN','GDP']) {
+        sfh[cuenta] = {
+          activo:  msg[cuenta]?.pre_compra?.segunda_fh_activo  ?? true,
+          mensaje: msg[cuenta]?.pre_compra?.segunda_fh_mensaje ?? '',
+        }
+      }
+      setSegundaFh(sfh)
+    })
       .finally(() => setLoading(false))
   }, [])
 
@@ -382,6 +394,23 @@ export default function Config({ onLogout }) {
     setSaving(false)
   }
 
+  const saveSegundaFh = async (cuenta) => {
+    setSavingSegundaFh(cuenta)
+    try {
+      const cfg = segundaFh[cuenta] || {}
+      const r = await fetch(`${RAILWAY}/api/config/mensajes/${cuenta}`, {
+        method: 'PUT', headers: authHeaders(),
+        body: JSON.stringify({ segunda_fh_activo: cfg.activo, segunda_fh_mensaje: cfg.mensaje })
+      })
+      if (r.ok) { flash('Segunda pregunta fuera de horario guardada') } else { flash('Error al guardar') }
+    } catch { flash('Error de conexion') }
+    setSavingSegundaFh('')
+  }
+
+  const updateSegundaFh = (cuenta, field, value) => {
+    setSegundaFh(prev => ({ ...prev, [cuenta]: { ...(prev[cuenta] || {}), [field]: value } }))
+  }
+
   const ac = ACCT_COLOR[cuentaTab]
 
   if (loading) return (
@@ -628,6 +657,60 @@ export default function Config({ onLogout }) {
                 style={{ alignSelf:'flex-start', fontSize:13, fontWeight:700, padding:'10px 24px', borderRadius:'var(--radius-sm)', background:'var(--purple)', color:'#fff', border:'none', cursor:'pointer', opacity: saving ? .6 : 1 }}>
                 {saving ? 'Guardando...' : 'Guardar mensajes'}
               </button>
+
+              {/* Segunda pregunta fuera de horario */}
+              <div style={{ borderTop:'2px solid var(--border)', paddingTop:20, marginTop:4 }}>
+                <div style={{ fontSize:15, fontWeight:700, color:'var(--text)', marginBottom:4 }}>
+                  Segunda pregunta fuera de horario
+                </div>
+                <div style={{ fontSize:12, color:'var(--text3)', marginBottom:14, lineHeight:1.6 }}>
+                  Cuando un comprador escribe más de una pregunta fuera del horario de atención, esta respuesta
+                  se envía automáticamente. Usa <span style={{ fontFamily:'monospace', fontSize:11, background:'var(--surface2)', padding:'1px 6px', borderRadius:4 }}>{'{horario}'}</span> para
+                  insertar el horario configurado.
+                </div>
+                <div style={{ background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+                  <div style={{ padding:'10px 16px', background:'var(--surface2)', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:12 }}>
+                    <span style={{ fontSize:13, fontWeight:700 }}>{cuentaTab} — Respuesta automática</span>
+                    <label style={{ display:'flex', alignItems:'center', gap:8, cursor:'pointer', marginLeft:'auto' }}>
+                      <span style={{ fontSize:12, color:'var(--text3)' }}>
+                        {segundaFh[cuentaTab]?.activo ? 'Activado' : 'Desactivado'}
+                      </span>
+                      <div
+                        onClick={() => updateSegundaFh(cuentaTab, 'activo', !(segundaFh[cuentaTab]?.activo ?? true))}
+                        style={{
+                          width:40, height:22, borderRadius:11, cursor:'pointer', transition:'background .2s',
+                          background: (segundaFh[cuentaTab]?.activo ?? true) ? 'var(--purple)' : 'var(--border)',
+                          position:'relative', flexShrink:0,
+                        }}>
+                        <div style={{
+                          position:'absolute', top:3, left: (segundaFh[cuentaTab]?.activo ?? true) ? 21 : 3,
+                          width:16, height:16, borderRadius:'50%', background:'#fff', transition:'left .2s',
+                        }} />
+                      </div>
+                    </label>
+                  </div>
+                  {(segundaFh[cuentaTab]?.activo ?? true) && (
+                    <div style={{ padding:'16px' }}>
+                      <textarea
+                        value={segundaFh[cuentaTab]?.mensaje || ''}
+                        onChange={e => updateSegundaFh(cuentaTab, 'mensaje', e.target.value)}
+                        rows={5}
+                        placeholder="Mensaje automático para segunda pregunta fuera de horario..."
+                        style={{ width:'100%', fontSize:13, padding:'10px 12px', borderRadius:'var(--radius-sm)', border:'1.5px solid var(--border)', fontFamily:'inherit', resize:'vertical', outline:'none', color:'var(--text)', lineHeight:1.6, boxSizing:'border-box' }}
+                      />
+                      <div style={{ fontSize:11, color:'var(--text3)', marginTop:6 }}>
+                        {(segundaFh[cuentaTab]?.mensaje || '').length} caracteres
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => saveSegundaFh(cuentaTab)}
+                  disabled={!!savingSegundaFh}
+                  style={{ marginTop:12, alignSelf:'flex-start', fontSize:13, fontWeight:700, padding:'10px 24px', borderRadius:'var(--radius-sm)', background:'var(--purple)', color:'#fff', border:'none', cursor:'pointer', opacity: savingSegundaFh ? .6 : 1 }}>
+                  {savingSegundaFh === cuentaTab ? 'Guardando...' : 'Guardar segunda pregunta'}
+                </button>
+              </div>
             </div>
           )}
 
